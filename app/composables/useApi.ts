@@ -10,52 +10,30 @@ export function getApiErrorMessage(e: unknown): string | undefined {
 }
 
 export function useApi() {
-  const token = useState<string | null>('auth-token')
-  const { public: { apiBase } } = useRuntimeConfig()
+  const client = useSanctumClient()
   const { $i18n } = useNuxtApp()
-
-  const client = $fetch.create({
-    baseURL: apiBase as string,
-    onRequest({ options }) {
-      const headers = new Headers(options.headers as HeadersInit)
-      if (token.value) {
-        headers.set('Authorization', `Bearer ${token.value}`)
-      }
-      headers.set('Accept-Language', $i18n.locale.value)
-      options.headers = headers
-    },
-  })
+  const lang = () => ({ 'Accept-Language': $i18n.locale.value })
 
   const get = <T>(path: string, params?: QueryParams) =>
-    client<T>(path, {
-      method: 'GET',
-      params,
-    })
+    client<T>(path, { method: 'GET', params, headers: lang() })
 
   const post = <T>(path: string, body?: Record<string, unknown>, params?: QueryParams) =>
-    client<T>(path, {
-      method: 'POST',
-      body,
-      params,
-    })
+    client<T>(path, { method: 'POST', body, params, headers: lang() })
 
   const put = <T>(path: string, body?: Record<string, unknown>, params?: QueryParams) =>
-    client<T>(path, {
-      method: 'PUT',
-      body,
-      params,
-    })
+    client<T>(path, { method: 'PUT', body, params, headers: lang() })
 
   const del = <T>(path: string, params?: QueryParams) =>
-    client<T>(path, {
-      method: 'DELETE',
-      params,
-    })
+    client<T>(path, { method: 'DELETE', params, headers: lang() })
 
   const download = async (path: string, filename = 'document.pdf') => {
-    const blob = await client<Blob>(path, {
+    const { public: { apiBase } } = useRuntimeConfig()
+    const blob = await $fetch<Blob>(path, {
       method: 'GET',
       responseType: 'blob',
+      baseURL: apiBase as string,
+      headers: lang(),
+      credentials: 'include',
     })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')

@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   ssr: false,
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/eslint'],
+  modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/eslint', 'nuxt-auth-sanctum'],
 
   app: {
     head: {
@@ -54,5 +54,17 @@ export default defineNuxtConfig({
       { code: 'it', name: 'Italiano', file: 'it.json' },
       { code: 'en', name: 'English', file: 'en.json' },
     ],
+  },
+
+  sanctum: {
+    baseUrl: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:8081',
+    redirect: {
+      onLogout: '/login',
+    },
+    redirectIfUnauthenticated: true,
+    globalMiddleware: {
+      enabled: true,
+      allow404WithoutAuth: true,
+    },
   },
 })

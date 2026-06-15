@@ -207,7 +207,20 @@
     },
     "tournamentsView": {
       "cta": "Looking for tournaments? Click here"
-    }
+    },
+    "forgotPassword": "Forgot your password?"
+  },
+  "resetPassword": {
+    "title": "Reset password",
+    "description": "Enter your email address to receive a verification code",
+    "email": "Email address",
+    "code": "Verification code",
+    "newPassword": "New password",
+    "sendCode": "Send code",
+    "resetPassword": "Reset password",
+    "backToLogin": "Back to login",
+    "errorRequest": "Could not send the code. Please try again.",
+    "errorReset": "Invalid or expired code. Please try again."
   },
   "user": {
     "email": "Email",

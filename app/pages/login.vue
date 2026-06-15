@@ -18,7 +18,7 @@
         :src="logoSrc"
         alt="Logo"
         class="w-20 h-20 drop-shadow-lg relative z-10 rounded-2xl"
-      />
+      >
     </div>
 
     <!-- Card: grows full height on mobile, fixed max-width centered on desktop -->
@@ -44,7 +44,7 @@
           :src="logoSrc"
           alt="Logo"
           class="w-48 h-48 drop-shadow-2xl relative z-10 rounded-3xl"
-        />
+        >
       </div>
 
       <!-- Right panel: form -->
@@ -68,6 +68,14 @@
             />
           </template>
           <template #footer>
+            <USeparator class="mb-4" />
+            <UButton
+              :label="t('login.forgotPassword')"
+              icon="i-mdi-lock-reset"
+              block
+              variant="ghost"
+              @click="navigateTo('/reset-password')"
+            />
             <USeparator class="mb-4" />
             <UButton
               :label="t('login.registerCard.cta')"
@@ -94,54 +102,56 @@
 </template>
 
 <script setup lang="ts">
-import type { FormSubmitEvent } from "@nuxt/ui";
-import * as z from "zod";
-import logoSrc from "~/assets/logo.png";
+import type { FormSubmitEvent } from '@nuxt/ui'
+import * as z from 'zod'
+import logoSrc from '~/assets/logo.png'
 
 definePageMeta({
   layout: false,
-});
+  sanctum: { guestOnly: true },
+})
 
-const { t } = useI18n();
-const { login } = useAuth();
+const { t } = useI18n()
+const { clear } = useUser()
 
 const schema = z.object({
-  email: z.email(t("login.email")),
-  password: z.string().min(1, t("login.password")),
-});
+  email: z.email(t('login.email')),
+  password: z.string().min(1, t('login.password')),
+})
 
-type Schema = z.output<typeof schema>;
+type Schema = z.output<typeof schema>
 
 const fields = computed(() => [
   {
-    name: "email",
-    type: "email" as const,
-    label: t("login.email"),
-    placeholder: "email@esempio.com",
+    name: 'email',
+    type: 'email' as const,
+    label: t('login.email'),
+    placeholder: 'email@esempio.com',
     required: true,
   },
   {
-    name: "password",
-    type: "password" as const,
-    label: t("login.password"),
-    placeholder: "••••••••",
+    name: 'password',
+    type: 'password' as const,
+    label: t('login.password'),
+    placeholder: '••••••••',
     required: true,
   },
-]);
+])
 
-const loading = ref(false);
-const errorMsg = ref<string | null>(null);
+const loading = ref(false)
+const errorMsg = ref<string | null>(null)
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  errorMsg.value = null;
-  loading.value = true;
+  errorMsg.value = null
+  loading.value = true
   try {
-    await login(event.data.email, event.data.password);
-    await navigateTo("/admin");
+    clear()
+    await useAuth().login({ email: event.data.email, password: event.data.password })
+    await navigateTo('/admin')
   } catch {
-    errorMsg.value = t("login.error");
+    errorMsg.value = t('login.error')
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 </script>

@@ -162,7 +162,7 @@
 import type { Match } from '~/types/models'
 import { Client } from '@stomp/stompjs'
 
-definePageMeta({ layout: false })
+definePageMeta({ layout: false, sanctum: { excluded: true } })
 
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()

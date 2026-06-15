@@ -546,7 +546,7 @@
 import type { FormSubmitEvent, StepperItem } from '@nuxt/ui'
 import * as z from 'zod'
 
-definePageMeta({ layout: false })
+definePageMeta({ layout: false, sanctum: { excluded: true } })
 
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()

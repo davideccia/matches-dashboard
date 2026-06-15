@@ -29,6 +29,9 @@ importers:
       nuxt:
         specifier: ^4.4.8
         version: 4.4.8(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7))(@parcel/watcher@2.5.6)(@types/node@25.9.2)(@vue/compiler-sfc@3.5.35)(cac@6.7.14)(db0@0.3.4)(eslint@10.4.1(jiti@2.7.0))(ioredis@5.11.1)(lightningcss@1.32.0)(magicast@0.5.3)(optionator@0.9.4)(rollup-plugin-visualizer@7.0.1(rollup@4.61.1))(rollup@4.61.1)(srvx@0.11.16)(terser@5.48.0)(typescript@6.0.3)(vite@7.3.5(@types/node@25.9.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))(yaml@2.9.0)
+      nuxt-auth-sanctum:
+        specifier: ^3.1.0
+        version: 3.1.0
       reka-ui:
         specifier: ^2.9.9
         version: 2.9.9(vue@3.5.34(typescript@6.0.3))
@@ -5166,6 +5169,9 @@ packages:
 
   nth-check@2.1.1:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
+
+  nuxt-auth-sanctum@3.1.0:
+    resolution: {integrity: sha512-kmBgI8WOG4ED7+04/1e9of5Jn+bNCwAq71E3Cn4KFZzilCpOAJY6J2k96HYPqa+PLR9O7ZrV0dSDCAYwTO1wcA==}
 
   nuxt-define@1.0.0:
     resolution: {integrity: sha512-CYZ2WjU+KCyCDVzjYUM4eEpMF0rkPmkpiFrybTqqQCRpUbPt2h3snswWIpFPXTi+osRCY6Og0W/XLAQgDL4FfQ==}
@@ -11919,6 +11925,12 @@ snapshots:
   nth-check@2.1.1:
     dependencies:
       boolbase: 1.0.0
+
+  nuxt-auth-sanctum@3.1.0:
+    dependencies:
+      defu: 6.1.7
+      ofetch: 1.5.1
+      pathe: 2.0.3
 
   nuxt-define@1.0.0: {}
 

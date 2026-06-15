@@ -207,7 +207,20 @@
     },
     "tournamentsView": {
       "cta": "Cerchi i tornei? Clicca qui"
-    }
+    },
+    "forgotPassword": "Password dimenticata?"
+  },
+  "resetPassword": {
+    "title": "Reimposta password",
+    "description": "Inserisci la tua email per ricevere un codice di verifica",
+    "email": "Indirizzo email",
+    "code": "Codice di verifica",
+    "newPassword": "Nuova password",
+    "sendCode": "Invia codice",
+    "resetPassword": "Reimposta password",
+    "backToLogin": "Torna al login",
+    "errorRequest": "Impossibile inviare il codice. Riprova.",
+    "errorReset": "Codice non valido o scaduto. Riprova."
   },
   "user": {
     "email": "Email",
