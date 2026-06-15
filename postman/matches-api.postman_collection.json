@@ -1,0 +1,1084 @@
+{
+  "info": {
+    "name": "matches-api",
+    "description": "REST API for the matches tournament management system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8081", "type": "string" },
+    { "key": "platform", "value": "desktop", "type": "string" },
+    { "key": "authToken", "value": "", "type": "string" },
+    { "key": "tournamentId", "value": "", "type": "string" },
+    { "key": "athleteId", "value": "", "type": "string" },
+    { "key": "disciplineId", "value": "", "type": "string" },
+    { "key": "weightCategoryId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth — Desktop",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"secret\",\n  \"deviceName\": \"My Device\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/desktop/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "desktop", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"secret\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/desktop/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "desktop", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/desktop/auth/user",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "desktop", "auth", "user"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/desktop/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "desktop", "auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Logout All",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/desktop/auth/logout-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "desktop", "auth", "logout-all"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth — Mobile",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"secret\",\n  \"deviceName\": \"My Device\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mobile/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mobile", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"secret\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mobile/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mobile", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mobile/auth/user",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mobile", "auth", "user"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mobile/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mobile", "auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Logout All",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mobile/auth/logout-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mobile", "auth", "logout-all"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Registration Form",
+          "item": [
+            {
+              "name": "List Tournaments",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/desktop/public/registration_form/tournaments?page=0&size=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "desktop", "public", "registration_form", "tournaments"],
+                  "query": [
+                    { "key": "page", "value": "0" },
+                    { "key": "size", "value": "20" },
+                    { "key": "search", "value": "", "disabled": true },
+                    { "key": "sortBy", "value": "", "disabled": true },
+                    { "key": "sortDir", "value": "", "disabled": true }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "List Disciplines",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/desktop/public/registration_form/disciplines?page=0&size=100",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "desktop", "public", "registration_form", "disciplines"],
+                  "query": [
+                    { "key": "page", "value": "0" },
+                    { "key": "size", "value": "100" },
+                    { "key": "search", "value": "", "disabled": true }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "List Weight Categories",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/desktop/public/registration_form/weight_categories?page=0&size=100",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "desktop", "public", "registration_form", "weight_categories"],
+                  "query": [
+                    { "key": "page", "value": "0" },
+                    { "key": "size", "value": "100" },
+                    { "key": "search", "value": "", "disabled": true }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Create Athlete",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Mario\",\n  \"lastName\": \"Rossi\",\n  \"birthDate\": \"1990-01-15\",\n  \"gender\": \"MALE\",\n  \"taxNumber\": \"RSSMRA90A15H501Z\",\n  \"teamName\": \"Team Alpha\",\n  \"defaultWeightCategoryId\": null,\n  \"defaultDisciplineId\": null\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/desktop/public/registration_form/athletes",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "desktop", "public", "registration_form", "athletes"]
+                }
+              }
+            },
+            {
+              "name": "Find Athlete by Tax Number",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/desktop/public/registration_form/athletes/find_by_tax_number/:taxNumber",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "desktop", "public", "registration_form", "athletes", "find_by_tax_number", ":taxNumber"],
+                  "variable": [
+                    { "key": "taxNumber", "value": "RSSMRA90A15H501Z" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Create Registration",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"{{athleteId}}\",\n  \"tournamentId\": \"{{tournamentId}}\",\n  \"disciplineId\": \"{{disciplineId}}\",\n  \"weightCategoryId\": \"{{weightCategoryId}}\",\n  \"teamName\": \"Team Alpha\",\n  \"notes\": null,\n  \"status\": null\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/desktop/public/registration_form/registrations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "desktop", "public", "registration_form", "registrations"]
+                }
+              }
+            },
+            {
+              "name": "Get Registration PDF",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/desktop/public/registration_form/registrations/:id/pdf",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "desktop", "public", "registration_form", "registrations", ":id", "pdf"],
+                  "variable": [
+                    { "key": "id", "value": "{{athleteId}}" }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tournaments",
+          "item": [
+            {
+              "name": "List Tournaments",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/desktop/public/tournaments?page=0&size=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "desktop", "public", "tournaments"],
+                  "query": [
+                    { "key": "page", "value": "0" },
+                    { "key": "size", "value": "20" },
+                    { "key": "search", "value": "", "disabled": true },
+                    { "key": "sortBy", "value": "", "disabled": true },
+                    { "key": "sortDir", "value": "", "disabled": true }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "List Tournament Matches",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/desktop/public/tournaments/:id/matches?page=0&size=50",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "desktop", "public", "tournaments", ":id", "matches"],
+                  "query": [
+                    { "key": "page", "value": "0" },
+                    { "key": "size", "value": "50" },
+                    { "key": "search", "value": "", "disabled": true },
+                    { "key": "status", "value": "", "disabled": true }
+                  ],
+                  "variable": [
+                    { "key": "id", "value": "{{tournamentId}}" }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "Desktop-only dashboard endpoints",
+      "item": [
+        {
+          "name": "Get Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/desktop/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "desktop", "dashboard"]
+            },
+            "description": "Returns KPI cards for each active tournament (excluding COMPLETED and CANCELLED). Includes registration counts (total, arrived, absent, paid, unpaid) and match counts by status."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/desktop/dashboard",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "desktop", "dashboard"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"data\": [\n    {\n      \"tournamentId\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n      \"tournamentName\": \"Championship 2026\",\n      \"status\": \"IN_PROGRESS\",\n      \"date\": \"2026-09-15\",\n      \"totalRegistrations\": 42,\n      \"arrivedRegistrations\": 38,\n      \"absentRegistrations\": 4,\n      \"paidRegistrations\": 40,\n      \"unpaidRegistrations\": 2,\n      \"totalMatches\": 20,\n      \"scheduledMatches\": 8,\n      \"inProgressMatches\": 1,\n      \"completedMatches\": 11,\n      \"cancelledMatches\": 0\n    },\n    {\n      \"tournamentId\": \"b2c3d4e5-f6a7-8901-bcde-f12345678901\",\n      \"tournamentName\": \"Open Summer Cup\",\n      \"status\": \"REGISTRATIONS_OPENED\",\n      \"date\": \"2026-10-20\",\n      \"totalRegistrations\": 15,\n      \"arrivedRegistrations\": 0,\n      \"absentRegistrations\": 15,\n      \"paidRegistrations\": 10,\n      \"unpaidRegistrations\": 5,\n      \"totalMatches\": 0,\n      \"scheduledMatches\": 0,\n      \"inProgressMatches\": 0,\n      \"completedMatches\": 0,\n      \"cancelledMatches\": 0\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Athletes",
+      "description": "Uses {{platform}} variable — set to 'desktop' or 'mobile'",
+      "item": [
+        {
+          "name": "List Athletes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/athletes?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "athletes"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "tournamentId", "value": "", "disabled": true },
+                { "key": "disciplineId", "value": "", "disabled": true },
+                { "key": "weightCategoryId", "value": "", "disabled": true },
+                { "key": "validOnly", "value": "", "disabled": true },
+                { "key": "gender", "value": "MALE", "disabled": true },
+                { "key": "sortBy", "value": "", "disabled": true },
+                { "key": "sortDir", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Athlete",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Mario\",\n  \"lastName\": \"Rossi\",\n  \"birthDate\": \"1990-01-15\",\n  \"gender\": \"MALE\",\n  \"taxNumber\": \"RSSMRA90A15H501Z\",\n  \"teamName\": \"Team Alpha\",\n  \"defaultWeightCategoryId\": null,\n  \"defaultDisciplineId\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/athletes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "athletes"]
+            }
+          }
+        },
+        {
+          "name": "Get Athlete",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/athletes/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "athletes", ":id"],
+              "variable": [
+                { "key": "id", "value": "{{athleteId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Athlete",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Mario\",\n  \"lastName\": \"Rossi\",\n  \"birthDate\": \"1990-01-15\",\n  \"gender\": \"MALE\",\n  \"taxNumber\": \"RSSMRA90A15H501Z\",\n  \"teamName\": \"Team Beta\",\n  \"defaultWeightCategoryId\": null,\n  \"defaultDisciplineId\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/athletes/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "athletes", ":id"],
+              "variable": [
+                { "key": "id", "value": "{{athleteId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Athlete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/athletes/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "athletes", ":id"],
+              "variable": [
+                { "key": "id", "value": "{{athleteId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Find Athlete by Tax Number",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/athletes/find_by_tax_number/:taxNumber",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "athletes", "find_by_tax_number", ":taxNumber"],
+              "variable": [
+                { "key": "taxNumber", "value": "RSSMRA90A15H501Z" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tournaments",
+      "description": "Uses {{platform}} variable — set to 'desktop' or 'mobile'",
+      "item": [
+        {
+          "name": "List Tournaments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/tournaments?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "tournaments"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "sortBy", "value": "", "disabled": true },
+                { "key": "sortDir", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Tournament",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Championship 2026\",\n  \"locationName\": \"Sports Hall\",\n  \"locationAddress\": \"Via Roma 1\",\n  \"locationCity\": \"Milano\",\n  \"date\": \"2026-09-15\",\n  \"status\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/tournaments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "tournaments"]
+            }
+          }
+        },
+        {
+          "name": "Get Tournament",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/tournaments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "tournaments", ":id"],
+              "variable": [
+                { "key": "id", "value": "{{tournamentId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Tournament",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Championship 2026\",\n  \"locationName\": \"Sports Hall\",\n  \"locationAddress\": \"Via Roma 1\",\n  \"locationCity\": \"Milano\",\n  \"date\": \"2026-09-15\",\n  \"status\": \"REGISTRATIONS_OPENED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/tournaments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "tournaments", ":id"],
+              "variable": [
+                { "key": "id", "value": "{{tournamentId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Tournament",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/tournaments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "tournaments", ":id"],
+              "variable": [
+                { "key": "id", "value": "{{tournamentId}}" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Registrations",
+      "description": "Uses {{platform}} variable — set to 'desktop' or 'mobile'",
+      "item": [
+        {
+          "name": "List Registrations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/registrations?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "registrations"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "tournamentId", "value": "", "disabled": true },
+                { "key": "athleteId", "value": "", "disabled": true },
+                { "key": "status", "value": "", "disabled": true },
+                { "key": "sortBy", "value": "", "disabled": true },
+                { "key": "sortDir", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Registration",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"athleteId\": \"{{athleteId}}\",\n  \"tournamentId\": \"{{tournamentId}}\",\n  \"disciplineId\": \"{{disciplineId}}\",\n  \"weightCategoryId\": \"{{weightCategoryId}}\",\n  \"teamName\": \"Team Alpha\",\n  \"notes\": null,\n  \"status\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/registrations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "registrations"]
+            }
+          }
+        },
+        {
+          "name": "Get Registration",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/registrations/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "registrations", ":id"],
+              "variable": [
+                { "key": "id", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Registration",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"disciplineId\": null,\n  \"weightCategoryId\": null,\n  \"teamName\": \"Team Beta\",\n  \"notes\": \"Updated note\",\n  \"status\": \"VALID\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/registrations/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "registrations", ":id"],
+              "variable": [
+                { "key": "id", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Registration",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/registrations/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "registrations", ":id"],
+              "variable": [
+                { "key": "id", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Registration PDF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/registrations/:id/pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "registrations", ":id", "pdf"],
+              "variable": [
+                { "key": "id", "value": "" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Matches",
+      "description": "Uses {{platform}} variable — set to 'desktop' or 'mobile'",
+      "item": [
+        {
+          "name": "List Matches",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/matches?page=0&size=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "matches"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "50" },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "tournamentId", "value": "", "disabled": true },
+                { "key": "status", "value": "", "disabled": true },
+                { "key": "sortBy", "value": "", "disabled": true },
+                { "key": "sortDir", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Match",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tournamentId\": \"{{tournamentId}}\",\n  \"redCornerId\": \"{{athleteId}}\",\n  \"blueCornerId\": \"{{athleteId}}\",\n  \"weightCategoryId\": \"{{weightCategoryId}}\",\n  \"disciplineId\": \"{{disciplineId}}\",\n  \"redCornerTeam\": \"Team A\",\n  \"blueCornerTeam\": \"Team B\",\n  \"sort\": 1,\n  \"scheduledTime\": null,\n  \"winnerId\": null,\n  \"endRound\": null,\n  \"endMethod\": null,\n  \"status\": null,\n  \"rounds\": 3,\n  \"minutesPerRound\": 3.0,\n  \"judgesPoints\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/matches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "matches"]
+            }
+          }
+        },
+        {
+          "name": "Get Match",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/matches/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "matches", ":id"],
+              "variable": [
+                { "key": "id", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Match",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tournamentId\": null,\n  \"redCornerId\": null,\n  \"blueCornerId\": null,\n  \"weightCategoryId\": null,\n  \"disciplineId\": null,\n  \"redCornerTeam\": null,\n  \"blueCornerTeam\": null,\n  \"sort\": null,\n  \"scheduledTime\": \"10:30:00\",\n  \"winnerId\": null,\n  \"endRound\": null,\n  \"endMethod\": null,\n  \"status\": \"IN_PROGRESS\",\n  \"rounds\": null,\n  \"minutesPerRound\": null,\n  \"judgesPoints\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/matches/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "matches", ":id"],
+              "variable": [
+                { "key": "id", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Match",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/matches/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "matches", ":id"],
+              "variable": [
+                { "key": "id", "value": "" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Disciplines",
+      "description": "Uses {{platform}} variable — set to 'desktop' or 'mobile'",
+      "item": [
+        {
+          "name": "List Disciplines",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/disciplines?page=0&size=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "disciplines"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "100" },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "sortBy", "value": "", "disabled": true },
+                { "key": "sortDir", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Discipline",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Kickboxing\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/disciplines",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "disciplines"]
+            }
+          }
+        },
+        {
+          "name": "Get Discipline",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/disciplines/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "disciplines", ":id"],
+              "variable": [
+                { "key": "id", "value": "{{disciplineId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Discipline",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"K-1\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/disciplines/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "disciplines", ":id"],
+              "variable": [
+                { "key": "id", "value": "{{disciplineId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Discipline",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/disciplines/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "disciplines", ":id"],
+              "variable": [
+                { "key": "id", "value": "{{disciplineId}}" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Weight Categories",
+      "description": "Uses {{platform}} variable — set to 'desktop' or 'mobile'",
+      "item": [
+        {
+          "name": "List Weight Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/weight_categories?page=0&size=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "weight_categories"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "100" },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "sortBy", "value": "", "disabled": true },
+                { "key": "sortDir", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Weight Category",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"-70kg\",\n  \"value\": 70.0\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/weight_categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "weight_categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Weight Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/weight_categories/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "weight_categories", ":id"],
+              "variable": [
+                { "key": "id", "value": "{{weightCategoryId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Weight Category",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"-75kg\",\n  \"value\": 75.0\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/weight_categories/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "weight_categories", ":id"],
+              "variable": [
+                { "key": "id", "value": "{{weightCategoryId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Weight Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/weight_categories/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "weight_categories", ":id"],
+              "variable": [
+                { "key": "id", "value": "{{weightCategoryId}}" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "description": "Uses {{platform}} variable — set to 'desktop' or 'mobile'",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/users?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "users"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "search", "value": "", "disabled": true },
+                { "key": "sortBy", "value": "", "disabled": true },
+                { "key": "sortDir", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"secret\",\n  \"superadmin\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "users", ":id"],
+              "variable": [
+                { "key": "id", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"updated@example.com\",\n  \"password\": null,\n  \"superadmin\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "users", ":id"],
+              "variable": [
+                { "key": "id", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{platform}}/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{platform}}", "users", ":id"],
+              "variable": [
+                { "key": "id", "value": "" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

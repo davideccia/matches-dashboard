@@ -1,0 +1,6 @@
+- fix visualizzazione match tramite card su dashboard (larghezza fissa)
+- rifattorizzare panel dei match
+  - toggle per filtro genere su atleta (e filtrare di conseguenza)
+    - creare due tab (da salvare sempre tutti i dati nella chiamata PUT):
+      - dettagli (com'è adesso tranne la parte in cui si sceglie il vincitore, il metodo di vittoria, i punti dei giudici e lo stato)
+      - esito (aggiungi tutti i campi non presenti nella tab precedente), inoltre cerca di creare un form più carino (che si ispiri a @app/components/MatchCardReadOnly.vue)

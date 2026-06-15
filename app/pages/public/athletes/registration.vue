@@ -1,0 +1,921 @@
+<template>
+  <div class="min-h-screen bg-default flex flex-col items-center px-4 py-8">
+    <div class="w-full max-w-lg space-y-6">
+      <!-- Header -->
+      <div class="flex flex-col items-center gap-3 pt-2">
+        <LocaleSwitcher />
+        <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+          <UIcon name="i-mdi-trophy" class="size-6 text-primary" />
+        </div>
+        <div class="text-center space-y-0.5">
+          <h1 class="text-2xl font-bold text-default">
+            {{ t('register.summary') }}
+          </h1>
+          <p class="text-sm text-muted">
+            {{ t('nav.tournaments') }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Stepper -->
+      <UStepper
+        ref="stepper"
+        v-model="currentStep"
+        :items="stepperItems"
+        disabled
+        size="sm"
+        class="w-full"
+      />
+
+      <!-- ── STEP 1: Codice fiscale ─────────────────────────────────────── -->
+      <div v-if="currentStep === 0" class="space-y-4">
+        <div class="rounded-2xl bg-elevated border border-default p-6 space-y-5">
+          <div class="space-y-1">
+            <h2 class="text-lg font-semibold">
+              {{ t('register.stepTaxNumber') }}
+            </h2>
+            <p class="text-sm text-muted">
+              {{ t('register.taxNumberPlaceholder') }}
+            </p>
+          </div>
+
+          <UFormField :label="t('register.taxNumberLabel')" required>
+            <UInput
+              :model-value="taxNumberInput"
+              size="lg"
+              class="w-full font-mono tracking-widest"
+              :placeholder="t('register.taxNumberPlaceholder')"
+              @update:model-value="(v) => taxNumberInput = String(v).toUpperCase()"
+              @keydown.enter="onStep1Next"
+            />
+          </UFormField>
+
+          <UButton
+            size="lg"
+            class="w-full"
+            :loading="taxLookupLoading"
+            :disabled="!taxNumberInput.trim()"
+            trailing-icon="i-mdi-arrow-right"
+            @click="onStep1Next"
+          >
+            {{ t('register.next') }}
+          </UButton>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: Dati atleta ────────────────────────────────────────── -->
+      <div v-else-if="currentStep === 1" class="space-y-4">
+        <div class="rounded-2xl bg-elevated border border-default p-6 space-y-5">
+          <div class="space-y-1">
+            <h2 class="text-lg font-semibold">
+              {{ t('register.stepAthlete') }}
+            </h2>
+          </div>
+
+          <div v-if="!isNewAthlete" class="space-y-2">
+            <UAlert
+              color="success"
+              variant="soft"
+              icon="i-mdi-check-circle"
+              :description="t('register.athleteFound')"
+            />
+            <p class="text-xs text-muted px-1">
+              {{ t('register.athleteReadonlyHint') }}
+            </p>
+          </div>
+          <UAlert
+            v-else
+            color="info"
+            variant="soft"
+            icon="i-mdi-account-plus"
+            :description="t('register.athleteNotFound')"
+          />
+
+          <UForm :schema="athleteSchema" :state="athleteState" class="space-y-4" @submit="onStep2Submit">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <UFormField name="firstName" :label="t('athlete.firstName')" required>
+                <UInput v-model="athleteState.firstName" size="lg" class="w-full" :disabled="!isNewAthlete" />
+              </UFormField>
+              <UFormField name="lastName" :label="t('athlete.lastName')" required>
+                <UInput v-model="athleteState.lastName" size="lg" class="w-full" :disabled="!isNewAthlete" />
+              </UFormField>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <UFormField name="birthDate" :label="t('athlete.birthDate')" required>
+                <UInput
+                  v-model="athleteState.birthDate"
+                  type="date"
+                  size="lg"
+                  class="w-full"
+                  :disabled="!isNewAthlete"
+                />
+              </UFormField>
+              <UFormField name="gender" :label="t('athlete.gender.label')" required>
+                <USelect
+                  v-model="athleteState.gender"
+                  :items="genderOptions"
+                  size="lg"
+                  class="w-full"
+                  :disabled="!isNewAthlete"
+                />
+              </UFormField>
+            </div>
+
+            <UFormField name="taxNumber" :label="t('athlete.taxNumber')" required>
+              <UInput
+                v-model="athleteState.taxNumber"
+                size="lg"
+                class="w-full font-mono uppercase tracking-widest"
+                :disabled="!isNewAthlete"
+              />
+            </UFormField>
+
+            <UFormField name="teamName" :label="t('athlete.teamName')" required>
+              <UInput v-model="athleteState.teamName" size="lg" class="w-full" :disabled="!isNewAthlete" />
+            </UFormField>
+
+            <div class="flex gap-3 pt-2">
+              <UButton
+                size="lg"
+                variant="ghost"
+                color="neutral"
+                class="flex-1"
+                leading-icon="i-mdi-arrow-left"
+                type="button"
+                @click="stepperRef?.prev()"
+              >
+                {{ t('register.back') }}
+              </UButton>
+              <UButton size="lg" class="flex-1" trailing-icon="i-mdi-arrow-right" type="submit">
+                {{ t('register.next') }}
+              </UButton>
+            </div>
+          </UForm>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: Torneo, Disciplina, Categoria ──────────────────────── -->
+      <div v-else-if="currentStep === 2" class="space-y-6">
+        <!-- Tornei -->
+        <div class="rounded-2xl bg-elevated border border-default p-5 space-y-3">
+          <div class="space-y-0.5">
+            <h2 class="text-base font-semibold flex items-center gap-2">
+              <UIcon name="i-mdi-trophy" class="size-4 text-primary" />
+              {{ t('register.selectTournament') }}
+            </h2>
+          </div>
+
+          <UInput
+            v-model="tournamentsSearchInput"
+            icon="i-mdi-magnify"
+            :placeholder="t('register.searchTournament')"
+            size="md"
+            class="w-full"
+          />
+
+          <div v-if="tournamentsLoading" class="flex flex-col gap-3">
+            <div v-for="n in 3" :key="n" class="w-full rounded-xl border border-default p-5 space-y-2">
+              <USkeleton class="h-4 w-3/4 rounded" />
+              <USkeleton class="h-3 w-1/2 rounded" />
+              <USkeleton class="h-3 w-2/3 rounded" />
+            </div>
+          </div>
+          <div v-else-if="tournaments.length > 0" class="flex flex-col gap-3">
+            <div
+              v-for="tournament in tournaments"
+              :key="tournament.id"
+              class="w-full rounded-xl border p-5 cursor-pointer transition-all select-none"
+              :class="selectedTournamentId === tournament.id
+                ? 'ring-2 ring-primary bg-primary/5 border-primary/30'
+                : 'border-default hover:border-muted hover:bg-elevated/50'"
+              @click="selectedTournamentId = tournament.id"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <p class="text-base font-semibold leading-snug">
+                  {{ tournament.name }}
+                </p>
+                <UIcon
+                  v-if="selectedTournamentId === tournament.id"
+                  name="i-mdi-check-circle"
+                  class="shrink-0 size-5 text-primary mt-0.5"
+                />
+              </div>
+              <p class="text-sm text-muted mt-1">
+                {{ formatServerDateOnly(tournament.date, locale) }}
+              </p>
+              <p class="text-sm text-muted">
+                {{ tournament.locationCity }}
+              </p>
+            </div>
+          </div>
+          <div v-else class="flex flex-col items-center gap-1.5 py-8 text-muted">
+            <UIcon name="i-mdi-trophy" class="size-8 opacity-30" />
+            <p class="text-sm font-medium">
+              {{ t('register.noTournamentsOpen') }}
+            </p>
+            <p class="text-xs">
+              {{ t('register.noTournamentsOpenHint') }}
+            </p>
+          </div>
+
+          <!-- Paginazione tornei -->
+          <div v-if="tournamentsTotalPages > 1" class="flex items-center justify-between gap-2">
+            <UButton
+              size="sm"
+              variant="ghost"
+              color="neutral"
+              leading-icon="i-mdi-chevron-left"
+              :disabled="tournamentsPage === 0"
+              @click="tournamentsPage--"
+            >
+              {{ t('register.prev') }}
+            </UButton>
+            <span class="text-xs text-muted">
+              {{ t('register.page', { current: tournamentsPage + 1, total: tournamentsTotalPages }) }}
+            </span>
+            <UButton
+              size="sm"
+              variant="ghost"
+              color="neutral"
+              trailing-icon="i-mdi-chevron-right"
+              :disabled="tournamentsPage >= tournamentsTotalPages - 1"
+              @click="tournamentsPage++"
+            >
+              {{ t('register.next2') }}
+            </UButton>
+          </div>
+        </div>
+
+        <!-- Discipline -->
+        <div class="rounded-2xl bg-elevated border border-default p-5 space-y-3">
+          <h2 class="text-base font-semibold flex items-center gap-2">
+            <UIcon name="i-mdi-sword-cross" class="size-4 text-primary" />
+            {{ t('register.selectDiscipline') }}
+          </h2>
+
+          <UInput
+            v-model="disciplinesSearchInput"
+            icon="i-mdi-magnify"
+            :placeholder="t('register.searchDiscipline')"
+            size="md"
+            class="w-full"
+          />
+
+          <div v-if="disciplinesLoading" class="grid grid-cols-2 gap-2">
+            <USkeleton v-for="n in 4" :key="n" class="h-12 rounded-xl" />
+          </div>
+          <div v-else-if="disciplines.length > 0" class="grid grid-cols-2 gap-2">
+            <button
+              v-for="discipline in disciplines"
+              :key="discipline.id"
+              type="button"
+              class="rounded-xl border p-3 text-sm font-medium text-center cursor-pointer transition-all select-none"
+              :class="selectedDisciplineId === discipline.id
+                ? 'ring-2 ring-primary bg-primary/5 border-primary/30 text-primary'
+                : 'border-default hover:border-muted hover:bg-elevated/50 text-default'"
+              @click="selectedDisciplineId = discipline.id"
+            >
+              {{ discipline.label }}
+            </button>
+          </div>
+          <div v-else class="text-center py-6 text-sm text-muted">
+            {{ t('register.noDisciplines') }}
+          </div>
+
+          <div v-if="disciplinesTotalPages > 1" class="flex items-center justify-between gap-2">
+            <UButton
+              size="sm"
+              variant="ghost"
+              color="neutral"
+              leading-icon="i-mdi-chevron-left"
+              :disabled="disciplinesPage === 0"
+              @click="disciplinesPage--"
+            >
+              {{ t('register.prev') }}
+            </UButton>
+            <span class="text-xs text-muted">
+              {{ t('register.page', { current: disciplinesPage + 1, total: disciplinesTotalPages }) }}
+            </span>
+            <UButton
+              size="sm"
+              variant="ghost"
+              color="neutral"
+              trailing-icon="i-mdi-chevron-right"
+              :disabled="disciplinesPage >= disciplinesTotalPages - 1"
+              @click="disciplinesPage++"
+            >
+              {{ t('register.next2') }}
+            </UButton>
+          </div>
+        </div>
+
+        <!-- Categorie di peso -->
+        <div class="rounded-2xl bg-elevated border border-default p-5 space-y-3">
+          <h2 class="text-base font-semibold flex items-center gap-2">
+            <UIcon name="i-mdi-scale-balance" class="size-4 text-primary" />
+            {{ t('register.selectWeightCategory') }}
+          </h2>
+
+          <UInput
+            v-model="weightCategoriesSearchInput"
+            icon="i-mdi-magnify"
+            :placeholder="t('register.searchWeightCategory')"
+            size="md"
+            class="w-full"
+          />
+
+          <div v-if="weightCategoriesLoading" class="grid grid-cols-2 gap-2">
+            <USkeleton v-for="n in 4" :key="n" class="h-12 rounded-xl" />
+          </div>
+          <div v-else-if="weightCategories.length > 0" class="grid grid-cols-2 gap-2">
+            <button
+              v-for="category in weightCategories"
+              :key="category.id"
+              type="button"
+              class="rounded-xl border p-3 text-sm font-medium text-center cursor-pointer transition-all select-none"
+              :class="selectedWeightCategoryId === category.id
+                ? 'ring-2 ring-primary bg-primary/5 border-primary/30 text-primary'
+                : 'border-default hover:border-muted hover:bg-elevated/50 text-default'"
+              @click="selectedWeightCategoryId = category.id"
+            >
+              {{ category.label }}
+            </button>
+          </div>
+          <div v-else class="text-center py-6 text-sm text-muted">
+            {{ t('register.noWeightCategories') }}
+          </div>
+
+          <div v-if="weightCategoriesTotalPages > 1" class="flex items-center justify-between gap-2">
+            <UButton
+              size="sm"
+              variant="ghost"
+              color="neutral"
+              leading-icon="i-mdi-chevron-left"
+              :disabled="weightCategoriesPage === 0"
+              @click="weightCategoriesPage--"
+            >
+              {{ t('register.prev') }}
+            </UButton>
+            <span class="text-xs text-muted">
+              {{ t('register.page', { current: weightCategoriesPage + 1, total: weightCategoriesTotalPages }) }}
+            </span>
+            <UButton
+              size="sm"
+              variant="ghost"
+              color="neutral"
+              trailing-icon="i-mdi-chevron-right"
+              :disabled="weightCategoriesPage >= weightCategoriesTotalPages - 1"
+              @click="weightCategoriesPage++"
+            >
+              {{ t('register.next2') }}
+            </UButton>
+          </div>
+        </div>
+
+        <!-- Pulsanti step 3 -->
+        <div class="flex gap-3">
+          <UButton
+            size="lg"
+            variant="ghost"
+            color="neutral"
+            class="flex-1"
+            leading-icon="i-mdi-arrow-left"
+            @click="stepperRef?.prev()"
+          >
+            {{ t('register.back') }}
+          </UButton>
+          <UButton
+            size="lg"
+            class="flex-1"
+            trailing-icon="i-mdi-arrow-right"
+            :disabled="!step3Valid"
+            @click="stepperRef?.next()"
+          >
+            {{ t('register.next') }}
+          </UButton>
+        </div>
+      </div>
+
+      <!-- ── STEP 4: Riepilogo + submit ─────────────────────────────────── -->
+      <div v-else class="space-y-4">
+        <!-- Pannello di successo post-submit -->
+        <div v-if="submitted" class="rounded-2xl bg-elevated border border-default p-8 space-y-6 text-center">
+          <div class="flex justify-center">
+            <div class="size-16 rounded-full bg-success/10 flex items-center justify-center">
+              <UIcon name="i-mdi-check" class="size-8 text-success" />
+            </div>
+          </div>
+          <div class="space-y-1">
+            <p class="text-lg font-semibold text-success">
+              {{ t('register.submitted') }}
+            </p>
+            <p class="text-sm text-muted">
+              {{ t('register.submittedHint', { n: countdown }) }}
+            </p>
+          </div>
+          <div class="flex flex-col gap-3 w-full">
+            <UButton
+              size="lg"
+              class="w-full"
+              color="primary"
+              variant="solid"
+              leading-icon="i-mdi-download"
+              :loading="downloadingPdf"
+              @click="downloadPdf"
+            >
+              {{ t('register.downloadRegistration') }}
+            </UButton>
+            <UButton
+              size="lg"
+              class="w-full"
+              color="neutral"
+              variant="ghost"
+              leading-icon="i-mdi-plus-circle"
+              @click="resetForm"
+            >
+              {{ t('register.newRegistration') }}
+            </UButton>
+          </div>
+        </div>
+
+        <!-- Riepilogo -->
+        <template v-else>
+          <div class="rounded-2xl bg-elevated border border-default p-6 space-y-4">
+            <h2 class="text-base font-semibold">
+              {{ t('register.summary') }}
+            </h2>
+
+            <dl class="space-y-3">
+              <div class="flex justify-between gap-4">
+                <dt class="text-sm text-muted shrink-0">
+                  {{ t('register.athlete') }}
+                </dt>
+                <dd class="text-sm font-medium text-right">
+                  {{ athleteState.firstName }} {{ athleteState.lastName }}
+                  <span class="block text-xs text-muted font-mono">{{ athleteState.taxNumber }}</span>
+                </dd>
+              </div>
+              <div class="border-t border-default" />
+              <div class="flex justify-between gap-4">
+                <dt class="text-sm text-muted shrink-0">
+                  {{ t('register.tournament') }}
+                </dt>
+                <dd class="text-sm font-medium text-right">
+                  {{ selectedTournament?.name ?? t('register.notSelected') }}
+                  <span v-if="selectedTournament" class="block text-xs text-muted">
+                    {{ formatServerDateOnly(selectedTournament.date, locale) }} · {{ selectedTournament.locationCity }}
+                  </span>
+                </dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-sm text-muted shrink-0">
+                  {{ t('register.discipline') }}
+                </dt>
+                <dd class="text-sm font-medium text-right">
+                  {{ selectedDiscipline?.label ?? t('register.notSelected') }}
+                </dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-sm text-muted shrink-0">
+                  {{ t('register.weightCategory') }}
+                </dt>
+                <dd class="text-sm font-medium text-right">
+                  {{ selectedWeightCategory?.label ?? t('register.notSelected') }}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <label class="flex items-start gap-3 cursor-pointer select-none">
+            <UCheckbox v-model="privacyConsent" class="mt-0.5 shrink-0" />
+            <span class="text-sm text-muted leading-snug">
+              {{ t('register.privacyLabel') }}
+              <a
+                href="#"
+                class="text-primary underline underline-offset-2 hover:opacity-80"
+                @click.prevent="openPrivacyModal"
+              >{{ t('register.privacyLink') }}</a>
+            </span>
+          </label>
+
+          <div class="flex gap-3">
+            <UButton
+              size="lg"
+              variant="ghost"
+              color="neutral"
+              class="flex-1"
+              leading-icon="i-mdi-arrow-left"
+              @click="stepperRef?.prev()"
+            >
+              {{ t('register.back') }}
+            </UButton>
+            <UButton
+              size="lg"
+              class="flex-1"
+              :loading="submitting"
+              :disabled="!privacyConsent"
+              trailing-icon="i-mdi-send"
+              @click="submit"
+            >
+              {{ t('register.submit') }}
+            </UButton>
+          </div>
+        </template>
+      </div>
+    </div>
+    <!-- Privacy policy modal -->
+    <UModal v-model:open="showPrivacyModal" :title="t('register.privacyLink')" :ui="{ body: 'p-0' }">
+      <template #body>
+        <div class="max-h-[60vh] overflow-y-auto px-6 py-5 text-sm text-default whitespace-pre-wrap leading-relaxed">
+          {{ privacyPolicyText }}
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex justify-end px-6 py-4">
+          <UButton @click="showPrivacyModal = false">
+            {{ t('common.close') }}
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+  </div>
+</template>
+
+<script setup lang="ts">
+import type { FormSubmitEvent, StepperItem } from '@nuxt/ui'
+import * as z from 'zod'
+
+definePageMeta({ layout: false })
+
+const config = useRuntimeConfig()
+const { t, locale } = useI18n()
+const toast = useToast()
+
+// ── Public API helpers (no auth token) ──────────────────────────────────────
+interface PageData<T> {
+  data: {
+    content: T[]
+    totalElements: number
+  }
+}
+
+async function apiGet<T>(path: string, params?: Record<string, unknown>): Promise<T> {
+  return $fetch<T>(path, { baseURL: config.public.apiBase, params })
+}
+async function apiPost<T>(path: string, body: Record<string, unknown>): Promise<T> {
+  return $fetch<T>(path, { method: 'POST', baseURL: config.public.apiBase, body })
+}
+
+// ── Stepper ──────────────────────────────────────────────────────────────────
+const stepperRef = useTemplateRef('stepper')
+const currentStep = ref(0)
+
+const stepperItems = computed<StepperItem[]>(() => [
+  { title: t('register.stepTaxNumber'), icon: 'i-mdi-card-account-details-outline', value: 0 },
+  { title: t('register.stepAthlete'), icon: 'i-mdi-account', value: 1 },
+  { title: t('register.stepTournament'), icon: 'i-mdi-trophy', value: 2 },
+  { title: t('register.stepSummary'), icon: 'i-mdi-check-circle', value: 3 },
+])
+
+// ── Step 1: Codice fiscale ───────────────────────────────────────────────────
+const taxNumberInput = ref('')
+const taxLookupLoading = ref(false)
+
+interface AthleteData {
+  id: string
+  firstName: string
+  lastName: string
+  birthDate: string
+  gender: 'MALE' | 'FEMALE'
+  taxNumber: string
+  teamName: string | null
+}
+
+const existingAthlete = ref<AthleteData | null>(null)
+const isNewAthlete = ref(false)
+
+const athleteState = reactive({
+  firstName: '',
+  lastName: '',
+  birthDate: '',
+  gender: 'MALE' as 'MALE' | 'FEMALE',
+  taxNumber: '',
+  teamName: '',
+})
+
+async function onStep1Next() {
+  if (!taxNumberInput.value.trim()) { return }
+  taxLookupLoading.value = true
+  try {
+    const res = await apiGet<{ data: AthleteData }>(
+      `/api/desktop/public/registration_form/athletes/find_by_tax_number/${taxNumberInput.value.toUpperCase()}`,
+    )
+    existingAthlete.value = res.data
+    isNewAthlete.value = false
+    athleteState.firstName = res.data.firstName
+    athleteState.lastName = res.data.lastName
+    athleteState.birthDate = res.data.birthDate
+    athleteState.gender = res.data.gender
+    athleteState.taxNumber = res.data.taxNumber
+    athleteState.teamName = res.data.teamName ?? ''
+  } catch {
+    existingAthlete.value = null
+    isNewAthlete.value = true
+    athleteState.firstName = ''
+    athleteState.lastName = ''
+    athleteState.birthDate = ''
+    athleteState.gender = 'MALE'
+    athleteState.taxNumber = taxNumberInput.value.toUpperCase()
+    athleteState.teamName = ''
+  } finally {
+    taxLookupLoading.value = false
+    stepperRef.value?.next()
+  }
+}
+
+// ── Step 2: Dati atleta ──────────────────────────────────────────────────────
+const athleteSchema = z.object({
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  birthDate: z.string().min(1),
+  gender: z.enum(['MALE', 'FEMALE'] as const),
+  taxNumber: z.string().min(1),
+  teamName: z.string().min(1),
+})
+
+const genderOptions = computed(() => [
+  { label: t('athlete.gender.MALE'), value: 'MALE' },
+  { label: t('athlete.gender.FEMALE'), value: 'FEMALE' },
+])
+
+function onStep2Submit(event: FormSubmitEvent<z.infer<typeof athleteSchema>>) {
+  athleteState.firstName = event.data.firstName
+  athleteState.lastName = event.data.lastName
+  athleteState.birthDate = event.data.birthDate
+  athleteState.gender = event.data.gender
+  athleteState.taxNumber = event.data.taxNumber
+  athleteState.teamName = event.data.teamName ?? ''
+  stepperRef.value?.next()
+  loadStep3Data()
+}
+
+// ── Step 3: Torneo, Disciplina, Categoria di peso ────────────────────────────
+const pageSize = 10
+
+// Tornei
+interface Tournament {
+  id: string
+  name: string
+  date: string
+  locationCity: string
+}
+const tournaments = ref<Tournament[]>([])
+const tournamentsTotal = ref(0)
+const tournamentsPage = ref(0)
+const tournamentsSearch = ref('')
+const tournamentsSearchInput = ref('')
+const tournamentsLoading = ref(false)
+const selectedTournamentId = ref<string | null>(null)
+
+let tournamentSearchTimer: ReturnType<typeof setTimeout>
+watch(tournamentsSearchInput, (val) => {
+  clearTimeout(tournamentSearchTimer)
+  tournamentSearchTimer = setTimeout(() => {
+    tournamentsSearch.value = val
+    tournamentsPage.value = 0
+  }, 300)
+})
+watch([tournamentsPage, tournamentsSearch], () => fetchTournaments())
+
+async function fetchTournaments() {
+  tournamentsLoading.value = true
+  try {
+    const res = await apiGet<PageData<Tournament>>(
+      '/api/desktop/public/registration_form/tournaments',
+      {
+        page: tournamentsPage.value,
+        size: pageSize,
+        ...(tournamentsSearch.value ? { search: tournamentsSearch.value } : {}),
+      },
+    )
+    tournaments.value = res.data?.content ?? []
+    tournamentsTotal.value = res.data?.totalElements ?? 0
+  } catch {
+    tournaments.value = []
+    tournamentsTotal.value = 0
+  } finally {
+    tournamentsLoading.value = false
+  }
+}
+
+const tournamentsTotalPages = computed(() => Math.ceil(tournamentsTotal.value / pageSize))
+
+// Discipline
+interface Discipline {
+  id: string
+  label: string
+}
+const disciplines = ref<Discipline[]>([])
+const disciplinesTotal = ref(0)
+const disciplinesPage = ref(0)
+const disciplinesSearch = ref('')
+const disciplinesSearchInput = ref('')
+const disciplinesLoading = ref(false)
+const selectedDisciplineId = ref<string | null>(null)
+
+let disciplineSearchTimer: ReturnType<typeof setTimeout>
+watch(disciplinesSearchInput, (val) => {
+  clearTimeout(disciplineSearchTimer)
+  disciplineSearchTimer = setTimeout(() => {
+    disciplinesSearch.value = val
+    disciplinesPage.value = 0
+  }, 300)
+})
+watch([disciplinesPage, disciplinesSearch], () => fetchDisciplines())
+
+async function fetchDisciplines() {
+  disciplinesLoading.value = true
+  try {
+    const res = await apiGet<PageData<Discipline>>(
+      '/api/desktop/public/registration_form/disciplines',
+      {
+        page: disciplinesPage.value,
+        size: pageSize,
+        ...(disciplinesSearch.value ? { search: disciplinesSearch.value } : {}),
+      },
+    )
+    disciplines.value = res.data?.content ?? []
+    disciplinesTotal.value = res.data?.totalElements ?? 0
+  } catch {
+    disciplines.value = []
+    disciplinesTotal.value = 0
+  } finally {
+    disciplinesLoading.value = false
+  }
+}
+
+const disciplinesTotalPages = computed(() => Math.ceil(disciplinesTotal.value / pageSize))
+
+// Categorie di peso
+interface WeightCategory {
+  id: string
+  label: string
+}
+const weightCategories = ref<WeightCategory[]>([])
+const weightCategoriesTotal = ref(0)
+const weightCategoriesPage = ref(0)
+const weightCategoriesSearch = ref('')
+const weightCategoriesSearchInput = ref('')
+const weightCategoriesLoading = ref(false)
+const selectedWeightCategoryId = ref<string | null>(null)
+
+let weightCategorySearchTimer: ReturnType<typeof setTimeout>
+watch(weightCategoriesSearchInput, (val) => {
+  clearTimeout(weightCategorySearchTimer)
+  weightCategorySearchTimer = setTimeout(() => {
+    weightCategoriesSearch.value = val
+    weightCategoriesPage.value = 0
+  }, 300)
+})
+watch([weightCategoriesPage, weightCategoriesSearch], () => fetchWeightCategories())
+
+async function fetchWeightCategories() {
+  weightCategoriesLoading.value = true
+  try {
+    const res = await apiGet<PageData<WeightCategory>>(
+      '/api/desktop/public/registration_form/weight_categories',
+      {
+        page: weightCategoriesPage.value,
+        size: pageSize,
+        ...(weightCategoriesSearch.value ? { search: weightCategoriesSearch.value } : {}),
+      },
+    )
+    weightCategories.value = res.data?.content ?? []
+    weightCategoriesTotal.value = res.data?.totalElements ?? 0
+  } catch {
+    weightCategories.value = []
+    weightCategoriesTotal.value = 0
+  } finally {
+    weightCategoriesLoading.value = false
+  }
+}
+
+const weightCategoriesTotalPages = computed(() => Math.ceil(weightCategoriesTotal.value / pageSize))
+
+function loadStep3Data() {
+  fetchTournaments()
+  fetchDisciplines()
+  fetchWeightCategories()
+}
+
+const step3Valid = computed(() =>
+  selectedTournamentId.value
+  && selectedDisciplineId.value
+  && selectedWeightCategoryId.value,
+)
+
+// Lookup helpers for step 4 summary
+const selectedTournament = computed(() => tournaments.value.find(t => t.id === selectedTournamentId.value))
+const selectedDiscipline = computed(() => disciplines.value.find(d => d.id === selectedDisciplineId.value))
+const selectedWeightCategory = computed(() => weightCategories.value.find(w => w.id === selectedWeightCategoryId.value))
+
+// ── Step 4: Riepilogo + submit ───────────────────────────────────────────────
+const showPrivacyModal = ref(false)
+const privacyPolicyText = ref('')
+async function openPrivacyModal() {
+  if (!privacyPolicyText.value) {
+    privacyPolicyText.value = await $fetch<string>('/privacy.txt', { responseType: 'text' })
+  }
+  showPrivacyModal.value = true
+}
+const countdown = ref(0)
+const privacyConsent = ref(false)
+const submitting = ref(false)
+const submitted = ref(false)
+const registrationId = ref<string | null>(null)
+const downloadingPdf = ref(false)
+
+async function submit() {
+  submitting.value = true
+  try {
+    let athleteId: string
+
+    if (existingAthlete.value) {
+      athleteId = existingAthlete.value.id
+    } else {
+      const res = await apiPost<{ data: { id: string } }>('/api/desktop/public/registration_form/athletes', {
+        firstName: athleteState.firstName,
+        lastName: athleteState.lastName,
+        birthDate: athleteState.birthDate,
+        gender: athleteState.gender,
+        taxNumber: athleteState.taxNumber,
+        teamName: athleteState.teamName || null,
+      })
+      athleteId = res.data.id
+    }
+
+    const regRes = await apiPost<{ data: { id: string } }>('/api/desktop/public/registration_form/registrations', {
+      athleteId,
+      tournamentId: selectedTournamentId.value,
+      disciplineId: selectedDisciplineId.value,
+      weightCategoryId: selectedWeightCategoryId.value,
+      notes: null,
+      status: 'TO_MANAGE',
+    })
+    registrationId.value = regRes.data.id
+    submitted.value = true
+  } catch {
+    toast.add({ title: t('common.error'), color: 'error' })
+  } finally {
+    submitting.value = false
+  }
+}
+
+async function downloadPdf() {
+  if (!registrationId.value) { return }
+  downloadingPdf.value = true
+  try {
+    const blob = await $fetch<Blob>(
+      `/api/desktop/public/registration_form/registrations/${registrationId.value}/pdf`,
+      { baseURL: config.public.apiBase, responseType: 'blob' },
+    )
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `registration-${registrationId.value}.pdf`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch {
+    toast.add({ title: t('common.error'), color: 'error' })
+  } finally {
+    downloadingPdf.value = false
+  }
+}
+
+function resetForm() {
+  submitted.value = false
+  privacyConsent.value = false
+  registrationId.value = null
+  currentStep.value = 0
+  taxNumberInput.value = ''
+  existingAthlete.value = null
+  isNewAthlete.value = false
+  Object.assign(athleteState, { firstName: '', lastName: '', birthDate: '', gender: 'MALE', taxNumber: '', teamName: '' })
+  selectedTournamentId.value = null
+  selectedDisciplineId.value = null
+  selectedWeightCategoryId.value = null
+  tournamentsPage.value = 0
+  tournamentsSearchInput.value = ''
+  disciplinesPage.value = 0
+  disciplinesSearchInput.value = ''
+  weightCategoriesPage.value = 0
+  weightCategoriesSearchInput.value = ''
+}
+
+onBeforeUnmount(() => {
+  clearTimeout(tournamentSearchTimer)
+  clearTimeout(disciplineSearchTimer)
+  clearTimeout(weightCategorySearchTimer)
+})
+</script>

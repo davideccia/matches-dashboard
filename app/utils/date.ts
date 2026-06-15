@@ -1,0 +1,33 @@
+import moment from 'moment'
+
+/** ISO datetime → HTML datetime-local value (`YYYY-MM-DDTHH:mm:ss`). */
+export function serverDateToInput(value: string | null | undefined): string {
+  if (!value) { return '' }
+  return moment(value).format('YYYY-MM-DDTHH:mm:ss')
+}
+
+/** HTML datetime-local value → ISO datetime string (`YYYY-MM-DDTHH:mm:ss`). */
+export function inputDateToServer(value: string | null | undefined): string | null {
+  if (!value) { return null }
+  return moment(value, ['YYYY-MM-DDTHH:mm:ss', 'YYYY-MM-DDTHH:mm']).format('YYYY-MM-DDTHH:mm:ss')
+}
+
+/**
+ * Formats ISO datetime string for localized display (no timezone conversion).
+ *  en → `YYYY-MM-DD (HH:mm:ss)`  |  it → `DD/MM/YYYY (HH:mm:ss)`
+ */
+export function formatServerDate(value: string | null | undefined, locale: string): string {
+  if (!value) { return '' }
+  const fmt = locale === 'it' ? 'DD/MM/YYYY (HH:mm:ss)' : 'YYYY-MM-DD (HH:mm:ss)'
+  return moment(value).format(fmt)
+}
+
+/**
+ * Formats ISO date-only string for localized display.
+ *  en → `YYYY-MM-DD`  |  it → `DD/MM/YYYY`
+ */
+export function formatServerDateOnly(value: string | null | undefined, locale: string): string {
+  if (!value) { return '' }
+  const fmt = locale === 'it' ? 'DD/MM/YYYY' : 'YYYY-MM-DD'
+  return moment(value).format(fmt)
+}

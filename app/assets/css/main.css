@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+:root {
+  font-size: 15px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    font-size: 19px;
+  }
+}
