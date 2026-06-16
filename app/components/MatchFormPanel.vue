@@ -20,7 +20,7 @@
                 <div class="flex items-center gap-2">
                   <ApiSelectMenu
                     v-model="state.tournamentId"
-                    endpoint="/api/desktop/tournaments"
+                    endpoint="/api/admin/tournaments"
                     label-key="name"
                     :placeholder="t('match.selectTournament')"
                     :disabled="filtersLocked"
@@ -43,7 +43,7 @@
                 <div class="flex items-center gap-2">
                   <ApiSelectMenu
                     v-model="state.disciplineId"
-                    endpoint="/api/desktop/disciplines"
+                    endpoint="/api/admin/disciplines"
                     label-key="label"
                     :placeholder="t('match.selectDiscipline')"
                     :disabled="filtersLocked"
@@ -66,7 +66,7 @@
                 <div class="flex items-center gap-2">
                   <ApiSelectMenu
                     v-model="state.weightCategoryId"
-                    endpoint="/api/desktop/weight_categories"
+                    endpoint="/api/admin/weight_categories"
                     label-key="label"
                     :placeholder="t('match.selectWeightCategory')"
                     :disabled="filtersLocked"
@@ -191,7 +191,7 @@
                       <div class="flex items-center gap-1.5">
                         <ApiSelectMenu
                           v-model="state.redCornerId"
-                          endpoint="/api/desktop/athletes"
+                          endpoint="/api/admin/athletes"
                           label-key="fullName"
                           :placeholder="t('match.selectAthlete')"
                           :disabled="!filtersReady && !forceEntry"
@@ -226,7 +226,7 @@
                       <div class="flex items-center gap-1.5">
                         <ApiSelectMenu
                           v-model="state.blueCornerId"
-                          endpoint="/api/desktop/athletes"
+                          endpoint="/api/admin/athletes"
                           label-key="fullName"
                           :placeholder="t('match.selectAthlete')"
                           :disabled="!filtersReady && !forceEntry"
@@ -718,7 +718,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof createSchema> | z.
         gender: genderFilter.value,
         judgesPoints,
       }
-      await api.put(`/api/desktop/matches/${props.item!.id}`, body)
+      await api.put(`/api/admin/matches/${props.item!.id}`, body)
     } else {
       const createData = event.data as z.infer<typeof createSchema>
       const body = {
@@ -741,7 +741,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof createSchema> | z.
         gender: genderFilter.value,
         judgesPoints,
       }
-      await api.post('/api/desktop/matches', body)
+      await api.post('/api/admin/matches', body)
     }
 
     emit('saved')

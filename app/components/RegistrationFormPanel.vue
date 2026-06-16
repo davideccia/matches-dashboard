@@ -7,7 +7,7 @@
             <div class="flex items-center gap-2">
               <ApiSelectMenu
                 v-model="state.athleteId"
-                endpoint="/api/desktop/athletes"
+                endpoint="/api/admin/athletes"
                 label-key="fullName"
                 :placeholder="t('registration.selectAthlete')"
                 class="w-full"
@@ -29,7 +29,7 @@
             <div class="flex items-center gap-2">
               <ApiSelectMenu
                 v-model="state.tournamentId"
-                endpoint="/api/desktop/tournaments"
+                endpoint="/api/admin/tournaments"
                 label-key="name"
                 :placeholder="t('registration.selectTournament')"
                 class="w-full"
@@ -52,7 +52,7 @@
           <div class="flex items-center gap-2">
             <ApiSelectMenu
               v-model="state.disciplineId"
-              endpoint="/api/desktop/disciplines"
+              endpoint="/api/admin/disciplines"
               label-key="label"
               :placeholder="t('registration.selectDiscipline')"
               class="w-full"
@@ -74,7 +74,7 @@
           <div class="flex items-center gap-2">
             <ApiSelectMenu
               v-model="state.weightCategoryId"
-              endpoint="/api/desktop/weight_categories"
+              endpoint="/api/admin/weight_categories"
               label-key="label"
               :placeholder="t('registration.selectWeightCategory')"
               class="w-full"
@@ -312,7 +312,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof createSchema>>) {
         weightIn: event.data.weightIn ?? null,
         notes: event.data.notes || null,
       }
-      await api.put(`/api/desktop/registrations/${props.item!.id}`, body)
+      await api.put(`/api/admin/registrations/${props.item!.id}`, body)
     } else {
       const body = {
         athleteId: event.data.athleteId,
@@ -324,7 +324,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof createSchema>>) {
         weightIn: event.data.weightIn ?? null,
         notes: event.data.notes || null,
       }
-      await api.post('/api/desktop/registrations', body)
+      await api.post('/api/admin/registrations', body)
     }
 
     open.value = false

@@ -17,7 +17,7 @@
       <div class="flex flex-col gap-5 p-6">
         <DataTable
           ref="tableRef"
-          url="/api/desktop/weight_categories"
+          url="/api/admin/weight_categories"
           :columns="columns"
           empty-icon="i-mdi-scale-balance"
         >
@@ -110,7 +110,7 @@ async function deleteItem() {
   if (!deleteTarget.value) { return }
   deleting.value = true
   try {
-    await api.del(`/api/desktop/weight_categories/${deleteTarget.value.id}`)
+    await api.del(`/api/admin/weight_categories/${deleteTarget.value.id}`)
     confirmOpen.value = false
     deleteTarget.value = null
     await tableRef.value?.refresh()

@@ -34,7 +34,7 @@
           <div class="flex items-center gap-2">
             <ApiSelectMenu
               v-model="state.defaultWeightCategoryId"
-              endpoint="/api/desktop/weight_categories"
+              endpoint="/api/admin/weight_categories"
               label-key="label"
               :placeholder="t('athlete.noCategory')"
               class="w-full"
@@ -56,7 +56,7 @@
           <div class="flex items-center gap-2">
             <ApiSelectMenu
               v-model="state.defaultDisciplineId"
-              endpoint="/api/desktop/disciplines"
+              endpoint="/api/admin/disciplines"
               label-key="label"
               :placeholder="t('athlete.noCategory')"
               class="w-full"
@@ -165,9 +165,9 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     }
 
     if (isEdit.value) {
-      await api.put(`/api/desktop/athletes/${props.item!.id}`, body)
+      await api.put(`/api/admin/athletes/${props.item!.id}`, body)
     } else {
-      await api.post('/api/desktop/athletes', body)
+      await api.post('/api/admin/athletes', body)
     }
 
     open.value = false

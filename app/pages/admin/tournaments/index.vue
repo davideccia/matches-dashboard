@@ -17,7 +17,7 @@
       <div class="flex flex-col gap-5 p-6">
         <DataTable
           ref="tableRef"
-          url="/api/desktop/tournaments"
+          url="/api/admin/tournaments"
           :columns="columns"
           empty-icon="i-mdi-trophy"
         >
@@ -119,7 +119,7 @@ const columns = computed(() => [
 
 async function downloadPdfBoard(item: Tournament) {
   try {
-    await api.download(`/api/desktop/tournaments/${item.id}/matches/pdf/board`, `tournament-${item.id}-matches.pdf`)
+    await api.download(`/api/admin/tournaments/${item.id}/matches/pdf/board`, `tournament-${item.id}-matches.pdf`)
   } catch (e) {
     toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
   }
@@ -127,7 +127,7 @@ async function downloadPdfBoard(item: Tournament) {
 
 async function downloadPdfList(item: Tournament) {
   try {
-    await api.download(`/api/desktop/tournaments/${item.id}/matches/pdf/list`, `tournament-${item.id}-matches-list.pdf`)
+    await api.download(`/api/admin/tournaments/${item.id}/matches/pdf/list`, `tournament-${item.id}-matches-list.pdf`)
   } catch (e) {
     toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
   }
@@ -161,7 +161,7 @@ async function deleteItem() {
   if (!deleteTarget.value) { return }
   deleting.value = true
   try {
-    await api.del(`/api/desktop/tournaments/${deleteTarget.value.id}`)
+    await api.del(`/api/admin/tournaments/${deleteTarget.value.id}`)
     confirmOpen.value = false
     deleteTarget.value = null
     await tableRef.value?.refresh()

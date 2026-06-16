@@ -26,7 +26,7 @@
             />
             <ApiSelectMenu
               v-model="tournamentId"
-              endpoint="/api/desktop/tournaments"
+              endpoint="/api/admin/tournaments"
               label-key="name"
               :placeholder="t('match.selectTournament')"
               class="w-full sm:w-56"
@@ -153,7 +153,7 @@ const { data, refresh, status } = useLazyAsyncData(
   'matches-board',
   () => {
     if (!tournamentId.value) { return Promise.resolve(null) }
-    return api.get<MatchesResponse>('/api/desktop/matches', {
+    return api.get<MatchesResponse>('/api/admin/matches', {
       page: 1,
       ...(search.value ? { search: search.value } : {}),
       tournamentId: tournamentId.value,

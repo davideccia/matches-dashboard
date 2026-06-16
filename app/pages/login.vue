@@ -68,7 +68,6 @@
             />
           </template>
           <template #footer>
-            <USeparator class="mb-4" />
             <UButton
               :label="t('login.forgotPassword')"
               icon="i-mdi-lock-reset"

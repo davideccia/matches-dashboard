@@ -120,9 +120,9 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     }
 
     if (isEdit.value) {
-      await api.put(`/api/desktop/tournaments/${props.item!.id}`, body)
+      await api.put(`/api/admin/tournaments/${props.item!.id}`, body)
     } else {
-      await api.post('/api/desktop/tournaments', body)
+      await api.post('/api/admin/tournaments', body)
     }
 
     open.value = false

@@ -607,7 +607,7 @@ async function onStep1Next() {
   taxLookupLoading.value = true
   try {
     const res = await apiGet<{ data: AthleteData }>(
-      `/api/desktop/public/registration_form/athletes/find_by_tax_number/${taxNumberInput.value.toUpperCase()}`,
+      `/api/admin/public/registration_form/athletes/find_by_tax_number/${taxNumberInput.value.toUpperCase()}`,
     )
     existingAthlete.value = res.data
     isNewAthlete.value = false
@@ -690,7 +690,7 @@ async function fetchTournaments() {
   tournamentsLoading.value = true
   try {
     const res = await apiGet<PageData<Tournament>>(
-      '/api/desktop/public/registration_form/tournaments',
+      '/api/admin/public/registration_form/tournaments',
       {
         page: tournamentsPage.value + 1,
         per_page: pageSize,
@@ -736,7 +736,7 @@ async function fetchDisciplines() {
   disciplinesLoading.value = true
   try {
     const res = await apiGet<PageData<Discipline>>(
-      '/api/desktop/public/registration_form/disciplines',
+      '/api/admin/public/registration_form/disciplines',
       {
         page: disciplinesPage.value + 1,
         per_page: pageSize,
@@ -782,7 +782,7 @@ async function fetchWeightCategories() {
   weightCategoriesLoading.value = true
   try {
     const res = await apiGet<PageData<WeightCategory>>(
-      '/api/desktop/public/registration_form/weight_categories',
+      '/api/admin/public/registration_form/weight_categories',
       {
         page: weightCategoriesPage.value + 1,
         per_page: pageSize,
@@ -842,7 +842,7 @@ async function submit() {
     if (existingAthlete.value) {
       athleteId = existingAthlete.value.id
     } else {
-      const res = await apiPost<{ data: { id: string } }>('/api/desktop/public/registration_form/athletes', {
+      const res = await apiPost<{ data: { id: string } }>('/api/admin/public/registration_form/athletes', {
         firstName: athleteState.firstName,
         lastName: athleteState.lastName,
         birthDate: athleteState.birthDate,
@@ -853,7 +853,7 @@ async function submit() {
       athleteId = res.data.id
     }
 
-    const regRes = await apiPost<{ data: { id: string } }>('/api/desktop/public/registration_form/registrations', {
+    const regRes = await apiPost<{ data: { id: string } }>('/api/admin/public/registration_form/registrations', {
       athleteId,
       tournamentId: selectedTournamentId.value,
       disciplineId: selectedDisciplineId.value,
@@ -875,7 +875,7 @@ async function downloadPdf() {
   downloadingPdf.value = true
   try {
     const blob = await $fetch<Blob>(
-      `/api/desktop/public/registration_form/registrations/${registrationId.value}/pdf`,
+      `/api/admin/public/registration_form/registrations/${registrationId.value}/pdf`,
       { baseURL: config.public.apiBase, responseType: 'blob' },
     )
     const url = URL.createObjectURL(blob)

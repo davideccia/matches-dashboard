@@ -209,7 +209,7 @@ const { data, pending, refresh } = useLazyAsyncData('dashboard', () => {
         return
       }
       try {
-        resolve(await get<{ data: DashboardItem[] }>('/api/desktop/dashboard'))
+        resolve(await get<{ data: DashboardItem[] }>('/api/admin/dashboard'))
       } catch (e) {
         reject(e)
       }

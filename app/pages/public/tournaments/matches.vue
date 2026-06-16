@@ -205,7 +205,7 @@ watch(tournamentsSearchInput, (val) => {
 
 const { data: tournamentsData, status: tournamentsStatus } = useLazyAsyncData(
   'public-tournaments',
-  () => apiGet<PageData<Tournament>>('/api/desktop/public/tournaments', {
+  () => apiGet<PageData<Tournament>>('/api/admin/public/tournaments', {
     page: tournamentsPage.value + 1,
     per_page: pageSize,
     ...(tournamentsSearch.value ? { search: tournamentsSearch.value } : {}),
@@ -234,7 +234,7 @@ const { data: matchesData, status: matchesStatus, refresh: refreshMatches } = us
   () => {
     if (!selectedTournament.value) { return Promise.resolve(null) }
     return apiGet<PageData<Match>>(
-      `/api/desktop/public/tournaments/${selectedTournament.value.id}/matches`,
+      `/api/admin/public/tournaments/${selectedTournament.value.id}/matches`,
       { page: 1, per_page: 100 },
     )
   },

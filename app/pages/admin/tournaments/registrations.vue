@@ -17,7 +17,7 @@
       <div class="flex flex-col gap-5 p-6">
         <DataTable
           ref="tableRef"
-          url="/api/desktop/registrations"
+          url="/api/admin/registrations"
           :columns="columns"
           :params="tableParams"
           empty-icon="i-mdi-clipboard-list-outline"
@@ -25,7 +25,7 @@
           <template #filters>
             <ApiSelectMenu
               v-model="tournamentId"
-              endpoint="/api/desktop/tournaments"
+              endpoint="/api/admin/tournaments"
               label-key="name"
               :placeholder="t('registration.selectTournament')"
               class="w-full sm:w-56"
@@ -182,7 +182,7 @@ function openEdit(item: Registration) {
 
 async function downloadPdf(item: Registration) {
   try {
-    await api.download(`/api/desktop/registrations/${item.id}/pdf`, `registration-${item.id}.pdf`)
+    await api.download(`/api/admin/registrations/${item.id}/pdf`, `registration-${item.id}.pdf`)
   } catch (e) {
     toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
   }
@@ -197,7 +197,7 @@ async function deleteItem() {
   if (!deleteTarget.value) { return }
   deleting.value = true
   try {
-    await api.del(`/api/desktop/registrations/${deleteTarget.value.id}`)
+    await api.del(`/api/admin/registrations/${deleteTarget.value.id}`)
     confirmOpen.value = false
     deleteTarget.value = null
     await tableRef.value?.refresh()

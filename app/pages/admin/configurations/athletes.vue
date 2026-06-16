@@ -17,7 +17,7 @@
       <div class="flex flex-col gap-5 p-6">
         <DataTable
           ref="tableRef"
-          url="/api/desktop/athletes"
+          url="/api/admin/athletes"
           :columns="columns"
           empty-icon="i-mdi-account"
         >
@@ -125,7 +125,7 @@ async function deleteItem() {
   if (!deleteTarget.value) { return }
   deleting.value = true
   try {
-    await api.del(`/api/desktop/athletes/${deleteTarget.value.id}`)
+    await api.del(`/api/admin/athletes/${deleteTarget.value.id}`)
     confirmOpen.value = false
     deleteTarget.value = null
     await tableRef.value?.refresh()

@@ -17,7 +17,7 @@
       <div class="flex flex-col gap-5 p-6">
         <DataTable
           ref="tableRef"
-          url="/api/desktop/users"
+          url="/api/admin/users"
           :columns="columns"
           empty-icon="i-mdi-account-group"
         >
@@ -115,7 +115,7 @@ async function deleteUser() {
   if (!deleteTarget.value) { return }
   deleting.value = true
   try {
-    await api.del(`/api/desktop/users/${deleteTarget.value.id}`)
+    await api.del(`/api/admin/users/${deleteTarget.value.id}`)
     confirmOpen.value = false
     deleteTarget.value = null
     await tableRef.value?.refresh()

@@ -111,10 +111,10 @@ async function onSubmit(event: FormSubmitEvent<{ email: string, password: string
     if (canEditSuperadmin.value) { body.superadmin = event.data.superadmin }
 
     if (isEdit.value) {
-      await api.put(`/api/desktop/users/${props.user!.id}`, body)
+      await api.put(`/api/admin/users/${props.user!.id}`, body)
     } else {
       body.email = event.data.email
-      await api.post('/api/desktop/users', body)
+      await api.post('/api/admin/users', body)
     }
 
     open.value = false

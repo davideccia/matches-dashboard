@@ -64,9 +64,9 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     const body = { label: event.data.label }
 
     if (isEdit.value) {
-      await api.put(`/api/desktop/disciplines/${props.item!.id}`, body)
+      await api.put(`/api/admin/disciplines/${props.item!.id}`, body)
     } else {
-      await api.post('/api/desktop/disciplines', body)
+      await api.post('/api/admin/disciplines', body)
     }
 
     open.value = false
