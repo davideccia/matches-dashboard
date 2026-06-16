@@ -27,6 +27,11 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:8081',
+      wsBase: process.env.NUXT_PUBLIC_WS_BASE ?? '',
+      reverbAppKey: process.env.NUXT_PUBLIC_REVERB_APP_KEY ?? '',
+      reverbHost: process.env.NUXT_PUBLIC_REVERB_HOST ?? 'localhost',
+      reverbPort: process.env.NUXT_PUBLIC_REVERB_PORT ?? '8080',
+      reverbScheme: process.env.NUXT_PUBLIC_REVERB_SCHEME ?? 'http',
     },
   },
   css: ['~/assets/css/main.css'],
@@ -36,7 +41,8 @@ export default defineNuxtConfig({
       include: [
         '@vue/devtools-core',
         '@vue/devtools-kit',
-        '@stomp/stompjs',
+        'laravel-echo',
+        'pusher-js',
         'zod',
       ],
     },

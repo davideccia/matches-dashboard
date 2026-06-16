@@ -464,9 +464,9 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent, StepperItem } from '@nuxt/ui'
-import * as z from 'zod'
-import type { Athlete, Discipline, Tournament, WeightCategory, PaginatedResponse } from '~/types/models'
+import type { Athlete, Discipline, PaginatedResponse, Tournament, WeightCategory } from '~/types/models'
 import type { Gender } from '~/utils/constants'
+import * as z from 'zod'
 
 definePageMeta({ layout: false, sanctum: { excluded: true } })
 

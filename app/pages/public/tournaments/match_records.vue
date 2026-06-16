@@ -160,14 +160,11 @@
 
 <script setup lang="ts">
 import type { MatchRecord } from '~/types/models'
-import { Client } from '@stomp/stompjs'
 
 definePageMeta({ layout: false, sanctum: { excluded: true } })
 
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()
-
-const wsBase = config.public.apiBase.replace(/^http/, 'ws')
 
 // ── Public API helper (no auth token) ───────────────────────────────────────
 interface PageData<T> {
@@ -205,9 +202,7 @@ watch(tournamentsSearchInput, (val) => {
 
 const { data: tournamentsData, status: tournamentsStatus } = useLazyAsyncData(
   'public-tournaments',
-  () => apiGet<PageData<Tournament>>('/api/admin/public/tournaments', {
-    page: tournamentsPage.value + 1,
-    per_page: pageSize,
+  () => apiGet<PageData<Tournament>>('/api/public/tournaments', {
     ...(tournamentsSearch.value ? { search: tournamentsSearch.value } : {}),
   }),
   { watch: [tournamentsPage, tournamentsSearch], default: () => null },
@@ -234,8 +229,7 @@ const { data: matchesData, status: matchesStatus, refresh: refreshMatchRecords }
   () => {
     if (!selectedTournament.value) { return Promise.resolve(null) }
     return apiGet<PageData<MatchRecord>>(
-      `/api/admin/public/tournaments/${selectedTournament.value.id}/matches`,
-      { page: 1, per_page: 100 },
+      `/api/public/tournaments/${selectedTournament.value.id}/match_records?with=tournament,red_corner,blue_corner,winner,weight_category,discipline`,
     )
   },
   { watch: [selectedTournament], default: () => null },
@@ -258,32 +252,15 @@ watch(matchesData, async () => {
   }
 })
 
-// ── WebSocket (STOMP) ────────────────────────────────────────────────────────
-let stompClient: Client | null = null
+// ── WebSocket (Laravel Echo / Reverb) ────────────────────────────────────────
+const tournamentId = computed(() => selectedTournament.value?.id ?? null)
+const { lastEvent } = useTournamentMatchRecords(tournamentId)
 
-function startClient(id: string) {
-  stompClient = new Client({
-    brokerURL: `${wsBase}/ws`,
-    onConnect: () => {
-      stompClient!.subscribe(`/topic/tournaments/${id}/matches`, () => refreshMatchRecords())
-    },
-    reconnectDelay: 3000,
-  })
-  stompClient.activate()
-}
-
-function stopClient() {
-  stompClient?.deactivate()
-  stompClient = null
-}
-
-watch(selectedTournament, (tournament) => {
-  stopClient()
-  if (tournament) { startClient(tournament.id) }
+watch(lastEvent, (event) => {
+  if (event?.refresh) { refreshMatchRecords() }
 })
 
 onUnmounted(() => {
-  stopClient()
   clearTimeout(tournamentSearchTimer)
 })
 </script>
