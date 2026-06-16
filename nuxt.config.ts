@@ -58,6 +58,12 @@ export default defineNuxtConfig({
 
   sanctum: {
     baseUrl: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:8081',
+    mode: 'token',
+    endpoints: {
+      login: '/api/admin/auth/login',
+      user: '/api/admin/auth/user',
+      logout: '/api/admin/auth/logout',
+    },
     redirect: {
       onLogout: '/login',
     },

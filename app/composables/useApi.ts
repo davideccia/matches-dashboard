@@ -28,12 +28,15 @@ export function useApi() {
 
   const download = async (path: string, filename = 'document.pdf') => {
     const { public: { apiBase } } = useRuntimeConfig()
+    const token = useCookie('sanctum.token.cookie')
     const blob = await $fetch<Blob>(path, {
       method: 'GET',
       responseType: 'blob',
       baseURL: apiBase as string,
-      headers: lang(),
-      credentials: 'include',
+      headers: {
+        ...lang(),
+        ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
+      },
     })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
