@@ -7,14 +7,14 @@
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-1.5 font-medium text-highlighted truncate">
             <UIcon name="i-mdi-trophy" class="size-3.5 shrink-0 text-warning" />
-            <span class="truncate">{{ match.tournament_name ?? '—' }}</span>
+            <span class="truncate">{{ match.tournament?.name ?? '—' }}</span>
           </div>
           <!-- Always rendered — dash when both missing -->
           <div class="mt-0.5 sm:mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted min-h-4">
-            <template v-if="match.weight_category_label || match.discipline_label">
-              <span>{{ match.weight_category_label ?? '—' }}</span>
+            <template v-if="match.weight_category?.label || match.discipline?.label">
+              <span>{{ match.weight_category?.label ?? '—' }}</span>
               <span class="opacity-40">·</span>
-              <span>{{ match.discipline_label ?? '—' }}</span>
+              <span>{{ match.discipline?.label ?? '—' }}</span>
             </template>
             <span v-else class="opacity-40">—</span>
           </div>
@@ -58,7 +58,7 @@
         <div class="flex items-center gap-1.5">
           <span class="size-2 sm:size-2.5 rounded-full bg-red-500 shrink-0" />
           <span class="font-semibold text-highlighted text-xs sm:text-sm leading-tight truncate">
-            {{ match.red_corner_full_name ?? '—' }}
+            {{ match.red_corner?.full_name ?? '—' }}
           </span>
           <UIcon
             v-if="isRedWinner"
@@ -86,7 +86,7 @@
             class="size-3 sm:size-3.5 text-warning shrink-0"
           />
           <span class="font-semibold text-highlighted text-xs sm:text-sm leading-tight truncate">
-            {{ match.blue_corner_full_name ?? '—' }}
+            {{ match.blue_corner?.full_name ?? '—' }}
           </span>
           <span class="size-2 sm:size-2.5 rounded-full bg-blue-500 shrink-0" />
         </div>
@@ -100,7 +100,7 @@
         class="col-span-3 flex items-center justify-center gap-1.5 rounded-lg bg-success/10 px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-medium text-success"
       >
         <UIcon name="i-mdi-medal-outline" class="size-3.5" />
-        {{ match.winner_full_name ?? t('match.winner') }}
+        {{ match.winner?.full_name ?? t('match.winner') }}
       </div>
 
       <!-- Draw / no contest -->
@@ -169,7 +169,7 @@
   <!-- ── MODAL: judges points table (readonly) ─────────────────── -->
   <UModal v-if="showJudgesPoints" v-model:open="judgesPointsOpen" :title="t('match.judgesPointsTable')">
     <template #body>
-      <MatchJudgesPointsTable
+      <MatchRecordJudgesPointsTable
         :model-value="judgesPointsRows"
         readonly
       />

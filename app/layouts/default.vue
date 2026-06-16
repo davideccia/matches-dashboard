@@ -10,7 +10,7 @@
         >
         <div v-if="!collapsed" class="text-center">
           <UBadge variant="outline">
-            v{{ appConfig.version }}
+            {{ appConfig.version }}
           </UBadge>
         </div>
         <UNavigationMenu
@@ -80,12 +80,12 @@ const items = computed<NavigationMenuItem[][]>(() => [
             {
               label: t('nav.matchesList'),
               icon: 'i-mdi-format-list-bulleted',
-              to: localePath('/admin/tournaments/matches'),
+              to: localePath('/admin/tournaments/match_records'),
             },
             {
               label: t('nav.matchesBoard'),
               icon: 'i-mdi-view-grid',
-              to: localePath('/admin/tournaments/matches/board'),
+              to: localePath('/admin/tournaments/match_records/board'),
             },
           ],
         },

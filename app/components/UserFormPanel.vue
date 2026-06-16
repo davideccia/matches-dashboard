@@ -65,17 +65,10 @@ const canEditEmail = computed(() => currentUser.value?.id === props.user?.id)
 
 const isEdit = computed(() => props.user !== null)
 
-const createSchema = z.object({
-  email: z.email(),
-  password: z.string().min(6),
-})
-
-const editSchema = z.object({
+const schema = z.object({
   email: z.email(),
   password: z.union([z.string().min(6), z.literal('')]),
 })
-
-const schema = computed(() => isEdit.value ? editSchema : createSchema)
 
 const state = reactive({
   email: '',
@@ -91,17 +84,17 @@ watch(open, (val) => {
 
 const loading = ref(false)
 
-async function onSubmit(event: FormSubmitEvent<{ email: string, password: string }>) {
+async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   loading.value = true
   try {
-    const body: Record<string, unknown> = {}
-    if (canEditEmail.value) { body.email = event.data.email }
+    const body: Record<string, unknown> = {
+      email: event.data.email,
+    }
     if (event.data.password) { body.password = event.data.password }
 
     if (isEdit.value) {
       await api.put(`/api/admin/users/${props.user!.id}`, body)
     } else {
-      body.email = event.data.email
       await api.post('/api/admin/users', body)
     }
 

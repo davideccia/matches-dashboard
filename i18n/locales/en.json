@@ -284,13 +284,13 @@
     "updated": "Weight category updated",
     "deleted": "Weight category deleted"
   },
-  "publicMatches": {
+  "publicMatchRecords": {
     "title": "Live matches",
     "selectTournament": "Select a tournament",
     "searchTournament": "Search tournament...",
     "noTournaments": "No tournaments available",
     "noTournamentsHint": "There are no tournaments available at the moment",
-    "noMatches": "No matches available",
+    "noMatchRecords": "No matches available",
     "changeTournament": "Change tournament",
     "page": "Page {current} of {total}",
     "prev": "Previous",

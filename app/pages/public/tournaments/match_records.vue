@@ -9,7 +9,7 @@
         </div>
         <div class="text-center space-y-0.5">
           <h1 class="text-2xl font-bold text-default">
-            {{ t('publicMatchRecordes.title') }}
+            {{ t('publicMatchRecords.title') }}
           </h1>
           <p class="text-sm text-muted">
             {{ t('nav.tournaments') }}
@@ -22,14 +22,14 @@
         <div class="space-y-0.5">
           <h2 class="text-base font-semibold flex items-center gap-2">
             <UIcon name="i-mdi-trophy" class="size-4 text-primary" />
-            {{ t('publicMatchRecordes.selectTournament') }}
+            {{ t('publicMatchRecords.selectTournament') }}
           </h2>
         </div>
 
         <UInput
           v-model="tournamentsSearchInput"
           icon="i-mdi-magnify"
-          :placeholder="t('publicMatchRecordes.searchTournament')"
+          :placeholder="t('publicMatchRecords.searchTournament')"
           size="md"
           class="w-full"
         />
@@ -67,10 +67,10 @@
         <div v-else class="flex flex-col items-center gap-1.5 py-8 text-muted">
           <UIcon name="i-mdi-trophy" class="size-8 opacity-30" />
           <p class="text-sm font-medium">
-            {{ t('publicMatchRecordes.noTournaments') }}
+            {{ t('publicMatchRecords.noTournaments') }}
           </p>
           <p class="text-xs">
-            {{ t('publicMatchRecordes.noTournamentsHint') }}
+            {{ t('publicMatchRecords.noTournamentsHint') }}
           </p>
         </div>
 
@@ -84,10 +84,10 @@
             :disabled="tournamentsPage === 0"
             @click="tournamentsPage--"
           >
-            {{ t('publicMatchRecordes.prev') }}
+            {{ t('publicMatchRecords.prev') }}
           </UButton>
           <span class="text-xs text-muted">
-            {{ t('publicMatchRecordes.page', { current: tournamentsPage + 1, total: tournamentsTotalPages }) }}
+            {{ t('publicMatchRecords.page', { current: tournamentsPage + 1, total: tournamentsTotalPages }) }}
           </span>
           <UButton
             size="sm"
@@ -97,7 +97,7 @@
             :disabled="tournamentsPage >= tournamentsTotalPages - 1"
             @click="tournamentsPage++"
           >
-            {{ t('publicMatchRecordes.next') }}
+            {{ t('publicMatchRecords.next') }}
           </UButton>
         </div>
       </div>
@@ -118,7 +118,7 @@
             </div>
             <UBadge color="error" variant="solid" size="xs" class="shrink-0 flex items-center gap-1">
               <span class="size-1.5 rounded-full bg-current animate-pulse inline-block" />
-              {{ t('publicMatchRecordes.liveIndicator') }}
+              {{ t('publicMatchRecords.liveIndicator') }}
             </UBadge>
           </div>
           <UButton
@@ -128,7 +128,7 @@
             leading-icon="i-mdi-arrow-left"
             @click="clearTournament"
           >
-            {{ t('publicMatchRecordes.changeTournament') }}
+            {{ t('publicMatchRecords.changeTournament') }}
           </UButton>
         </div>
 
@@ -140,7 +140,7 @@
         <!-- Empty state -->
         <div v-else-if="matches.length === 0" class="flex flex-col items-center gap-2 py-16 text-muted">
           <UIcon name="i-mdi-sword-cross" class="size-10 opacity-40" />
-          <span class="text-sm">{{ t('publicMatchRecordes.noMatchRecordes') }}</span>
+          <span class="text-sm">{{ t('publicMatchRecords.noMatchRecords') }}</span>
         </div>
 
         <!-- MatchRecord cards -->
@@ -226,10 +226,10 @@ function clearTournament() {
   selectedTournament.value = null
 }
 
-// ── MatchRecordes ──────────────────────────────────────────────────────────────────
+// ── MatchRecords ──────────────────────────────────────────────────────────────────
 const matchCardEls = ref<HTMLElement[]>([])
 
-const { data: matchesData, status: matchesStatus, refresh: refreshMatchRecordes } = useLazyAsyncData(
+const { data: matchesData, status: matchesStatus, refresh: refreshMatchRecords } = useLazyAsyncData(
   'public-matches',
   () => {
     if (!selectedTournament.value) { return Promise.resolve(null) }
@@ -265,7 +265,7 @@ function startClient(id: string) {
   stompClient = new Client({
     brokerURL: `${wsBase}/ws`,
     onConnect: () => {
-      stompClient!.subscribe(`/topic/tournaments/${id}/matches`, () => refreshMatchRecordes())
+      stompClient!.subscribe(`/topic/tournaments/${id}/matches`, () => refreshMatchRecords())
     },
     reconnectDelay: 3000,
   })

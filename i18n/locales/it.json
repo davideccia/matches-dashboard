@@ -284,13 +284,13 @@
     "updated": "Categoria di peso aggiornata",
     "deleted": "Categoria di peso eliminata"
   },
-  "publicMatches": {
+  "publicMatchRecords": {
     "title": "Incontri dal vivo",
     "selectTournament": "Seleziona un torneo",
     "searchTournament": "Cerca torneo...",
     "noTournaments": "Nessun torneo disponibile",
     "noTournamentsHint": "Al momento non ci sono tornei disponibili",
-    "noMatches": "Nessun incontro disponibile",
+    "noMatchRecords": "Nessun incontro disponibile",
     "changeTournament": "Cambia torneo",
     "page": "Pagina {current} di {total}",
     "prev": "Precedente",

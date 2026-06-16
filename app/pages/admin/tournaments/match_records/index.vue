@@ -17,7 +17,7 @@
       <div class="flex flex-col gap-5 p-6">
         <DataTable
           ref="tableRef"
-          url="/api/admin/matches"
+          url="/api/admin/match_records?with=tournament,redCorner,blueCorner,weightCategory,discipline"
           :columns="columns"
           :params="tableParams"
           empty-icon="i-mdi-sword-cross"
@@ -132,11 +132,11 @@ function matchStatusLabel(status: string): string {
 
 const columns = computed(() => [
   { accessorKey: 'sort', header: t('match.sort'), meta: { class: { th: 'text-right', td: 'text-right' } } },
-  { accessorKey: 'tournament_name', header: t('match.tournament') },
-  { accessorKey: 'red_corner_full_name', header: t('match.redCorner') },
-  { accessorKey: 'blue_corner_full_name', header: t('match.blueCorner') },
-  { accessorKey: 'weight_category_label', header: t('match.weightCategory') },
-  { accessorKey: 'discipline_label', header: t('match.disciplineLabel') },
+  { accessorKey: 'tournament.name', header: t('match.tournament') },
+  { accessorKey: 'red_corner.full_name', header: t('match.redCorner') },
+  { accessorKey: 'blue_corner.full_name', header: t('match.blueCorner') },
+  { accessorKey: 'weight_category.label', header: t('match.weightCategory') },
+  { accessorKey: 'discipline.label', header: t('match.disciplineLabel') },
   { accessorKey: 'status', header: t('match.status.label') },
   { id: 'actions', header: '' },
 ] as TableColumn<Record<string, unknown>>[])
@@ -160,7 +160,7 @@ async function deleteItem() {
   if (!deleteTarget.value) { return }
   deleting.value = true
   try {
-    await api.del(`/api/admin/matches/${deleteTarget.value.id}`)
+    await api.del(`/api/admin/match_records/${deleteTarget.value.id}`)
     confirmOpen.value = false
     deleteTarget.value = null
     await tableRef.value?.refresh()

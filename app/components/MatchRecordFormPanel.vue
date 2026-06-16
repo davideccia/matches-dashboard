@@ -415,7 +415,7 @@
               </UFormField>
 
               <!-- Judges points table -->
-              <MatchJudgesPointsTable v-model="state.judges_points" :rounds="state.rounds" />
+              <MatchRecordJudgesPointsTable v-model="state.judges_points" :rounds="state.rounds" />
             </div>
           </template>
         </UTabs>
@@ -541,14 +541,14 @@ const endMethodOptions = computed(() => [
 ])
 
 // ── Zod schemas ─────────────────────────────────────────────────────────────
-const createSchema = z.object({
-  tournament_id: z.string().min(1),
-  red_corner_id: z.string().min(1),
-  blue_corner_id: z.string().min(1),
-  weight_category_id: z.string().min(1),
-  discipline_id: z.string().min(1),
-  red_corner_team: z.string().min(1),
-  blue_corner_team: z.string().min(1),
+const schema = z.object({
+  tournament_id: z.string().min(1).nullable(),
+  red_corner_id: z.string().min(1).nullable().optional(),
+  blue_corner_id: z.string().min(1).nullable().optional(),
+  weight_category_id: z.string().min(1).nullable().optional(),
+  discipline_id: z.string().min(1).nullable().optional(),
+  red_corner_team: z.string().optional(),
+  blue_corner_team: z.string().optional(),
   sort: z.coerce.number().int().min(1),
   scheduled_time: z.string().optional().nullable(),
   status: z.enum(MATCH_STATUSES).optional(),
@@ -559,26 +559,6 @@ const createSchema = z.object({
   end_round: z.string().optional().nullable(),
   judges_points: z.any().optional().nullable(),
 })
-
-const editSchema = z.object({
-  red_corner_id: z.string().optional().nullable(),
-  blue_corner_id: z.string().optional().nullable(),
-  weight_category_id: z.string().optional().nullable(),
-  discipline_id: z.string().optional().nullable(),
-  red_corner_team: z.string().optional(),
-  blue_corner_team: z.string().optional(),
-  sort: z.coerce.number().int().min(1).optional(),
-  scheduled_time: z.string().optional().nullable(),
-  status: z.enum(MATCH_STATUSES).optional(),
-  winner_id: z.string().optional().nullable(),
-  end_method: z.string().optional().nullable(),
-  rounds: z.coerce.number().int().min(1).max(10),
-  minutes_per_round: z.coerce.number().min(1),
-  end_round: z.string().optional().nullable(),
-  judges_points: z.any().optional().nullable(),
-})
-
-const schema = computed(() => isEdit.value ? editSchema : createSchema)
 
 // ── Populate state when slideover opens ─────────────────────────────────────
 watch(open, async (val) => {
@@ -678,18 +658,18 @@ function onBlueCornerSelect(item: Record<string, unknown>) {
 
 // ── Corner display labels (resolved from props.item in edit, placeholder in create) ──
 const redCornerLabel = computed(() => {
-  if (props.item?.red_corner_full_name) { return props.item.red_corner_full_name }
+  if (props.item?.red_corner?.full_name) { return props.item.red_corner.full_name }
   return state.red_corner_id ? `#${state.red_corner_id.slice(0, 6)}` : t('match.redCorner')
 })
 const blueCornerLabel = computed(() => {
-  if (props.item?.blue_corner_full_name) { return props.item.blue_corner_full_name }
+  if (props.item?.blue_corner?.full_name) { return props.item.blue_corner.full_name }
   return state.blue_corner_id ? `#${state.blue_corner_id.slice(0, 6)}` : t('match.blueCorner')
 })
 const winnerLabel = computed(() => {
   if (!state.winner_id) { return null }
   if (state.winner_id === state.red_corner_id) { return redCornerLabel.value }
   if (state.winner_id === state.blue_corner_id) { return blueCornerLabel.value }
-  return props.item?.winner_full_name ?? t('match.winner')
+  return props.item?.winner?.full_name ?? t('match.winner')
 })
 
 const hasWinner = computed(() => !!state.winner_id)
@@ -699,7 +679,7 @@ const isBlueWinner = computed(() => hasWinner.value && state.winner_id === state
 // ── Submit ───────────────────────────────────────────────────────────────────
 const loading = ref(false)
 
-async function onSubmit(event: FormSubmitEvent<z.infer<typeof createSchema> | z.infer<typeof editSchema>>) {
+async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   loading.value = true
   try {
     const hasAnyPoints = state.judges_points.some(row =>
@@ -708,49 +688,30 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof createSchema> | z.
     )
     const judges_points = hasAnyPoints ? state.judges_points : null
 
+    const body = {
+      tournament_id: event.data.tournament_id,
+      red_corner_id: event.data.red_corner_id || null,
+      blue_corner_id: event.data.blue_corner_id || null,
+      weight_category_id: event.data.weight_category_id || null,
+      discipline_id: event.data.discipline_id || null,
+      red_corner_team: event.data.red_corner_team || null,
+      blue_corner_team: event.data.blue_corner_team || null,
+      sort: event.data.sort,
+      scheduled_time: event.data.scheduled_time || null,
+      status: event.data.status ?? 'scheduled',
+      winner_id: event.data.winner_id || null,
+      end_method: event.data.end_method || null,
+      rounds: event.data.rounds,
+      minutes_per_round: event.data.minutes_per_round,
+      end_round: event.data.end_round || null,
+      forced: forceEntry.value,
+      gender: genderFilter.value,
+      judges_points,
+    }
+
     if (isEdit.value) {
-      const body = {
-        red_corner_id: event.data.red_corner_id || null,
-        blue_corner_id: event.data.blue_corner_id || null,
-        weight_category_id: event.data.weight_category_id || null,
-        discipline_id: event.data.discipline_id || null,
-        red_corner_team: event.data.red_corner_team || undefined,
-        blue_corner_team: event.data.blue_corner_team || undefined,
-        sort: event.data.sort ?? undefined,
-        scheduled_time: event.data.scheduled_time || null,
-        status: event.data.status,
-        winner_id: event.data.winner_id || null,
-        end_method: event.data.end_method || null,
-        rounds: event.data.rounds,
-        minutes_per_round: event.data.minutes_per_round,
-        end_round: event.data.end_round || null,
-        forced: forceEntry.value,
-        gender: genderFilter.value,
-        judges_points,
-      }
-      await api.put(`/api/admin/matches/${props.item!.id}`, body)
+      await api.put(`/api/admin/match_records/${props.item!.id}`, body)
     } else {
-      const createData = event.data as z.infer<typeof createSchema>
-      const body = {
-        tournament_id: createData.tournament_id,
-        red_corner_id: createData.red_corner_id,
-        blue_corner_id: createData.blue_corner_id,
-        weight_category_id: createData.weight_category_id,
-        discipline_id: createData.discipline_id,
-        red_corner_team: createData.red_corner_team,
-        blue_corner_team: createData.blue_corner_team,
-        sort: createData.sort,
-        scheduled_time: createData.scheduled_time || null,
-        status: createData.status ?? 'scheduled',
-        winner_id: createData.winner_id || null,
-        end_method: createData.end_method || null,
-        rounds: createData.rounds,
-        minutes_per_round: createData.minutes_per_round,
-        end_round: createData.end_round || null,
-        forced: forceEntry.value,
-        gender: genderFilter.value,
-        judges_points,
-      }
       await api.post('/api/admin/matches', body)
     }
 

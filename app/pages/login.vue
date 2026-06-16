@@ -89,7 +89,7 @@
               icon="i-mdi-sword-cross"
               block
               variant="outline"
-              @click="navigateTo('/public/tournaments/matches')"
+              @click="navigateTo('/public/tournaments/match_records')"
             />
           </template>
         </UAuthForm>

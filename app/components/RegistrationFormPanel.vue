@@ -209,7 +209,7 @@ const toast = useToast()
 
 const isEdit = computed(() => props.item !== null)
 
-const createSchema = z.object({
+const schema = z.object({
   athlete_id: z.string().min(1),
   tournament_id: z.string().min(1),
   discipline_id: z.string().min(1),
@@ -219,17 +219,6 @@ const createSchema = z.object({
   weight_in: z.number().nullable().optional(),
   notes: z.string().optional(),
 })
-
-const editSchema = z.object({
-  discipline_id: z.string().min(1),
-  weight_category_id: z.string().min(1),
-  paid_at: z.string().nullable().optional(),
-  arrived: z.boolean().optional(),
-  weight_in: z.number().nullable().optional(),
-  notes: z.string().optional(),
-})
-
-const schema = computed(() => isEdit.value ? editSchema : createSchema)
 
 const state = reactive({
   athlete_id: null as string | null,
@@ -300,7 +289,7 @@ watch(open, (val) => {
 
 const loading = ref(false)
 
-async function onSubmit(event: FormSubmitEvent<z.infer<typeof createSchema>>) {
+async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   loading.value = true
   try {
     const body = {

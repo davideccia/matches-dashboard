@@ -153,7 +153,7 @@ const { data, refresh, status } = useLazyAsyncData(
   'matches-board',
   () => {
     if (!tournamentId.value) { return Promise.resolve(null) }
-    return api.get<MatchRecordesResponse>('/api/admin/matches', {
+    return api.get<MatchRecordesResponse>('/api/admin/match_records?with=tournament,red_corner,blue_corner,winner,weight_category,discipline', {
       page: 1,
       ...(search.value ? { search: search.value } : {}),
       tournament_id: tournamentId.value,

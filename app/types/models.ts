@@ -99,13 +99,6 @@ export interface MatchRecord {
   winner?: Athlete
   weight_category?: WeightCategory
   discipline?: Discipline
-  // campi appended dall'API
-  tournament_name?: string
-  red_corner_full_name?: string | null
-  blue_corner_full_name?: string | null
-  winner_full_name?: string | null
-  weight_category_label?: string
-  discipline_label?: string
 }
 
 export interface User {
