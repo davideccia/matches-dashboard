@@ -139,7 +139,7 @@ watch(open, (val) => {
   if (val) {
     state.first_name = props.item?.first_name ?? ''
     state.last_name = props.item?.last_name ?? ''
-    state.birth_date = props.item?.birth_date ?? ''
+    state.birth_date = props.item?.birth_date?.slice(0, 10) ?? ''
     state.gender = props.item?.gender ?? 'male'
     state.tax_number = props.item?.tax_number ?? ''
     state.team_name = props.item?.team_name ?? ''
