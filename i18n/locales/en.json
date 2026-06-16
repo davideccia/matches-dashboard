@@ -260,7 +260,10 @@
     "weightRegistered": "Weight registered",
     "noWeightRegistered": "No weight registered",
     "paid": "Paid",
-    "liveManagement": "Live Management"
+    "liveManagement": "Live Management",
+    "filterUnpaid": "Unpaid",
+    "filterUnarrived": "Not arrived",
+    "filterWeightExceeded": "Over weight"
   },
   "discipline": {
     "label": "Label",

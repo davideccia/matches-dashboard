@@ -2,51 +2,51 @@
   <USlideover v-model:open="open" :title="isEdit ? t('registration.editTitle') : t('registration.createTitle')">
     <template #body>
       <UForm :schema="schema" :state="state as any" class="space-y-6 p-6" @submit="(e: any) => onSubmit(e)">
-        <template v-if="!isEdit">
-          <UFormField name="athlete_id" :label="t('registration.athlete')" required>
-            <div class="flex items-center gap-2">
-              <ApiSelectMenu
-                v-model="state.athlete_id"
-                endpoint="/api/admin/athletes"
-                label-key="full_name"
-                :placeholder="t('registration.selectAthlete')"
-                class="w-full"
-              />
-              <UButton
-                v-if="state.athlete_id !== null"
-                type="button"
-                icon="i-mdi-close"
-                variant="ghost"
-                color="neutral"
-                size="sm"
-                :aria-label="t('common.cancel')"
-                @click="state.athlete_id = null"
-              />
-            </div>
-          </UFormField>
+        <UFormField name="athlete_id" :label="t('registration.athlete')" required>
+          <div class="flex items-center gap-2">
+            <ApiSelectMenu
+              v-model="state.athlete_id"
+              endpoint="/api/admin/athletes"
+              label-key="full_name"
+              :placeholder="t('registration.selectAthlete')"
+              :disabled="isEdit"
+              class="w-full"
+            />
+            <UButton
+              v-if="state.athlete_id !== null && !isEdit"
+              type="button"
+              icon="i-mdi-close"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              :aria-label="t('common.cancel')"
+              @click="state.athlete_id = null"
+            />
+          </div>
+        </UFormField>
 
-          <UFormField name="tournament_id" :label="t('registration.tournament')" required>
-            <div class="flex items-center gap-2">
-              <ApiSelectMenu
-                v-model="state.tournament_id"
-                endpoint="/api/admin/tournaments"
-                label-key="name"
-                :placeholder="t('registration.selectTournament')"
-                class="w-full"
-              />
-              <UButton
-                v-if="state.tournament_id !== null"
-                type="button"
-                icon="i-mdi-close"
-                variant="ghost"
-                color="neutral"
-                size="sm"
-                :aria-label="t('common.cancel')"
-                @click="state.tournament_id = null"
-              />
-            </div>
-          </UFormField>
-        </template>
+        <UFormField name="tournament_id" :label="t('registration.tournament')" required>
+          <div class="flex items-center gap-2">
+            <ApiSelectMenu
+              v-model="state.tournament_id"
+              endpoint="/api/admin/tournaments"
+              label-key="name"
+              :placeholder="t('registration.selectTournament')"
+              :disabled="isEdit"
+              class="w-full"
+            />
+            <UButton
+              v-if="state.tournament_id !== null && !isEdit"
+              type="button"
+              icon="i-mdi-close"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              :aria-label="t('common.cancel')"
+              @click="state.tournament_id = null"
+            />
+          </div>
+        </UFormField>
 
         <UFormField name="discipline_id" :label="t('registration.discipline')" required>
           <div class="flex items-center gap-2">
@@ -303,27 +303,19 @@ const loading = ref(false)
 async function onSubmit(event: FormSubmitEvent<z.infer<typeof createSchema>>) {
   loading.value = true
   try {
+    const body = {
+      athlete_id: state.athlete_id,
+      tournament_id: state.tournament_id,
+      discipline_id: event.data.discipline_id,
+      weight_category_id: event.data.weight_category_id,
+      paid_at: inputDateToServer(event.data.paid_at),
+      arrived: event.data.arrived ?? false,
+      weight_in: event.data.weight_in ?? null,
+      notes: event.data.notes || null,
+    }
     if (isEdit.value) {
-      const body = {
-        discipline_id: event.data.discipline_id,
-        weight_category_id: event.data.weight_category_id,
-        paid_at: inputDateToServer(event.data.paid_at),
-        arrived: event.data.arrived ?? false,
-        weight_in: event.data.weight_in ?? null,
-        notes: event.data.notes || null,
-      }
       await api.put(`/api/admin/registrations/${props.item!.id}`, body)
     } else {
-      const body = {
-        athlete_id: event.data.athlete_id,
-        tournament_id: event.data.tournament_id,
-        discipline_id: event.data.discipline_id,
-        weight_category_id: event.data.weight_category_id,
-        paid_at: inputDateToServer(event.data.paid_at),
-        arrived: event.data.arrived ?? false,
-        weight_in: event.data.weight_in ?? null,
-        notes: event.data.notes || null,
-      }
       await api.post('/api/admin/registrations', body)
     }
 

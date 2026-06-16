@@ -38,6 +38,30 @@
               :aria-label="t('common.cancel')"
               @click="tournamentId = null"
             />
+            <UButton
+              :color="unpaid === null ? 'neutral' : unpaid ? 'success' : 'error'"
+              :variant="unpaid === null ? 'outline' : 'subtle'"
+              size="sm"
+              @click="unpaid = unpaid === null ? true : unpaid ? false : null"
+            >
+              {{ t('registration.filterUnpaid') }}
+            </UButton>
+            <UButton
+              :color="unarrived === null ? 'neutral' : unarrived ? 'success' : 'error'"
+              :variant="unarrived === null ? 'outline' : 'subtle'"
+              size="sm"
+              @click="unarrived = unarrived === null ? true : unarrived ? false : null"
+            >
+              {{ t('registration.filterUnarrived') }}
+            </UButton>
+            <UButton
+              :color="weightInExceeded === null ? 'neutral' : weightInExceeded ? 'success' : 'error'"
+              :variant="weightInExceeded === null ? 'outline' : 'subtle'"
+              size="sm"
+              @click="weightInExceeded = weightInExceeded === null ? true : weightInExceeded ? false : null"
+            >
+              {{ t('registration.filterWeightExceeded') }}
+            </UButton>
           </template>
           <template #weight_category_label-cell="{ row }">
             <UTooltip :delay-duration="200">
@@ -149,6 +173,9 @@ const toast = useToast()
 const tableRef = useTemplateRef('tableRef')
 
 const tournamentId = ref<string | null>(null)
+const unpaid = ref<boolean | null>(null)
+const unarrived = ref<boolean | null>(null)
+const weightInExceeded = ref<boolean | null>(null)
 const panelOpen = ref(false)
 const editingItem = ref<Registration | null>(null)
 const confirmOpen = ref(false)
@@ -157,6 +184,9 @@ const deleting = ref(false)
 
 const tableParams = computed(() => ({
   tournament_id: tournamentId.value ?? undefined,
+  unpaid: unpaid.value === null ? undefined : unpaid.value ? 1 : 0,
+  unarrived: unarrived.value === null ? undefined : unarrived.value ? 1 : 0,
+  weight_in_exceeded: weightInExceeded.value === null ? undefined : weightInExceeded.value ? 1 : 0,
 }))
 
 const columns = computed(() => [

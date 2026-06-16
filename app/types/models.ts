@@ -136,6 +136,6 @@ export interface PaginatedResponse<T> {
     to: number | null
     total: number
     path: string
-    links: Array<{ url: string | null; label: string; active: boolean }>
+    links: Array<{ url: string | null, label: string, active: boolean }>
   }
 }

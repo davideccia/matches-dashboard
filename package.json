@@ -1,7 +1,7 @@
 {
   "name": "matches-dashboard",
   "type": "module",
-  "version": " b0.1.0",
+  "version": " β",
   "private": true,
   "scripts": {
     "build": "nuxt build",

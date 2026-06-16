@@ -231,8 +231,8 @@ const hasJudgePoints = computed(() => {
   const points = props.match.judges_points
   if (!Array.isArray(points) || points.length === 0) { return false }
   return points.some(row =>
-    row['red_corner_judge_1'] !== null || row['red_corner_judge_2'] !== null || row['red_corner_judge_3'] !== null
-    || row['blue_corner_judge_1'] !== null || row['blue_corner_judge_2'] !== null || row['blue_corner_judge_3'] !== null,
+    row.red_corner_judge_1 !== null || row.red_corner_judge_2 !== null || row.red_corner_judge_3 !== null
+    || row.blue_corner_judge_1 !== null || row.blue_corner_judge_2 !== null || row.blue_corner_judge_3 !== null,
   )
 })
 

@@ -260,7 +260,10 @@
     "weightRegistered": "Peso registrato",
     "noWeightRegistered": "Peso non registrato",
     "paid": "Pagato",
-    "liveManagement": "Gestione Live"
+    "liveManagement": "Gestione Live",
+    "filterUnpaid": "Non pagati",
+    "filterUnarrived": "Non arrivati",
+    "filterWeightExceeded": "Fuori peso"
   },
   "discipline": {
     "label": "Etichetta",
