@@ -72,17 +72,13 @@
             </h2>
           </div>
 
-          <div v-if="!isNewAthlete" class="space-y-2">
-            <UAlert
-              color="success"
-              variant="soft"
-              icon="i-mdi-check-circle"
-              :description="t('register.athleteFound')"
-            />
-            <p class="text-xs text-muted px-1">
-              {{ t('register.athleteReadonlyHint') }}
-            </p>
-          </div>
+          <UAlert
+            v-if="!isNewAthlete"
+            color="success"
+            variant="soft"
+            icon="i-mdi-check-circle"
+            :description="t('register.athleteFound')"
+          />
           <UAlert
             v-else
             color="info"
@@ -94,10 +90,10 @@
           <UForm :schema="athleteSchema" :state="athleteState" class="space-y-4" @submit="onStep2Submit">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <UFormField name="first_name" :label="t('athlete.firstName')" required>
-                <UInput v-model="athleteState.first_name" size="lg" class="w-full" :disabled="!isNewAthlete" />
+                <UInput v-model="athleteState.first_name" size="lg" class="w-full" />
               </UFormField>
               <UFormField name="last_name" :label="t('athlete.lastName')" required>
-                <UInput v-model="athleteState.last_name" size="lg" class="w-full" :disabled="!isNewAthlete" />
+                <UInput v-model="athleteState.last_name" size="lg" class="w-full" />
               </UFormField>
             </div>
 
@@ -108,7 +104,6 @@
                   type="date"
                   size="lg"
                   class="w-full"
-                  :disabled="!isNewAthlete"
                 />
               </UFormField>
               <UFormField name="gender" :label="t('athlete.gender.label')" required>
@@ -117,7 +112,6 @@
                   :items="genderOptions"
                   size="lg"
                   class="w-full"
-                  :disabled="!isNewAthlete"
                 />
               </UFormField>
             </div>
@@ -127,12 +121,11 @@
                 v-model="athleteState.tax_number"
                 size="lg"
                 class="w-full font-mono uppercase tracking-widest"
-                :disabled="!isNewAthlete"
               />
             </UFormField>
 
             <UFormField name="team_name" :label="t('athlete.teamName')" required>
-              <UInput v-model="athleteState.team_name" size="lg" class="w-full" :disabled="!isNewAthlete" />
+              <UInput v-model="athleteState.team_name" size="lg" class="w-full" />
             </UFormField>
 
             <div class="flex gap-3 pt-2">
@@ -147,7 +140,13 @@
               >
                 {{ t('register.back') }}
               </UButton>
-              <UButton size="lg" class="flex-1" trailing-icon="i-mdi-arrow-right" type="submit">
+              <UButton
+                size="lg"
+                class="flex-1"
+                trailing-icon="i-mdi-arrow-right"
+                type="submit"
+                :loading="step2Submitting"
+              >
                 {{ t('register.next') }}
               </UButton>
             </div>
@@ -218,33 +217,6 @@
               {{ t('register.noTournamentsOpenHint') }}
             </p>
           </div>
-
-          <!-- Paginazione tornei -->
-          <div v-if="tournamentsTotalPages > 1" class="flex items-center justify-between gap-2">
-            <UButton
-              size="sm"
-              variant="ghost"
-              color="neutral"
-              leading-icon="i-mdi-chevron-left"
-              :disabled="tournamentsPage === 0"
-              @click="tournamentsPage--"
-            >
-              {{ t('register.prev') }}
-            </UButton>
-            <span class="text-xs text-muted">
-              {{ t('register.page', { current: tournamentsPage + 1, total: tournamentsTotalPages }) }}
-            </span>
-            <UButton
-              size="sm"
-              variant="ghost"
-              color="neutral"
-              trailing-icon="i-mdi-chevron-right"
-              :disabled="tournamentsPage >= tournamentsTotalPages - 1"
-              @click="tournamentsPage++"
-            >
-              {{ t('register.next2') }}
-            </UButton>
-          </div>
         </div>
 
         <!-- Discipline -->
@@ -282,32 +254,6 @@
           <div v-else class="text-center py-6 text-sm text-muted">
             {{ t('register.noDisciplines') }}
           </div>
-
-          <div v-if="disciplinesTotalPages > 1" class="flex items-center justify-between gap-2">
-            <UButton
-              size="sm"
-              variant="ghost"
-              color="neutral"
-              leading-icon="i-mdi-chevron-left"
-              :disabled="disciplinesPage === 0"
-              @click="disciplinesPage--"
-            >
-              {{ t('register.prev') }}
-            </UButton>
-            <span class="text-xs text-muted">
-              {{ t('register.page', { current: disciplinesPage + 1, total: disciplinesTotalPages }) }}
-            </span>
-            <UButton
-              size="sm"
-              variant="ghost"
-              color="neutral"
-              trailing-icon="i-mdi-chevron-right"
-              :disabled="disciplinesPage >= disciplinesTotalPages - 1"
-              @click="disciplinesPage++"
-            >
-              {{ t('register.next2') }}
-            </UButton>
-          </div>
         </div>
 
         <!-- Categorie di peso -->
@@ -344,32 +290,6 @@
           </div>
           <div v-else class="text-center py-6 text-sm text-muted">
             {{ t('register.noWeightCategories') }}
-          </div>
-
-          <div v-if="weightCategoriesTotalPages > 1" class="flex items-center justify-between gap-2">
-            <UButton
-              size="sm"
-              variant="ghost"
-              color="neutral"
-              leading-icon="i-mdi-chevron-left"
-              :disabled="weightCategoriesPage === 0"
-              @click="weightCategoriesPage--"
-            >
-              {{ t('register.prev') }}
-            </UButton>
-            <span class="text-xs text-muted">
-              {{ t('register.page', { current: weightCategoriesPage + 1, total: weightCategoriesTotalPages }) }}
-            </span>
-            <UButton
-              size="sm"
-              variant="ghost"
-              color="neutral"
-              trailing-icon="i-mdi-chevron-right"
-              :disabled="weightCategoriesPage >= weightCategoriesTotalPages - 1"
-              @click="weightCategoriesPage++"
-            >
-              {{ t('register.next2') }}
-            </UButton>
           </div>
         </div>
 
@@ -545,6 +465,8 @@
 <script setup lang="ts">
 import type { FormSubmitEvent, StepperItem } from '@nuxt/ui'
 import * as z from 'zod'
+import type { Athlete, Discipline, Tournament, WeightCategory, PaginatedResponse } from '~/types/models'
+import type { Gender } from '~/utils/constants'
 
 definePageMeta({ layout: false, sanctum: { excluded: true } })
 
@@ -553,16 +475,14 @@ const { t, locale } = useI18n()
 const toast = useToast()
 
 // ── Public API helpers (no auth token) ──────────────────────────────────────
-interface PageData<T> {
-  data: T[]
-  meta: { total: number, current_page: number, last_page: number, per_page: number }
+function apiHeaders() {
+  return { 'Accept-Language': locale.value }
 }
-
 async function apiGet<T>(path: string, params?: Record<string, unknown>): Promise<T> {
-  return $fetch<T>(path, { baseURL: config.public.apiBase, params })
+  return $fetch<T>(path, { baseURL: config.public.apiBase, params, headers: apiHeaders() })
 }
 async function apiPost<T>(path: string, body: Record<string, unknown>): Promise<T> {
-  return $fetch<T>(path, { method: 'POST', baseURL: config.public.apiBase, body })
+  return $fetch<T>(path, { method: 'POST', baseURL: config.public.apiBase, body, headers: apiHeaders() })
 }
 
 // ── Stepper ──────────────────────────────────────────────────────────────────
@@ -580,24 +500,14 @@ const stepperItems = computed<StepperItem[]>(() => [
 const taxNumberInput = ref('')
 const taxLookupLoading = ref(false)
 
-interface AthleteData {
-  id: string
-  first_name: string
-  last_name: string
-  birth_date: string
-  gender: 'male' | 'female'
-  tax_number: string
-  team_name: string | null
-}
-
-const existingAthlete = ref<AthleteData | null>(null)
+const existingAthlete = ref<Athlete | null>(null)
 const isNewAthlete = ref(false)
 
 const athleteState = reactive({
   first_name: '',
   last_name: '',
   birth_date: '',
-  gender: 'male' as 'male' | 'female',
+  gender: 'male' as Gender,
   tax_number: '',
   team_name: '',
 })
@@ -606,16 +516,16 @@ async function onStep1Next() {
   if (!taxNumberInput.value.trim()) { return }
   taxLookupLoading.value = true
   try {
-    const res = await apiGet<{ data: AthleteData }>(
-      `/api/admin/public/registration_form/athletes/find_by_tax_number/${taxNumberInput.value.toUpperCase()}`,
+    const res = await apiGet<{ data: Athlete }>(
+      `/api/public/registration_form/athletes/${taxNumberInput.value.trim().toUpperCase()}`,
     )
     existingAthlete.value = res.data
     isNewAthlete.value = false
     athleteState.first_name = res.data.first_name
     athleteState.last_name = res.data.last_name
-    athleteState.birth_date = res.data.birth_date
+    athleteState.birth_date = res.data.birth_date?.substring(0, 10) ?? ''
     athleteState.gender = res.data.gender
-    athleteState.tax_number = res.data.tax_number
+    athleteState.tax_number = res.data.tax_number ?? ''
     athleteState.team_name = res.data.team_name ?? ''
   } catch {
     existingAthlete.value = null
@@ -623,8 +533,8 @@ async function onStep1Next() {
     athleteState.first_name = ''
     athleteState.last_name = ''
     athleteState.birth_date = ''
-    athleteState.gender = 'male'
-    athleteState.tax_number = taxNumberInput.value.toUpperCase()
+    athleteState.gender = 'male' as Gender
+    athleteState.tax_number = taxNumberInput.value.trim().toUpperCase()
     athleteState.team_name = ''
   } finally {
     taxLookupLoading.value = false
@@ -633,11 +543,14 @@ async function onStep1Next() {
 }
 
 // ── Step 2: Dati atleta ──────────────────────────────────────────────────────
+const step2Submitting = ref(false)
+const savedAthleteId = ref<string | null>(null)
+
 const athleteSchema = z.object({
   first_name: z.string().min(1),
   last_name: z.string().min(1),
   birth_date: z.string().min(1),
-  gender: z.enum(['male', 'female'] as const),
+  gender: z.enum(['male', 'female', 'hybrid'] as const),
   tax_number: z.string().min(1),
   team_name: z.string().min(1),
 })
@@ -647,30 +560,39 @@ const genderOptions = computed(() => [
   { label: t('athlete.gender.female'), value: 'female' },
 ])
 
-function onStep2Submit(event: FormSubmitEvent<z.infer<typeof athleteSchema>>) {
+async function onStep2Submit(event: FormSubmitEvent<z.infer<typeof athleteSchema>>) {
   athleteState.first_name = event.data.first_name
   athleteState.last_name = event.data.last_name
   athleteState.birth_date = event.data.birth_date
   athleteState.gender = event.data.gender
   athleteState.tax_number = event.data.tax_number
   athleteState.team_name = event.data.team_name ?? ''
-  stepperRef.value?.next()
-  loadStep3Data()
+
+  step2Submitting.value = true
+  try {
+    const res = await apiPost<{ data: { id: string } }>('/api/public/registration_form/athletes', {
+      first_name: athleteState.first_name,
+      last_name: athleteState.last_name,
+      birth_date: athleteState.birth_date,
+      gender: athleteState.gender,
+      tax_number: athleteState.tax_number,
+      team_name: athleteState.team_name || null,
+    })
+    savedAthleteId.value = res.data.id
+    stepperRef.value?.next()
+    loadStep3Data()
+  } catch (e: unknown) {
+    const message = (e as { data?: { message?: string } })?.data?.message
+    toast.add({ title: message ?? t('common.error'), color: 'error' })
+  } finally {
+    step2Submitting.value = false
+  }
 }
 
 // ── Step 3: Torneo, Disciplina, Categoria di peso ────────────────────────────
-const pageSize = 10
 
 // Tornei
-interface Tournament {
-  id: string
-  name: string
-  date: string
-  location_city: string
-}
 const tournaments = ref<Tournament[]>([])
-const tournamentsTotal = ref(0)
-const tournamentsPage = ref(0)
 const tournamentsSearch = ref('')
 const tournamentsSearchInput = ref('')
 const tournamentsLoading = ref(false)
@@ -679,44 +601,27 @@ const selectedTournamentId = ref<string | null>(null)
 let tournamentSearchTimer: ReturnType<typeof setTimeout>
 watch(tournamentsSearchInput, (val) => {
   clearTimeout(tournamentSearchTimer)
-  tournamentSearchTimer = setTimeout(() => {
-    tournamentsSearch.value = val
-    tournamentsPage.value = 0
-  }, 300)
+  tournamentSearchTimer = setTimeout(() => { tournamentsSearch.value = val }, 300)
 })
-watch([tournamentsPage, tournamentsSearch], () => fetchTournaments())
+watch(tournamentsSearch, () => fetchTournaments())
 
 async function fetchTournaments() {
   tournamentsLoading.value = true
   try {
-    const res = await apiGet<PageData<Tournament>>(
-      '/api/admin/public/registration_form/tournaments',
-      {
-        page: tournamentsPage.value + 1,
-        per_page: pageSize,
-        ...(tournamentsSearch.value ? { search: tournamentsSearch.value } : {}),
-      },
+    const res = await apiGet<PaginatedResponse<Tournament>>(
+      '/api/public/registration_form/tournaments',
+      tournamentsSearch.value ? { search: tournamentsSearch.value } : {},
     )
     tournaments.value = res.data ?? []
-    tournamentsTotal.value = res.meta?.total ?? 0
   } catch {
     tournaments.value = []
-    tournamentsTotal.value = 0
   } finally {
     tournamentsLoading.value = false
   }
 }
 
-const tournamentsTotalPages = computed(() => Math.ceil(tournamentsTotal.value / pageSize))
-
 // Discipline
-interface Discipline {
-  id: string
-  label: string
-}
 const disciplines = ref<Discipline[]>([])
-const disciplinesTotal = ref(0)
-const disciplinesPage = ref(0)
 const disciplinesSearch = ref('')
 const disciplinesSearchInput = ref('')
 const disciplinesLoading = ref(false)
@@ -725,44 +630,27 @@ const selectedDisciplineId = ref<string | null>(null)
 let disciplineSearchTimer: ReturnType<typeof setTimeout>
 watch(disciplinesSearchInput, (val) => {
   clearTimeout(disciplineSearchTimer)
-  disciplineSearchTimer = setTimeout(() => {
-    disciplinesSearch.value = val
-    disciplinesPage.value = 0
-  }, 300)
+  disciplineSearchTimer = setTimeout(() => { disciplinesSearch.value = val }, 300)
 })
-watch([disciplinesPage, disciplinesSearch], () => fetchDisciplines())
+watch(disciplinesSearch, () => fetchDisciplines())
 
 async function fetchDisciplines() {
   disciplinesLoading.value = true
   try {
-    const res = await apiGet<PageData<Discipline>>(
-      '/api/admin/public/registration_form/disciplines',
-      {
-        page: disciplinesPage.value + 1,
-        per_page: pageSize,
-        ...(disciplinesSearch.value ? { search: disciplinesSearch.value } : {}),
-      },
+    const res = await apiGet<PaginatedResponse<Discipline>>(
+      '/api/public/registration_form/disciplines',
+      disciplinesSearch.value ? { search: disciplinesSearch.value } : {},
     )
     disciplines.value = res.data ?? []
-    disciplinesTotal.value = res.meta?.total ?? 0
   } catch {
     disciplines.value = []
-    disciplinesTotal.value = 0
   } finally {
     disciplinesLoading.value = false
   }
 }
 
-const disciplinesTotalPages = computed(() => Math.ceil(disciplinesTotal.value / pageSize))
-
 // Categorie di peso
-interface WeightCategory {
-  id: string
-  label: string
-}
 const weightCategories = ref<WeightCategory[]>([])
-const weightCategoriesTotal = ref(0)
-const weightCategoriesPage = ref(0)
 const weightCategoriesSearch = ref('')
 const weightCategoriesSearchInput = ref('')
 const weightCategoriesLoading = ref(false)
@@ -771,35 +659,24 @@ const selectedWeightCategoryId = ref<string | null>(null)
 let weightCategorySearchTimer: ReturnType<typeof setTimeout>
 watch(weightCategoriesSearchInput, (val) => {
   clearTimeout(weightCategorySearchTimer)
-  weightCategorySearchTimer = setTimeout(() => {
-    weightCategoriesSearch.value = val
-    weightCategoriesPage.value = 0
-  }, 300)
+  weightCategorySearchTimer = setTimeout(() => { weightCategoriesSearch.value = val }, 300)
 })
-watch([weightCategoriesPage, weightCategoriesSearch], () => fetchWeightCategories())
+watch(weightCategoriesSearch, () => fetchWeightCategories())
 
 async function fetchWeightCategories() {
   weightCategoriesLoading.value = true
   try {
-    const res = await apiGet<PageData<WeightCategory>>(
-      '/api/admin/public/registration_form/weight_categories',
-      {
-        page: weightCategoriesPage.value + 1,
-        per_page: pageSize,
-        ...(weightCategoriesSearch.value ? { search: weightCategoriesSearch.value } : {}),
-      },
+    const res = await apiGet<PaginatedResponse<WeightCategory>>(
+      '/api/public/registration_form/weight_categories',
+      weightCategoriesSearch.value ? { search: weightCategoriesSearch.value } : {},
     )
     weightCategories.value = res.data ?? []
-    weightCategoriesTotal.value = res.meta?.total ?? 0
   } catch {
     weightCategories.value = []
-    weightCategoriesTotal.value = 0
   } finally {
     weightCategoriesLoading.value = false
   }
 }
-
-const weightCategoriesTotalPages = computed(() => Math.ceil(weightCategoriesTotal.value / pageSize))
 
 function loadStep3Data() {
   fetchTournaments()
@@ -837,34 +714,18 @@ const downloadingPdf = ref(false)
 async function submit() {
   submitting.value = true
   try {
-    let athleteId: string
-
-    if (existingAthlete.value) {
-      athleteId = existingAthlete.value.id
-    } else {
-      const res = await apiPost<{ data: { id: string } }>('/api/admin/public/registration_form/athletes', {
-        first_name: athleteState.first_name,
-        last_name: athleteState.last_name,
-        birth_date: athleteState.birth_date,
-        gender: athleteState.gender,
-        tax_number: athleteState.tax_number,
-        team_name: athleteState.team_name || null,
-      })
-      athleteId = res.data.id
-    }
-
-    const regRes = await apiPost<{ data: { id: string } }>('/api/admin/public/registration_form/registrations', {
-      athlete_id: athleteId,
+    const regRes = await apiPost<{ data: { id: string } }>('/api/public/registration_form/registrations', {
+      athlete_id: savedAthleteId.value,
       tournament_id: selectedTournamentId.value,
       discipline_id: selectedDisciplineId.value,
       weight_category_id: selectedWeightCategoryId.value,
       notes: null,
-      status: 'TO_MANAGE',
     })
     registrationId.value = regRes.data.id
     submitted.value = true
-  } catch {
-    toast.add({ title: t('common.error'), color: 'error' })
+  } catch (e: unknown) {
+    const message = (e as { data?: { message?: string } })?.data?.message
+    toast.add({ title: message ?? t('common.error'), color: 'error' })
   } finally {
     submitting.value = false
   }
@@ -875,8 +736,8 @@ async function downloadPdf() {
   downloadingPdf.value = true
   try {
     const blob = await $fetch<Blob>(
-      `/api/admin/public/registration_form/registrations/${registrationId.value}/pdf`,
-      { baseURL: config.public.apiBase, responseType: 'blob' },
+      `/api/public/registration_form/registrations/${registrationId.value}/pdf`,
+      { baseURL: config.public.apiBase, responseType: 'blob', headers: apiHeaders() },
     )
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -884,8 +745,9 @@ async function downloadPdf() {
     a.download = `registration-${registrationId.value}.pdf`
     a.click()
     URL.revokeObjectURL(url)
-  } catch {
-    toast.add({ title: t('common.error'), color: 'error' })
+  } catch (e: unknown) {
+    const message = (e as { data?: { message?: string } })?.data?.message
+    toast.add({ title: message ?? t('common.error'), color: 'error' })
   } finally {
     downloadingPdf.value = false
   }
@@ -895,19 +757,17 @@ function resetForm() {
   submitted.value = false
   privacyConsent.value = false
   registrationId.value = null
+  savedAthleteId.value = null
   currentStep.value = 0
   taxNumberInput.value = ''
   existingAthlete.value = null
   isNewAthlete.value = false
-  Object.assign(athleteState, { first_name: '', last_name: '', birth_date: '', gender: 'male', tax_number: '', team_name: '' })
+  Object.assign(athleteState, { first_name: '', last_name: '', birth_date: '', gender: 'male' as Gender, tax_number: '', team_name: '' })
   selectedTournamentId.value = null
   selectedDisciplineId.value = null
   selectedWeightCategoryId.value = null
-  tournamentsPage.value = 0
   tournamentsSearchInput.value = ''
-  disciplinesPage.value = 0
   disciplinesSearchInput.value = ''
-  weightCategoriesPage.value = 0
   weightCategoriesSearchInput.value = ''
 }
 

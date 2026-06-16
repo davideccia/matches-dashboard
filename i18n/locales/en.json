@@ -304,7 +304,7 @@
     "stepSummary": "Summary",
     "taxNumberLabel": "Tax number",
     "taxNumberPlaceholder": "Enter your tax number",
-    "athleteFound": "You are already registered: data pre-filled",
+    "athleteFound": "Athlete found. You can update the details before continuing.",
     "athleteReadonlyHint": "If your details are incorrect, please contact the administration before proceeding.",
     "athleteNotFound": "First registration: fill in your details",
     "selectTournament": "Select a tournament",
