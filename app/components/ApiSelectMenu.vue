@@ -63,6 +63,9 @@
             </div>
           </template>
 
+          <!-- Infinite scroll sentinel -->
+          <div v-if="paginated" ref="sentinel" class="h-px" />
+
           <!-- Empty state -->
           <div
             v-if="!loading && items.length === 0"
@@ -87,12 +90,14 @@ const props = withDefaults(defineProps<{
   labelKey?: string
   placeholder?: string
   disabled?: boolean
+  paginated?: boolean
   queryParams?: Record<string, string | number | boolean | undefined>
 }>(), {
   valueKey: 'id',
   labelKey: 'label',
   placeholder: undefined,
   disabled: false,
+  paginated: true,
   queryParams: undefined,
 })
 
@@ -112,6 +117,10 @@ const open = ref(false)
 const search = ref('')
 const items = ref<Item[]>([])
 const loading = ref(false)
+const currentPage = ref(1)
+const hasMore = ref(false)
+
+const PAGE_SIZE = 20
 
 // ── Derived ────────────────────────────────────────────────────────────────
 const selectedItem = computed(() =>
@@ -124,23 +133,38 @@ const selectedLabel = computed(() => {
 })
 
 // ── API ────────────────────────────────────────────────────────────────────
-interface PageResponse {
-  data: {
-    content: Item[]
-  }
+interface PaginatedResponse {
+  data: Item[]
+  meta: { total: number, current_page: number, last_page: number, per_page: number }
 }
 
-async function fetchItems() {
+interface FlatResponse {
+  data: Item[]
+}
+
+async function fetchItems(append = false) {
   if (loading.value) { return }
-  items.value = []
   loading.value = true
   try {
-    const res = await api.get<PageResponse>(props.endpoint, {
-      page: 0,
-      ...(search.value ? { search: search.value } : {}),
-      ...(props.queryParams ?? {}),
-    })
-    items.value = res.data?.content ?? []
+    if (props.paginated) {
+      const res = await api.get<PaginatedResponse>(props.endpoint, {
+        page: currentPage.value,
+        per_page: PAGE_SIZE,
+        ...(search.value ? { search: search.value } : {}),
+        ...(props.queryParams ?? {}),
+      })
+      const fetched = res.data ?? []
+      items.value = append ? [...items.value, ...fetched] : fetched
+      hasMore.value = currentPage.value < (res.meta?.last_page ?? 1)
+    } else {
+      const res = await api.get<FlatResponse>(props.endpoint, {
+        paginate: 0,
+        ...(search.value ? { search: search.value } : {}),
+        ...(props.queryParams ?? {}),
+      })
+      items.value = res.data ?? []
+      hasMore.value = false
+    }
   } catch {
     // silent – api errors handled upstream
   } finally {
@@ -155,6 +179,41 @@ function select(item: Item) {
   open.value = false
 }
 
+// ── Infinite scroll ────────────────────────────────────────────────────────
+const sentinel = useTemplateRef('sentinel')
+let observer: IntersectionObserver | null = null
+
+onMounted(() => {
+  observer = new IntersectionObserver((entries) => {
+    const entry = entries[0]
+    if (entry?.isIntersecting && !loading.value && hasMore.value) {
+      currentPage.value++
+    }
+  }, { threshold: 0.1 })
+})
+
+watch(sentinel, (el) => {
+  observer?.disconnect()
+  if (el) { observer?.observe(el) }
+})
+
+watch(currentPage, (page) => {
+  if (page > 1) {
+    fetchItems(true)
+  }
+})
+
+// ── Search debounce ────────────────────────────────────────────────────────
+let searchTimer: ReturnType<typeof setTimeout>
+watch(search, () => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    currentPage.value = 1
+    items.value = []
+    fetchItems()
+  }, 300)
+})
+
 // ── Resolve label when modelValue is pre-set (edit mode) ──────────────────
 // items is empty until the popover opens, so if the parent sets modelValue
 // before the first open we fetch the first page silently to resolve the label.
@@ -168,17 +227,14 @@ watch(
   { immediate: true },
 )
 
-// ── Search debounce ────────────────────────────────────────────────────────
-let searchTimer: ReturnType<typeof setTimeout>
-watch(search, () => {
-  clearTimeout(searchTimer)
-  searchTimer = setTimeout(fetchItems, 300)
-})
-
 // ── queryParams change → reset and re-fetch ────────────────────────────────
 watch(
   () => props.queryParams,
-  () => { fetchItems() },
+  () => {
+    currentPage.value = 1
+    items.value = []
+    fetchItems()
+  },
   { deep: true },
 )
 
@@ -186,14 +242,18 @@ watch(
 watch(open, async (isOpen) => {
   if (isOpen) {
     emitFormFocus()
+    currentPage.value = 1
     await fetchItems()
   } else {
     emitFormBlur()
     search.value = ''
+    items.value = []
+    hasMore.value = false
   }
 })
 
 onBeforeUnmount(() => {
   clearTimeout(searchTimer)
+  observer?.disconnect()
 })
 </script>

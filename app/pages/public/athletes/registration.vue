@@ -554,10 +554,8 @@ const toast = useToast()
 
 // ── Public API helpers (no auth token) ──────────────────────────────────────
 interface PageData<T> {
-  data: {
-    content: T[]
-    totalElements: number
-  }
+  data: T[]
+  meta: { total: number, current_page: number, last_page: number, per_page: number }
 }
 
 async function apiGet<T>(path: string, params?: Record<string, unknown>): Promise<T> {
@@ -694,13 +692,13 @@ async function fetchTournaments() {
     const res = await apiGet<PageData<Tournament>>(
       '/api/desktop/public/registration_form/tournaments',
       {
-        page: tournamentsPage.value,
-        size: pageSize,
+        page: tournamentsPage.value + 1,
+        per_page: pageSize,
         ...(tournamentsSearch.value ? { search: tournamentsSearch.value } : {}),
       },
     )
-    tournaments.value = res.data?.content ?? []
-    tournamentsTotal.value = res.data?.totalElements ?? 0
+    tournaments.value = res.data ?? []
+    tournamentsTotal.value = res.meta?.total ?? 0
   } catch {
     tournaments.value = []
     tournamentsTotal.value = 0
@@ -740,13 +738,13 @@ async function fetchDisciplines() {
     const res = await apiGet<PageData<Discipline>>(
       '/api/desktop/public/registration_form/disciplines',
       {
-        page: disciplinesPage.value,
-        size: pageSize,
+        page: disciplinesPage.value + 1,
+        per_page: pageSize,
         ...(disciplinesSearch.value ? { search: disciplinesSearch.value } : {}),
       },
     )
-    disciplines.value = res.data?.content ?? []
-    disciplinesTotal.value = res.data?.totalElements ?? 0
+    disciplines.value = res.data ?? []
+    disciplinesTotal.value = res.meta?.total ?? 0
   } catch {
     disciplines.value = []
     disciplinesTotal.value = 0
@@ -786,13 +784,13 @@ async function fetchWeightCategories() {
     const res = await apiGet<PageData<WeightCategory>>(
       '/api/desktop/public/registration_form/weight_categories',
       {
-        page: weightCategoriesPage.value,
-        size: pageSize,
+        page: weightCategoriesPage.value + 1,
+        per_page: pageSize,
         ...(weightCategoriesSearch.value ? { search: weightCategoriesSearch.value } : {}),
       },
     )
-    weightCategories.value = res.data?.content ?? []
-    weightCategoriesTotal.value = res.data?.totalElements ?? 0
+    weightCategories.value = res.data ?? []
+    weightCategoriesTotal.value = res.meta?.total ?? 0
   } catch {
     weightCategories.value = []
     weightCategoriesTotal.value = 0

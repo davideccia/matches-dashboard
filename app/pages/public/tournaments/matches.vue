@@ -171,10 +171,8 @@ const wsBase = config.public.apiBase.replace(/^http/, 'ws')
 
 // ── Public API helper (no auth token) ───────────────────────────────────────
 interface PageData<T> {
-  data: {
-    content: T[]
-    totalElements: number
-  }
+  data: T[]
+  meta: { total: number, current_page: number, last_page: number, per_page: number }
 }
 
 function apiGet<T>(path: string, params?: Record<string, unknown>): Promise<T> {
@@ -208,15 +206,15 @@ watch(tournamentsSearchInput, (val) => {
 const { data: tournamentsData, status: tournamentsStatus } = useLazyAsyncData(
   'public-tournaments',
   () => apiGet<PageData<Tournament>>('/api/desktop/public/tournaments', {
-    page: tournamentsPage.value,
-    size: pageSize,
+    page: tournamentsPage.value + 1,
+    per_page: pageSize,
     ...(tournamentsSearch.value ? { search: tournamentsSearch.value } : {}),
   }),
   { watch: [tournamentsPage, tournamentsSearch], default: () => null },
 )
 
-const tournaments = computed(() => tournamentsData.value?.data?.content ?? [])
-const tournamentsTotal = computed(() => tournamentsData.value?.data?.totalElements ?? 0)
+const tournaments = computed(() => tournamentsData.value?.data ?? [])
+const tournamentsTotal = computed(() => tournamentsData.value?.meta?.total ?? 0)
 const tournamentsLoading = computed(() => tournamentsStatus.value === 'pending')
 const tournamentsTotalPages = computed(() => Math.ceil(tournamentsTotal.value / pageSize))
 
@@ -237,13 +235,13 @@ const { data: matchesData, status: matchesStatus, refresh: refreshMatches } = us
     if (!selectedTournament.value) { return Promise.resolve(null) }
     return apiGet<PageData<Match>>(
       `/api/desktop/public/tournaments/${selectedTournament.value.id}/matches`,
-      { page: 0, size: 100 },
+      { page: 1, per_page: 100 },
     )
   },
   { watch: [selectedTournament], default: () => null },
 )
 
-const matches = computed(() => matchesData.value?.data?.content ?? [])
+const matches = computed(() => matchesData.value?.data ?? [])
 const matchesLoading = computed(() => matchesStatus.value === 'pending')
 
 // Keep the active (or next) match centered on every refresh, including WS pushes.

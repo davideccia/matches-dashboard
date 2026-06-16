@@ -135,16 +135,9 @@ watch(searchInput, (val) => {
   }, 300)
 })
 
-interface PageResponse {
-  content: Match[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-}
-
 interface MatchesResponse {
-  data: PageResponse
+  data: Match[]
+  meta: { total: number, current_page: number, last_page: number, per_page: number }
 }
 
 watch(tournamentId, (val) => {
@@ -161,7 +154,7 @@ const { data, refresh, status } = useLazyAsyncData(
   () => {
     if (!tournamentId.value) { return Promise.resolve(null) }
     return api.get<MatchesResponse>('/api/desktop/matches', {
-      page: 0,
+      page: 1,
       ...(search.value ? { search: search.value } : {}),
       tournamentId: tournamentId.value,
     })
@@ -169,8 +162,8 @@ const { data, refresh, status } = useLazyAsyncData(
   { watch: [search, tournamentId] },
 )
 
-const items = computed(() => data.value?.data?.content ?? [])
-const total = computed(() => data.value?.data?.totalElements ?? 0)
+const items = computed(() => data.value?.data ?? [])
+const total = computed(() => data.value?.meta?.total ?? 0)
 
 watch(items, async (newItems) => {
   if (!newItems.length || hasScrolledInitially) { return }

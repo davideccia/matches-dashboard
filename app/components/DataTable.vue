@@ -106,9 +106,9 @@ let searchTimer: ReturnType<typeof setTimeout>
 
 const { data, refresh, status } = useLazyAsyncData(
   `data-table-${instanceId}`,
-  () => api.get<{ data: { content: T[], totalElements: number } }>(props.url, {
-    page: page.value - 1,
-    size: selectedPageSize.value,
+  () => api.get<{ data: T[], meta: { total: number, current_page: number, last_page: number, per_page: number } }>(props.url, {
+    page: page.value,
+    per_page: selectedPageSize.value,
     search: search.value || undefined,
     ...props.params,
   }),
@@ -144,8 +144,8 @@ watch(() => props.params, () => {
   }
 }, { deep: true })
 
-const items = computed(() => data.value?.data?.content ?? [])
-const total = computed(() => data.value?.data?.totalElements ?? 0)
+const items = computed(() => data.value?.data ?? [])
+const total = computed(() => data.value?.meta?.total ?? 0)
 const alignedColumns = computed(() =>
   props.columns.map(col => ({
     ...col,
