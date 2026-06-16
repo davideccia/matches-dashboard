@@ -93,18 +93,18 @@
 
           <UForm :schema="athleteSchema" :state="athleteState" class="space-y-4" @submit="onStep2Submit">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <UFormField name="firstName" :label="t('athlete.firstName')" required>
-                <UInput v-model="athleteState.firstName" size="lg" class="w-full" :disabled="!isNewAthlete" />
+              <UFormField name="first_name" :label="t('athlete.firstName')" required>
+                <UInput v-model="athleteState.first_name" size="lg" class="w-full" :disabled="!isNewAthlete" />
               </UFormField>
-              <UFormField name="lastName" :label="t('athlete.lastName')" required>
-                <UInput v-model="athleteState.lastName" size="lg" class="w-full" :disabled="!isNewAthlete" />
+              <UFormField name="last_name" :label="t('athlete.lastName')" required>
+                <UInput v-model="athleteState.last_name" size="lg" class="w-full" :disabled="!isNewAthlete" />
               </UFormField>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <UFormField name="birthDate" :label="t('athlete.birthDate')" required>
+              <UFormField name="birth_date" :label="t('athlete.birthDate')" required>
                 <UInput
-                  v-model="athleteState.birthDate"
+                  v-model="athleteState.birth_date"
                   type="date"
                   size="lg"
                   class="w-full"
@@ -122,17 +122,17 @@
               </UFormField>
             </div>
 
-            <UFormField name="taxNumber" :label="t('athlete.taxNumber')" required>
+            <UFormField name="tax_number" :label="t('athlete.taxNumber')" required>
               <UInput
-                v-model="athleteState.taxNumber"
+                v-model="athleteState.tax_number"
                 size="lg"
                 class="w-full font-mono uppercase tracking-widest"
                 :disabled="!isNewAthlete"
               />
             </UFormField>
 
-            <UFormField name="teamName" :label="t('athlete.teamName')" required>
-              <UInput v-model="athleteState.teamName" size="lg" class="w-full" :disabled="!isNewAthlete" />
+            <UFormField name="team_name" :label="t('athlete.teamName')" required>
+              <UInput v-model="athleteState.team_name" size="lg" class="w-full" :disabled="!isNewAthlete" />
             </UFormField>
 
             <div class="flex gap-3 pt-2">
@@ -205,7 +205,7 @@
                 {{ formatServerDateOnly(tournament.date, locale) }}
               </p>
               <p class="text-sm text-muted">
-                {{ tournament.locationCity }}
+                {{ tournament.location_city }}
               </p>
             </div>
           </div>
@@ -452,8 +452,8 @@
                   {{ t('register.athlete') }}
                 </dt>
                 <dd class="text-sm font-medium text-right">
-                  {{ athleteState.firstName }} {{ athleteState.lastName }}
-                  <span class="block text-xs text-muted font-mono">{{ athleteState.taxNumber }}</span>
+                  {{ athleteState.first_name }} {{ athleteState.last_name }}
+                  <span class="block text-xs text-muted font-mono">{{ athleteState.tax_number }}</span>
                 </dd>
               </div>
               <div class="border-t border-default" />
@@ -464,7 +464,7 @@
                 <dd class="text-sm font-medium text-right">
                   {{ selectedTournament?.name ?? t('register.notSelected') }}
                   <span v-if="selectedTournament" class="block text-xs text-muted">
-                    {{ formatServerDateOnly(selectedTournament.date, locale) }} · {{ selectedTournament.locationCity }}
+                    {{ formatServerDateOnly(selectedTournament.date, locale) }} · {{ selectedTournament.location_city }}
                   </span>
                 </dd>
               </div>
@@ -582,24 +582,24 @@ const taxLookupLoading = ref(false)
 
 interface AthleteData {
   id: string
-  firstName: string
-  lastName: string
-  birthDate: string
-  gender: 'MALE' | 'FEMALE'
-  taxNumber: string
-  teamName: string | null
+  first_name: string
+  last_name: string
+  birth_date: string
+  gender: 'male' | 'female'
+  tax_number: string
+  team_name: string | null
 }
 
 const existingAthlete = ref<AthleteData | null>(null)
 const isNewAthlete = ref(false)
 
 const athleteState = reactive({
-  firstName: '',
-  lastName: '',
-  birthDate: '',
-  gender: 'MALE' as 'MALE' | 'FEMALE',
-  taxNumber: '',
-  teamName: '',
+  first_name: '',
+  last_name: '',
+  birth_date: '',
+  gender: 'male' as 'male' | 'female',
+  tax_number: '',
+  team_name: '',
 })
 
 async function onStep1Next() {
@@ -611,21 +611,21 @@ async function onStep1Next() {
     )
     existingAthlete.value = res.data
     isNewAthlete.value = false
-    athleteState.firstName = res.data.firstName
-    athleteState.lastName = res.data.lastName
-    athleteState.birthDate = res.data.birthDate
+    athleteState.first_name = res.data.first_name
+    athleteState.last_name = res.data.last_name
+    athleteState.birth_date = res.data.birth_date
     athleteState.gender = res.data.gender
-    athleteState.taxNumber = res.data.taxNumber
-    athleteState.teamName = res.data.teamName ?? ''
+    athleteState.tax_number = res.data.tax_number
+    athleteState.team_name = res.data.team_name ?? ''
   } catch {
     existingAthlete.value = null
     isNewAthlete.value = true
-    athleteState.firstName = ''
-    athleteState.lastName = ''
-    athleteState.birthDate = ''
-    athleteState.gender = 'MALE'
-    athleteState.taxNumber = taxNumberInput.value.toUpperCase()
-    athleteState.teamName = ''
+    athleteState.first_name = ''
+    athleteState.last_name = ''
+    athleteState.birth_date = ''
+    athleteState.gender = 'male'
+    athleteState.tax_number = taxNumberInput.value.toUpperCase()
+    athleteState.team_name = ''
   } finally {
     taxLookupLoading.value = false
     stepperRef.value?.next()
@@ -634,26 +634,26 @@ async function onStep1Next() {
 
 // ── Step 2: Dati atleta ──────────────────────────────────────────────────────
 const athleteSchema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  birthDate: z.string().min(1),
-  gender: z.enum(['MALE', 'FEMALE'] as const),
-  taxNumber: z.string().min(1),
-  teamName: z.string().min(1),
+  first_name: z.string().min(1),
+  last_name: z.string().min(1),
+  birth_date: z.string().min(1),
+  gender: z.enum(['male', 'female'] as const),
+  tax_number: z.string().min(1),
+  team_name: z.string().min(1),
 })
 
 const genderOptions = computed(() => [
-  { label: t('athlete.gender.MALE'), value: 'MALE' },
-  { label: t('athlete.gender.FEMALE'), value: 'FEMALE' },
+  { label: t('athlete.gender.male'), value: 'male' },
+  { label: t('athlete.gender.female'), value: 'female' },
 ])
 
 function onStep2Submit(event: FormSubmitEvent<z.infer<typeof athleteSchema>>) {
-  athleteState.firstName = event.data.firstName
-  athleteState.lastName = event.data.lastName
-  athleteState.birthDate = event.data.birthDate
+  athleteState.first_name = event.data.first_name
+  athleteState.last_name = event.data.last_name
+  athleteState.birth_date = event.data.birth_date
   athleteState.gender = event.data.gender
-  athleteState.taxNumber = event.data.taxNumber
-  athleteState.teamName = event.data.teamName ?? ''
+  athleteState.tax_number = event.data.tax_number
+  athleteState.team_name = event.data.team_name ?? ''
   stepperRef.value?.next()
   loadStep3Data()
 }
@@ -666,7 +666,7 @@ interface Tournament {
   id: string
   name: string
   date: string
-  locationCity: string
+  location_city: string
 }
 const tournaments = ref<Tournament[]>([])
 const tournamentsTotal = ref(0)
@@ -843,21 +843,21 @@ async function submit() {
       athleteId = existingAthlete.value.id
     } else {
       const res = await apiPost<{ data: { id: string } }>('/api/admin/public/registration_form/athletes', {
-        firstName: athleteState.firstName,
-        lastName: athleteState.lastName,
-        birthDate: athleteState.birthDate,
+        first_name: athleteState.first_name,
+        last_name: athleteState.last_name,
+        birth_date: athleteState.birth_date,
         gender: athleteState.gender,
-        taxNumber: athleteState.taxNumber,
-        teamName: athleteState.teamName || null,
+        tax_number: athleteState.tax_number,
+        team_name: athleteState.team_name || null,
       })
       athleteId = res.data.id
     }
 
     const regRes = await apiPost<{ data: { id: string } }>('/api/admin/public/registration_form/registrations', {
-      athleteId,
-      tournamentId: selectedTournamentId.value,
-      disciplineId: selectedDisciplineId.value,
-      weightCategoryId: selectedWeightCategoryId.value,
+      athlete_id: athleteId,
+      tournament_id: selectedTournamentId.value,
+      discipline_id: selectedDisciplineId.value,
+      weight_category_id: selectedWeightCategoryId.value,
       notes: null,
       status: 'TO_MANAGE',
     })
@@ -899,7 +899,7 @@ function resetForm() {
   taxNumberInput.value = ''
   existingAthlete.value = null
   isNewAthlete.value = false
-  Object.assign(athleteState, { firstName: '', lastName: '', birthDate: '', gender: 'MALE', taxNumber: '', teamName: '' })
+  Object.assign(athleteState, { first_name: '', last_name: '', birth_date: '', gender: 'male', tax_number: '', team_name: '' })
   selectedTournamentId.value = null
   selectedDisciplineId.value = null
   selectedWeightCategoryId.value = null

@@ -3,18 +3,18 @@
     <template #body>
       <UForm :schema="schema" :state="state" class="space-y-6 p-6" @submit="onSubmit">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UFormField name="firstName" :label="t('athlete.firstName')" required>
-            <UInput v-model="state.firstName" class="w-full" />
+          <UFormField name="first_name" :label="t('athlete.firstName')" required>
+            <UInput v-model="state.first_name" class="w-full" />
           </UFormField>
 
-          <UFormField name="lastName" :label="t('athlete.lastName')" required>
-            <UInput v-model="state.lastName" class="w-full" />
+          <UFormField name="last_name" :label="t('athlete.lastName')" required>
+            <UInput v-model="state.last_name" class="w-full" />
           </UFormField>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UFormField name="birthDate" :label="t('athlete.birthDate')" required>
-            <UInput v-model="state.birthDate" type="date" class="w-full" />
+          <UFormField name="birth_date" :label="t('athlete.birthDate')" required>
+            <UInput v-model="state.birth_date" type="date" class="w-full" />
           </UFormField>
 
           <UFormField name="gender" :label="t('athlete.gender.label')" required>
@@ -22,54 +22,54 @@
           </UFormField>
         </div>
 
-        <UFormField name="taxNumber" :label="t('athlete.taxNumber')" required>
-          <UInput v-model="state.taxNumber" class="w-full" />
+        <UFormField name="tax_number" :label="t('athlete.taxNumber')" required>
+          <UInput v-model="state.tax_number" class="w-full" />
         </UFormField>
 
-        <UFormField name="teamName" :label="t('athlete.teamName')">
-          <UInput v-model="state.teamName" class="w-full" />
+        <UFormField name="team_name" :label="t('athlete.teamName')">
+          <UInput v-model="state.team_name" class="w-full" />
         </UFormField>
 
-        <UFormField name="defaultWeightCategoryId" :label="t('athlete.defaultWeightCategory')">
+        <UFormField name="default_weight_category_id" :label="t('athlete.defaultWeightCategory')">
           <div class="flex items-center gap-2">
             <ApiSelectMenu
-              v-model="state.defaultWeightCategoryId"
+              v-model="state.default_weight_category_id"
               endpoint="/api/admin/weight_categories"
               label-key="label"
               :placeholder="t('athlete.noCategory')"
               class="w-full"
             />
             <UButton
-              v-if="state.defaultWeightCategoryId !== null"
+              v-if="state.default_weight_category_id !== null"
               type="button"
               icon="i-mdi-close"
               variant="ghost"
               color="neutral"
               size="sm"
               :aria-label="t('common.cancel')"
-              @click="state.defaultWeightCategoryId = null"
+              @click="state.default_weight_category_id = null"
             />
           </div>
         </UFormField>
 
-        <UFormField name="defaultDisciplineId" :label="t('athlete.defaultDiscipline')">
+        <UFormField name="default_discipline_id" :label="t('athlete.defaultDiscipline')">
           <div class="flex items-center gap-2">
             <ApiSelectMenu
-              v-model="state.defaultDisciplineId"
+              v-model="state.default_discipline_id"
               endpoint="/api/admin/disciplines"
               label-key="label"
               :placeholder="t('athlete.noCategory')"
               class="w-full"
             />
             <UButton
-              v-if="state.defaultDisciplineId !== null"
+              v-if="state.default_discipline_id !== null"
               type="button"
               icon="i-mdi-close"
               variant="ghost"
               color="neutral"
               size="sm"
               :aria-label="t('common.cancel')"
-              @click="state.defaultDisciplineId = null"
+              @click="state.default_discipline_id = null"
             />
           </div>
         </UFormField>
@@ -109,42 +109,42 @@ const toast = useToast()
 const isEdit = computed(() => props.item !== null)
 
 const genderOptions = computed(() => [
-  { label: t('athlete.gender.MALE'), value: 'MALE' },
-  { label: t('athlete.gender.FEMALE'), value: 'FEMALE' },
+  { label: t('athlete.gender.male'), value: 'male' },
+  { label: t('athlete.gender.female'), value: 'female' },
 ])
 
 const schema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  birthDate: z.string().min(1),
+  first_name: z.string().min(1),
+  last_name: z.string().min(1),
+  birth_date: z.string().min(1),
   gender: z.enum(GENDERS),
-  taxNumber: z.string().min(1),
-  teamName: z.string().optional(),
-  defaultWeightCategoryId: z.string().nullish(),
-  defaultDisciplineId: z.string().nullish(),
+  tax_number: z.string().min(1),
+  team_name: z.string().optional(),
+  default_weight_category_id: z.string().nullish(),
+  default_discipline_id: z.string().nullish(),
 })
 
 const state = reactive({
-  firstName: '',
-  lastName: '',
-  birthDate: '',
-  gender: 'MALE' as Gender,
-  taxNumber: '',
-  teamName: '',
-  defaultWeightCategoryId: null as string | null,
-  defaultDisciplineId: null as string | null,
+  first_name: '',
+  last_name: '',
+  birth_date: '',
+  gender: 'male' as Gender,
+  tax_number: '',
+  team_name: '',
+  default_weight_category_id: null as string | null,
+  default_discipline_id: null as string | null,
 })
 
 watch(open, (val) => {
   if (val) {
-    state.firstName = props.item?.firstName ?? ''
-    state.lastName = props.item?.lastName ?? ''
-    state.birthDate = props.item?.birthDate ?? ''
-    state.gender = props.item?.gender ?? 'MALE'
-    state.taxNumber = props.item?.taxNumber ?? ''
-    state.teamName = props.item?.teamName ?? ''
-    state.defaultWeightCategoryId = props.item?.defaultWeightCategoryId ?? null
-    state.defaultDisciplineId = props.item?.defaultDisciplineId ?? null
+    state.first_name = props.item?.first_name ?? ''
+    state.last_name = props.item?.last_name ?? ''
+    state.birth_date = props.item?.birth_date ?? ''
+    state.gender = props.item?.gender ?? 'male'
+    state.tax_number = props.item?.tax_number ?? ''
+    state.team_name = props.item?.team_name ?? ''
+    state.default_weight_category_id = props.item?.default_weight_category_id ?? null
+    state.default_discipline_id = props.item?.default_discipline_id ?? null
   }
 })
 
@@ -154,14 +154,14 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   loading.value = true
   try {
     const body = {
-      firstName: event.data.firstName,
-      lastName: event.data.lastName,
-      birthDate: event.data.birthDate,
+      first_name: event.data.first_name,
+      last_name: event.data.last_name,
+      birth_date: event.data.birth_date,
       gender: event.data.gender,
-      taxNumber: event.data.taxNumber,
-      teamName: event.data.teamName || null,
-      defaultWeightCategoryId: event.data.defaultWeightCategoryId || null,
-      defaultDisciplineId: event.data.defaultDisciplineId || null,
+      tax_number: event.data.tax_number,
+      team_name: event.data.team_name || null,
+      default_weight_category_id: event.data.default_weight_category_id || null,
+      default_discipline_id: event.data.default_discipline_id || null,
     }
 
     if (isEdit.value) {

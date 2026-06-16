@@ -95,7 +95,7 @@
                   class="cursor-pointer"
                   @click="openEdit(match)"
                 >
-                  <MatchCardReadOnly :match="match" :show-judges-points="false" />
+                  <MatchRecordCardReadOnly :match="match" :show-judges-points="false" />
                 </div>
               </div>
             </div>
@@ -106,12 +106,12 @@
   </UDashboardPanel>
 
   <ClientOnly>
-    <MatchFormPanel v-model="panelOpen" :item="editingItem" :initial-tab="initialTab" @saved="refreshBoard" />
+    <MatchRecordFormPanel v-model="panelOpen" :item="editingItem" :initial-tab="initialTab" @saved="refreshBoard" />
   </ClientOnly>
 </template>
 
 <script setup lang="ts">
-import type { Match } from '~/types/models'
+import type { MatchRecord } from '~/types/models'
 
 definePageMeta({ layout: 'default' })
 
@@ -122,7 +122,7 @@ const searchInput = ref('')
 const search = ref('')
 const tournamentId = ref<string | null>(null)
 const panelOpen = ref(false)
-const editingItem = ref<Match | null>(null)
+const editingItem = ref<MatchRecord | null>(null)
 const initialTab = ref<'details' | 'outcome'>('details')
 const matchCardEls = ref<HTMLElement[]>([])
 let hasScrolledInitially = false
@@ -135,8 +135,8 @@ watch(searchInput, (val) => {
   }, 300)
 })
 
-interface MatchesResponse {
-  data: Match[]
+interface MatchRecordesResponse {
+  data: MatchRecord[]
   meta: { total: number, current_page: number, last_page: number, per_page: number }
 }
 
@@ -153,10 +153,10 @@ const { data, refresh, status } = useLazyAsyncData(
   'matches-board',
   () => {
     if (!tournamentId.value) { return Promise.resolve(null) }
-    return api.get<MatchesResponse>('/api/admin/matches', {
+    return api.get<MatchRecordesResponse>('/api/admin/matches', {
       page: 1,
       ...(search.value ? { search: search.value } : {}),
-      tournamentId: tournamentId.value,
+      tournament_id: tournamentId.value,
     })
   },
   { watch: [search, tournamentId] },
@@ -168,11 +168,11 @@ const total = computed(() => data.value?.meta?.total ?? 0)
 watch(items, async (newItems) => {
   if (!newItems.length || hasScrolledInitially) { return }
   await nextTick()
-  const inProgressIdx = newItems.findIndex(m => m.status === 'IN_PROGRESS')
+  const inProgressIdx = newItems.findIndex(m => m.status === 'in_progress')
   if (inProgressIdx !== -1 && matchCardEls.value[inProgressIdx]) {
     matchCardEls.value[inProgressIdx].scrollIntoView({ behavior: 'smooth', block: 'center' })
   } else {
-    const scheduledIdx = newItems.findIndex(m => m.status === 'SCHEDULED')
+    const scheduledIdx = newItems.findIndex(m => m.status === 'scheduled')
     if (scheduledIdx !== -1 && matchCardEls.value[scheduledIdx]) {
       matchCardEls.value[scheduledIdx].scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
@@ -192,7 +192,7 @@ function openCreate() {
   panelOpen.value = true
 }
 
-function openEdit(item: Match) {
+function openEdit(item: MatchRecord) {
   editingItem.value = item
   initialTab.value = 'outcome'
   panelOpen.value = true

@@ -83,12 +83,12 @@
     "deleted": "Tournament deleted",
     "status": {
       "label": "Status",
-      "SCHEDULED": "Scheduled",
-      "REGISTRATIONS_OPENED": "Registrations open",
-      "REGISTRATIONS_CLOSED": "Registrations closed",
-      "IN_PROGRESS": "In progress",
-      "COMPLETED": "Completed",
-      "CANCELLED": "Cancelled"
+      "scheduled": "Scheduled",
+      "registrations_opened": "Registrations open",
+      "registrations_closed": "Registrations closed",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
     },
     "pdf": {
       "board": "Detailed",
@@ -141,20 +141,20 @@
     "deleted": "Match deleted",
     "endMethod": {
       "label": "End method",
-      "VICTORY_UNANIMOUS_DECISION": "Unanimous decision",
-      "VICTORY_SPLIT_DECISION": "Split decision",
-      "VICTORY_KO": "KO",
-      "VICTORY_TKO": "TKO",
-      "VICTORY_DISQUALIFICATION": "Disqualification",
-      "DRAW": "Draw",
-      "NO_CONTEST": "No contest"
+      "victory_unanimous_decision": "Unanimous decision",
+      "victory_split_decision": "Split decision",
+      "victory_ko": "KO",
+      "victory_tko": "TKO",
+      "victory_disqualification": "Disqualification",
+      "draw": "Draw",
+      "no_contest": "No contest"
     },
     "status": {
       "label": "Status",
-      "SCHEDULED": "Scheduled",
-      "IN_PROGRESS": "In progress",
-      "COMPLETED": "Completed",
-      "CANCELLED": "Cancelled"
+      "scheduled": "Scheduled",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
     },
     "disciplineLabel": "Discipline",
     "tab": {
@@ -163,9 +163,9 @@
     },
     "gender": {
       "label": "Gender",
-      "MALE": "Male",
-      "FEMALE": "Female",
-      "HYBRID": "None"
+      "male": "Male",
+      "female": "Female",
+      "hybrid": "None"
     },
     "cornerPreview": "Match preview"
   },
@@ -188,8 +188,8 @@
     "deleted": "Athlete deleted",
     "gender": {
       "label": "Gender",
-      "MALE": "Male",
-      "FEMALE": "Female"
+      "male": "Male",
+      "female": "Female"
     }
   },
   "login": {

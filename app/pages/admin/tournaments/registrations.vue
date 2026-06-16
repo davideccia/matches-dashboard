@@ -17,7 +17,7 @@
       <div class="flex flex-col gap-5 p-6">
         <DataTable
           ref="tableRef"
-          url="/api/admin/registrations"
+          url="/api/admin/registrations?with=weightCategory,athlete,tournament,discipline"
           :columns="columns"
           :params="tableParams"
           empty-icon="i-mdi-clipboard-list-outline"
@@ -39,16 +39,16 @@
               @click="tournamentId = null"
             />
           </template>
-          <template #weightCategoryLabel-cell="{ row }">
+          <template #weight_category_label-cell="{ row }">
             <UTooltip :delay-duration="200">
               <template #content>
                 <span class="flex items-center gap-1.5">
                   <span
                     class="size-2 rounded-full shrink-0"
-                    :class="((row.original as unknown as Registration)).weightIn === null ? 'bg-yellow-400' : ((row.original as unknown as Registration)).weightIn! <= ((row.original as unknown as Registration)).weightCategoryValue! ? 'bg-success' : 'bg-error'"
+                    :class="((row.original as unknown as Registration)).weight_in === null ? 'bg-yellow-400' : ((row.original as unknown as Registration)).weight_in! <= ((row.original as unknown as Registration)).weight_category?.value! ? 'bg-success' : 'bg-error'"
                   />
-                  <template v-if="((row.original as unknown as Registration)).weightIn !== null">
-                    {{ t('registration.weightRegistered') }}: {{ ((row.original as unknown as Registration)).weightIn }} kg
+                  <template v-if="((row.original as unknown as Registration)).weight_in !== null">
+                    {{ t('registration.weightRegistered') }}: {{ ((row.original as unknown as Registration)).weight_in }} kg
                   </template>
                   <template v-else>
                     {{ t('registration.noWeightRegistered') }}
@@ -56,18 +56,18 @@
                 </span>
               </template>
               <UBadge
-                :color="((row.original as unknown as Registration)).weightIn === null ? 'neutral' : ((row.original as unknown as Registration)).weightIn! <= ((row.original as unknown as Registration)).weightCategoryValue! ? 'success' : 'error'"
+                :color="((row.original as unknown as Registration)).weight_in === null ? 'neutral' : ((row.original as unknown as Registration)).weight_in! <= ((row.original as unknown as Registration)).weight_category?.value! ? 'success' : 'error'"
                 variant="subtle"
                 class="cursor-default"
               >
-                {{ ((row.original as unknown as Registration)).weightCategoryLabel }}
+                {{ ((row.original as unknown as Registration)).weight_category?.label }}
               </UBadge>
             </UTooltip>
           </template>
           <template #paid-cell="{ row }">
             <UIcon
-              :name="((row.original as unknown as Registration)).paidAt ? 'i-mdi-check-circle' : 'i-mdi-close-circle'"
-              :class="((row.original as unknown as Registration)).paidAt ? 'text-success' : 'text-error'"
+              :name="((row.original as unknown as Registration)).paid_at ? 'i-mdi-check-circle' : 'i-mdi-close-circle'"
+              :class="((row.original as unknown as Registration)).paid_at ? 'text-success' : 'text-error'"
               class="size-5"
             />
           </template>
@@ -156,14 +156,14 @@ const deleteTarget = ref<Registration | null>(null)
 const deleting = ref(false)
 
 const tableParams = computed(() => ({
-  tournamentId: tournamentId.value ?? undefined,
+  tournament_id: tournamentId.value ?? undefined,
 }))
 
 const columns = computed(() => [
-  { accessorKey: 'athleteFullName', header: t('registration.athlete') },
-  { accessorKey: 'tournamentName', header: t('registration.tournament') },
-  { accessorKey: 'disciplineLabel', header: t('registration.discipline') },
-  { id: 'weightCategoryLabel', header: t('registration.weightCategory'), meta: { class: { th: 'text-center', td: 'text-center' } } },
+  { accessorKey: 'athlete.full_name', header: t('registration.athlete') },
+  { accessorKey: 'tournament.name', header: t('registration.tournament') },
+  { accessorKey: 'discipline.label', header: t('registration.discipline') },
+  { id: 'weight_category_label', header: t('registration.weightCategory'), meta: { class: { th: 'text-center', td: 'text-center' } } },
   { id: 'paid', header: t('registration.paid'), meta: { class: { th: 'text-center', td: 'text-center' } } },
   { id: 'present', header: t('registration.arrived'), meta: { class: { th: 'text-center', td: 'text-center' } } },
   { id: 'notes', header: t('registration.notes') },

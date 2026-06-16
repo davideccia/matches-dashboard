@@ -71,30 +71,30 @@
             </td>
             <!-- Red corner cells -->
             <td class="px-1 py-1.5 border-l border-default">
-              <span v-if="readonly" class="block text-center">{{ row.redCornerJudge1 ?? '—' }}</span>
+              <span v-if="readonly" class="block text-center">{{ row.red_corner_judge_1 ?? '—' }}</span>
               <UInput
                 v-else
-                v-model="row.redCornerJudge1"
+                v-model="row.red_corner_judge_1"
                 type="number"
                 size="xs"
                 class="w-full text-center"
               />
             </td>
             <td class="px-1 py-1.5 border-l border-default/50">
-              <span v-if="readonly" class="block text-center">{{ row.redCornerJudge2 ?? '—' }}</span>
+              <span v-if="readonly" class="block text-center">{{ row.red_corner_judge_2 ?? '—' }}</span>
               <UInput
                 v-else
-                v-model="row.redCornerJudge2"
+                v-model="row.red_corner_judge_2"
                 type="number"
                 size="xs"
                 class="w-full text-center"
               />
             </td>
             <td class="px-1 py-1.5 border-l border-default/50">
-              <span v-if="readonly" class="block text-center">{{ row.redCornerJudge3 ?? '—' }}</span>
+              <span v-if="readonly" class="block text-center">{{ row.red_corner_judge_3 ?? '—' }}</span>
               <UInput
                 v-else
-                v-model="row.redCornerJudge3"
+                v-model="row.red_corner_judge_3"
                 type="number"
                 size="xs"
                 class="w-full text-center"
@@ -102,30 +102,30 @@
             </td>
             <!-- Blue corner cells -->
             <td class="px-1 py-1.5 border-l border-default">
-              <span v-if="readonly" class="block text-center">{{ row.blueCornerJudge1 ?? '—' }}</span>
+              <span v-if="readonly" class="block text-center">{{ row.blue_corner_judge_1 ?? '—' }}</span>
               <UInput
                 v-else
-                v-model="row.blueCornerJudge1"
+                v-model="row.blue_corner_judge_1"
                 type="number"
                 size="xs"
                 class="w-full text-center"
               />
             </td>
             <td class="px-1 py-1.5 border-l border-default/50">
-              <span v-if="readonly" class="block text-center">{{ row.blueCornerJudge2 ?? '—' }}</span>
+              <span v-if="readonly" class="block text-center">{{ row.blue_corner_judge_2 ?? '—' }}</span>
               <UInput
                 v-else
-                v-model="row.blueCornerJudge2"
+                v-model="row.blue_corner_judge_2"
                 type="number"
                 size="xs"
                 class="w-full text-center"
               />
             </td>
             <td class="px-1 py-1.5 border-l border-default/50">
-              <span v-if="readonly" class="block text-center">{{ row.blueCornerJudge3 ?? '—' }}</span>
+              <span v-if="readonly" class="block text-center">{{ row.blue_corner_judge_3 ?? '—' }}</span>
               <UInput
                 v-else
-                v-model="row.blueCornerJudge3"
+                v-model="row.blue_corner_judge_3"
                 type="number"
                 size="xs"
                 class="w-full text-center"
@@ -152,22 +152,22 @@
               {{ t('match.total') }}
             </td>
             <td class="px-1 py-1.5 text-center border-l border-default text-xs">
-              {{ totals.redCornerJudge1 ?? '—' }}
+              {{ totals.red_corner_judge_1 ?? '—' }}
             </td>
             <td class="px-1 py-1.5 text-center border-l border-default/50 text-xs">
-              {{ totals.redCornerJudge2 ?? '—' }}
+              {{ totals.red_corner_judge_2 ?? '—' }}
             </td>
             <td class="px-1 py-1.5 text-center border-l border-default/50 text-xs">
-              {{ totals.redCornerJudge3 ?? '—' }}
+              {{ totals.red_corner_judge_3 ?? '—' }}
             </td>
             <td class="px-1 py-1.5 text-center border-l border-default text-xs">
-              {{ totals.blueCornerJudge1 ?? '—' }}
+              {{ totals.blue_corner_judge_1 ?? '—' }}
             </td>
             <td class="px-1 py-1.5 text-center border-l border-default/50 text-xs">
-              {{ totals.blueCornerJudge2 ?? '—' }}
+              {{ totals.blue_corner_judge_2 ?? '—' }}
             </td>
             <td class="px-1 py-1.5 text-center border-l border-default/50 text-xs">
-              {{ totals.blueCornerJudge3 ?? '—' }}
+              {{ totals.blue_corner_judge_3 ?? '—' }}
             </td>
             <td v-if="showManualControls" class="border-l border-default/30" />
           </tr>
@@ -199,7 +199,15 @@
 </template>
 
 <script setup lang="ts">
-import type { JudgePointsRow } from '~/types/models'
+interface JudgePointsRow {
+  round: number
+  red_corner_judge_1: number | null
+  red_corner_judge_2: number | null
+  red_corner_judge_3: number | null
+  blue_corner_judge_1: number | null
+  blue_corner_judge_2: number | null
+  blue_corner_judge_3: number | null
+}
 
 const props = defineProps<{
   modelValue: JudgePointsRow[]
@@ -216,7 +224,7 @@ const { t } = useI18n()
 const showManualControls = computed(() => !props.readonly && (props.rounds === null || props.rounds === undefined))
 
 const totals = computed(() => {
-  const cols = ['redCornerJudge1', 'redCornerJudge2', 'redCornerJudge3', 'blueCornerJudge1', 'blueCornerJudge2', 'blueCornerJudge3'] as const
+  const cols = ['red_corner_judge_1', 'red_corner_judge_2', 'red_corner_judge_3', 'blue_corner_judge_1', 'blue_corner_judge_2', 'blue_corner_judge_3'] as const
   return Object.fromEntries(cols.map((col) => {
     const vals = props.modelValue.map(r => r[col]).filter(v => v !== null) as number[]
     return [col, vals.length ? vals.reduce((a, b) => a + b, 0) : null]
@@ -230,12 +238,12 @@ function addRow() {
     ...rows,
     {
       round: nextRound,
-      redCornerJudge1: null,
-      redCornerJudge2: null,
-      redCornerJudge3: null,
-      blueCornerJudge1: null,
-      blueCornerJudge2: null,
-      blueCornerJudge3: null,
+      red_corner_judge_1: null,
+      red_corner_judge_2: null,
+      red_corner_judge_3: null,
+      blue_corner_judge_1: null,
+      blue_corner_judge_2: null,
+      blue_corner_judge_3: null,
     },
   ])
 }

@@ -110,6 +110,7 @@ const { data, refresh, status } = useLazyAsyncData(
     page: page.value,
     per_page: selectedPageSize.value,
     search: search.value || undefined,
+    paginate: 1,
     ...props.params,
   }),
 )

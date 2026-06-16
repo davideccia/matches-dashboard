@@ -226,12 +226,12 @@ onUnmounted(() => controller?.abort())
 const items = computed(() => data.value?.data ?? [])
 
 const STATUS_COLORS: Record<TournamentStatus, BadgeProps['color']> = {
-  SCHEDULED: 'neutral',
-  REGISTRATIONS_OPENED: 'info',
-  REGISTRATIONS_CLOSED: 'warning',
-  IN_PROGRESS: 'primary',
-  COMPLETED: 'success',
-  CANCELLED: 'error',
+  scheduled: 'neutral',
+  registrations_opened: 'info',
+  registrations_closed: 'warning',
+  in_progress: 'primary',
+  completed: 'success',
+  cancelled: 'error',
 }
 
 function statusBadgeColor(status: TournamentStatus): BadgeProps['color'] {
@@ -239,12 +239,12 @@ function statusBadgeColor(status: TournamentStatus): BadgeProps['color'] {
 }
 
 function tournamentStatusLabel(status: TournamentStatus): string {
-  if (status === 'SCHEDULED') { return t('tournament.status.SCHEDULED') }
-  if (status === 'REGISTRATIONS_OPENED') { return t('tournament.status.REGISTRATIONS_OPENED') }
-  if (status === 'REGISTRATIONS_CLOSED') { return t('tournament.status.REGISTRATIONS_CLOSED') }
-  if (status === 'IN_PROGRESS') { return t('tournament.status.IN_PROGRESS') }
-  if (status === 'COMPLETED') { return t('tournament.status.COMPLETED') }
-  if (status === 'CANCELLED') { return t('tournament.status.CANCELLED') }
+  if (status === 'scheduled') { return t('tournament.status.scheduled') }
+  if (status === 'registrations_opened') { return t('tournament.status.registrations_opened') }
+  if (status === 'registrations_closed') { return t('tournament.status.registrations_closed') }
+  if (status === 'in_progress') { return t('tournament.status.in_progress') }
+  if (status === 'completed') { return t('tournament.status.completed') }
+  if (status === 'cancelled') { return t('tournament.status.cancelled') }
   return status
 }
 

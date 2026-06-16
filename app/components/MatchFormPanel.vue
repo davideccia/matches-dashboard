@@ -16,10 +16,10 @@
           <template #details>
             <div class="space-y-6 p-6">
               <!-- Section 1: Filters -->
-              <UFormField name="tournamentId" :label="t('match.tournament')" required>
+              <UFormField name="tournament_id" :label="t('match.tournament')" required>
                 <div class="flex items-center gap-2">
                   <ApiSelectMenu
-                    v-model="state.tournamentId"
+                    v-model="state.tournament_id"
                     endpoint="/api/admin/tournaments"
                     label-key="name"
                     :placeholder="t('match.selectTournament')"
@@ -27,22 +27,22 @@
                     class="w-full"
                   />
                   <UButton
-                    v-if="state.tournamentId !== null && !filtersLocked"
+                    v-if="state.tournament_id !== null && !filtersLocked"
                     type="button"
                     icon="i-mdi-close"
                     variant="ghost"
                     color="neutral"
                     size="sm"
                     :aria-label="t('common.cancel')"
-                    @click="state.tournamentId = null"
+                    @click="state.tournament_id = null"
                   />
                 </div>
               </UFormField>
 
-              <UFormField name="disciplineId" :label="t('match.discipline')" required>
+              <UFormField name="discipline_id" :label="t('match.discipline')" required>
                 <div class="flex items-center gap-2">
                   <ApiSelectMenu
-                    v-model="state.disciplineId"
+                    v-model="state.discipline_id"
                     endpoint="/api/admin/disciplines"
                     label-key="label"
                     :placeholder="t('match.selectDiscipline')"
@@ -50,22 +50,22 @@
                     class="w-full"
                   />
                   <UButton
-                    v-if="state.disciplineId !== null && !filtersLocked"
+                    v-if="state.discipline_id !== null && !filtersLocked"
                     type="button"
                     icon="i-mdi-close"
                     variant="ghost"
                     color="neutral"
                     size="sm"
                     :aria-label="t('common.cancel')"
-                    @click="state.disciplineId = null"
+                    @click="state.discipline_id = null"
                   />
                 </div>
               </UFormField>
 
-              <UFormField name="weightCategoryId" :label="t('match.weightCategory')" required>
+              <UFormField name="weight_category_id" :label="t('match.weightCategory')" required>
                 <div class="flex items-center gap-2">
                   <ApiSelectMenu
-                    v-model="state.weightCategoryId"
+                    v-model="state.weight_category_id"
                     endpoint="/api/admin/weight_categories"
                     label-key="label"
                     :placeholder="t('match.selectWeightCategory')"
@@ -73,14 +73,14 @@
                     class="w-full"
                   />
                   <UButton
-                    v-if="state.weightCategoryId !== null && !filtersLocked"
+                    v-if="state.weight_category_id !== null && !filtersLocked"
                     type="button"
                     icon="i-mdi-close"
                     variant="ghost"
                     color="neutral"
                     size="sm"
                     :aria-label="t('common.cancel')"
-                    @click="state.weightCategoryId = null"
+                    @click="state.weight_category_id = null"
                   />
                 </div>
               </UFormField>
@@ -92,34 +92,34 @@
                     type="button"
                     size="sm"
                     class="flex-1"
-                    :variant="genderFilter === 'MALE' ? 'solid' : 'outline'"
+                    :variant="genderFilter === 'male' ? 'solid' : 'outline'"
                     color="primary"
                     :disabled="filtersLocked"
-                    @click="genderFilter = 'MALE'"
+                    @click="genderFilter = 'male'"
                   >
-                    {{ t('match.gender.MALE') }}
+                    {{ t('match.gender.male') }}
                   </UButton>
                   <UButton
                     type="button"
                     size="sm"
                     class="flex-1"
-                    :variant="genderFilter === 'FEMALE' ? 'solid' : 'outline'"
+                    :variant="genderFilter === 'female' ? 'solid' : 'outline'"
                     color="primary"
                     :disabled="filtersLocked"
-                    @click="genderFilter = 'FEMALE'"
+                    @click="genderFilter = 'female'"
                   >
-                    {{ t('match.gender.FEMALE') }}
+                    {{ t('match.gender.female') }}
                   </UButton>
                   <UButton
                     type="button"
                     size="sm"
                     class="flex-1"
-                    :variant="genderFilter === 'HYBRID' ? 'solid' : 'outline'"
+                    :variant="genderFilter === 'hybrid' ? 'solid' : 'outline'"
                     color="neutral"
                     :disabled="filtersLocked"
-                    @click="genderFilter = 'HYBRID'"
+                    @click="genderFilter = 'hybrid'"
                   >
-                    {{ t('match.gender.HYBRID') }}
+                    {{ t('match.gender.hybrid') }}
                   </UButton>
                 </div>
               </UFormField>
@@ -153,9 +153,9 @@
                   />
                 </UFormField>
 
-                <UFormField name="minutesPerRound" :label="t('match.minutesPerRound')" required>
+                <UFormField name="minutes_per_round" :label="t('match.minutesPerRound')" required>
                   <UInput
-                    v-model="state.minutesPerRound"
+                    v-model="state.minutes_per_round"
                     type="number"
                     min="0"
                     step="0.5"
@@ -187,12 +187,12 @@
                 <div class="grid grid-cols-[1fr_auto_1fr]">
                   <!-- Red corner fields -->
                   <div class="flex flex-col gap-3 p-4 bg-red-500/4">
-                    <UFormField name="redCornerId" :label="t('match.athlete')" :required="!isEdit">
+                    <UFormField name="red_corner_id" :label="t('match.athlete')" :required="!isEdit">
                       <div class="flex items-center gap-1.5">
                         <ApiSelectMenu
-                          v-model="state.redCornerId"
+                          v-model="state.red_corner_id"
                           endpoint="/api/admin/athletes"
-                          label-key="fullName"
+                          label-key="full_name"
                           :placeholder="t('match.selectAthlete')"
                           :disabled="!filtersReady && !forceEntry"
                           :query-params="filterParams"
@@ -200,20 +200,20 @@
                           @select="onRedCornerSelect"
                         />
                         <UButton
-                          v-if="state.redCornerId !== null && (filtersReady || forceEntry)"
+                          v-if="state.red_corner_id !== null && (filtersReady || forceEntry)"
                           type="button"
                           icon="i-mdi-close"
                           variant="ghost"
                           color="neutral"
                           size="xs"
                           :aria-label="t('common.cancel')"
-                          @click="state.redCornerId = null"
+                          @click="state.red_corner_id = null"
                         />
                       </div>
                     </UFormField>
 
-                    <UFormField name="redCornerTeam" :label="t('match.team')" :required="!isEdit">
-                      <UInput v-model="state.redCornerTeam" class="w-full" size="sm" />
+                    <UFormField name="red_corner_team" :label="t('match.team')" :required="!isEdit">
+                      <UInput v-model="state.red_corner_team" class="w-full" size="sm" />
                     </UFormField>
                   </div>
 
@@ -222,12 +222,12 @@
 
                   <!-- Blue corner fields -->
                   <div class="flex flex-col gap-3 p-4 bg-blue-500/4">
-                    <UFormField name="blueCornerId" :label="t('match.athlete')" :required="!isEdit">
+                    <UFormField name="blue_corner_id" :label="t('match.athlete')" :required="!isEdit">
                       <div class="flex items-center gap-1.5">
                         <ApiSelectMenu
-                          v-model="state.blueCornerId"
+                          v-model="state.blue_corner_id"
                           endpoint="/api/admin/athletes"
-                          label-key="fullName"
+                          label-key="full_name"
                           :placeholder="t('match.selectAthlete')"
                           :disabled="!filtersReady && !forceEntry"
                           :query-params="filterParams"
@@ -235,20 +235,20 @@
                           @select="onBlueCornerSelect"
                         />
                         <UButton
-                          v-if="state.blueCornerId !== null && (filtersReady || forceEntry)"
+                          v-if="state.blue_corner_id !== null && (filtersReady || forceEntry)"
                           type="button"
                           icon="i-mdi-close"
                           variant="ghost"
                           color="neutral"
                           size="xs"
                           :aria-label="t('common.cancel')"
-                          @click="state.blueCornerId = null"
+                          @click="state.blue_corner_id = null"
                         />
                       </div>
                     </UFormField>
 
-                    <UFormField name="blueCornerTeam" :label="t('match.team')" :required="!isEdit">
-                      <UInput v-model="state.blueCornerTeam" class="w-full" size="sm" />
+                    <UFormField name="blue_corner_team" :label="t('match.team')" :required="!isEdit">
+                      <UInput v-model="state.blue_corner_team" class="w-full" size="sm" />
                     </UFormField>
                   </div>
                 </div>
@@ -261,18 +261,18 @@
                 <UInput v-model="state.sort" type="number" min="1" class="w-full" />
               </UFormField>
 
-              <UFormField name="scheduledTime" :label="t('match.scheduledTime')">
+              <UFormField name="scheduled_time" :label="t('match.scheduledTime')">
                 <div class="flex items-center gap-2">
-                  <UInput v-model="state.scheduledTime" type="time" class="w-full" />
+                  <UInput v-model="state.scheduled_time" type="time" class="w-full" />
                   <UButton
-                    v-if="state.scheduledTime"
+                    v-if="state.scheduled_time"
                     type="button"
                     icon="i-mdi-close"
                     variant="ghost"
                     color="neutral"
                     size="sm"
                     :aria-label="t('common.cancel')"
-                    @click="state.scheduledTime = undefined"
+                    @click="state.scheduled_time = undefined"
                   />
                 </div>
               </UFormField>
@@ -302,7 +302,7 @@
                         class="size-3.5 text-warning shrink-0"
                       />
                     </div>
-                    <span class="pl-4 text-xs text-muted truncate">{{ state.redCornerTeam || '—' }}</span>
+                    <span class="pl-4 text-xs text-muted truncate">{{ state.red_corner_team || '—' }}</span>
                   </div>
 
                   <!-- VS -->
@@ -324,7 +324,7 @@
                       </span>
                       <span class="size-2.5 rounded-full bg-blue-500 shrink-0" />
                     </div>
-                    <span class="pr-4 text-xs text-muted truncate">{{ state.blueCornerTeam || '—' }}</span>
+                    <span class="pr-4 text-xs text-muted truncate">{{ state.blue_corner_team || '—' }}</span>
                   </div>
                 </div>
 
@@ -338,7 +338,7 @@
                       type="button"
                       size="sm"
                       class="flex-1"
-                      :variant="state.winnerId === null ? 'solid' : 'outline'"
+                      :variant="state.winner_id === null ? 'solid' : 'outline'"
                       color="neutral"
                       :disabled="winnerControlDisabled"
                       @click="setWinner(null)"
@@ -351,8 +351,8 @@
                       class="flex-1"
                       :variant="isRedWinner ? 'solid' : 'outline'"
                       color="error"
-                      :disabled="!state.redCornerId"
-                      @click="setWinner(state.redCornerId)"
+                      :disabled="!state.red_corner_id"
+                      @click="setWinner(state.red_corner_id)"
                     >
                       {{ t('match.redCorner') }}
                     </UButton>
@@ -362,8 +362,8 @@
                       class="flex-1"
                       :variant="isBlueWinner ? 'solid' : 'outline'"
                       color="info"
-                      :disabled="!state.blueCornerId"
-                      @click="setWinner(state.blueCornerId)"
+                      :disabled="!state.blue_corner_id"
+                      @click="setWinner(state.blue_corner_id)"
                     >
                       {{ t('match.blueCorner') }}
                     </UButton>
@@ -393,29 +393,29 @@
                   <USelect v-model="state.status" :items="statusOptions" class="w-full" />
                 </UFormField>
 
-                <UFormField name="endMethod" :label="t('match.endMethod.label')">
-                  <USelect v-model="state.endMethod" :items="endMethodOptions" class="w-full" />
+                <UFormField name="end_method" :label="t('match.endMethod.label')">
+                  <USelect v-model="state.end_method" :items="endMethodOptions" class="w-full" />
                 </UFormField>
               </div>
 
-              <UFormField name="endRound" :label="t('match.endRound')">
+              <UFormField name="end_round" :label="t('match.endRound')">
                 <div class="flex items-center gap-2">
-                  <UInput v-model="state.endRound" class="w-full" />
+                  <UInput v-model="state.end_round" class="w-full" />
                   <UButton
-                    v-if="state.endRound"
+                    v-if="state.end_round"
                     type="button"
                     icon="i-mdi-close"
                     variant="ghost"
                     color="neutral"
                     size="sm"
                     :aria-label="t('common.cancel')"
-                    @click="state.endRound = undefined"
+                    @click="state.end_round = undefined"
                   />
                 </div>
               </UFormField>
 
               <!-- Judges points table -->
-              <MatchJudgesPointsTable v-model="state.judgesPoints" :rounds="state.rounds" />
+              <MatchJudgesPointsTable v-model="state.judges_points" :rounds="state.rounds" />
             </div>
           </template>
         </UTabs>
@@ -436,12 +436,22 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { JudgePointsRow, Match } from '~/types/models'
+import type { MatchRecord } from '~/types/models'
 import * as z from 'zod'
 import { type Gender, MATCH_STATUSES, type MatchStatus } from '~/utils/constants'
 
+interface JudgePointsRow {
+  round: number
+  red_corner_judge_1: number | null
+  red_corner_judge_2: number | null
+  red_corner_judge_3: number | null
+  blue_corner_judge_1: number | null
+  blue_corner_judge_2: number | null
+  blue_corner_judge_3: number | null
+}
+
 const props = defineProps<{
-  item: Match | null
+  item: MatchRecord | null
   initialTab?: 'details' | 'outcome'
 }>()
 
@@ -466,26 +476,26 @@ const tabs = computed(() => [
 
 // ── Form state ───────────────────────────────────────────────────────────────
 const state = reactive({
-  tournamentId: null as string | null,
-  redCornerId: null as string | null,
-  blueCornerId: null as string | null,
-  weightCategoryId: null as string | null,
-  disciplineId: null as string | null,
-  redCornerTeam: '',
-  blueCornerTeam: '',
+  tournament_id: null as string | null,
+  red_corner_id: null as string | null,
+  blue_corner_id: null as string | null,
+  weight_category_id: null as string | null,
+  discipline_id: null as string | null,
+  red_corner_team: '',
+  blue_corner_team: '',
   sort: 1 as number,
-  scheduledTime: undefined as string | undefined,
-  status: 'SCHEDULED' as MatchStatus,
-  winnerId: null as string | null,
-  endMethod: null as string | null,
+  scheduled_time: undefined as string | undefined,
+  status: 'scheduled' as MatchStatus,
+  winner_id: null as string | null,
+  end_method: null as string | null,
   rounds: null as number | null,
-  minutesPerRound: null as number | null,
-  endRound: undefined as string | undefined,
-  judgesPoints: [] as JudgePointsRow[],
+  minutes_per_round: null as number | null,
+  end_round: undefined as string | undefined,
+  judges_points: [] as JudgePointsRow[],
 })
 
 // ── Gender filter (mandatory, defaults to MALE) ───────────────────────────────
-const genderFilter = ref<Gender>('MALE')
+const genderFilter = ref<Gender>('male')
 
 // ── Force entry (UI-only: bypasses athlete filters when true) ─────────────────
 const forceEntry = ref(false)
@@ -495,17 +505,17 @@ const filtersLocked = computed(() => false)
 const initializing = ref(false)
 
 const filtersReady = computed(() =>
-  !!state.tournamentId && !!state.disciplineId && !!state.weightCategoryId,
+  !!state.tournament_id && !!state.discipline_id && !!state.weight_category_id,
 )
 
 const filterParams = computed(() => {
-  const gender = genderFilter.value === 'HYBRID' ? undefined : genderFilter.value
+  const gender = genderFilter.value === 'hybrid' ? undefined : genderFilter.value
   return forceEntry.value
     ? { gender }
     : {
-        tournamentId: state.tournamentId ?? undefined,
-        disciplineId: state.disciplineId ?? undefined,
-        weightCategoryId: state.weightCategoryId ?? undefined,
+        tournament_id: state.tournament_id ?? undefined,
+        discipline_id: state.discipline_id ?? undefined,
+        weight_category_id: state.weight_category_id ?? undefined,
         validOnly: true as const,
         gender,
       }
@@ -513,59 +523,59 @@ const filterParams = computed(() => {
 
 // ── Status / end-method options ─────────────────────────────────────────────
 const statusOptions = computed(() => [
-  { label: t('match.status.SCHEDULED'), value: 'SCHEDULED' },
-  { label: t('match.status.IN_PROGRESS'), value: 'IN_PROGRESS' },
-  { label: t('match.status.COMPLETED'), value: 'COMPLETED' },
-  { label: t('match.status.CANCELLED'), value: 'CANCELLED' },
+  { label: t('match.status.scheduled'), value: 'scheduled' },
+  { label: t('match.status.in_progress'), value: 'in_progress' },
+  { label: t('match.status.completed'), value: 'completed' },
+  { label: t('match.status.cancelled'), value: 'cancelled' },
 ])
 
 const endMethodOptions = computed(() => [
   { label: t('match.noEndMethod'), value: null },
-  { label: t('match.endMethod.VICTORY_UNANIMOUS_DECISION'), value: 'VICTORY_UNANIMOUS_DECISION' },
-  { label: t('match.endMethod.VICTORY_SPLIT_DECISION'), value: 'VICTORY_SPLIT_DECISION' },
-  { label: t('match.endMethod.VICTORY_KO'), value: 'VICTORY_KO' },
-  { label: t('match.endMethod.VICTORY_TKO'), value: 'VICTORY_TKO' },
-  { label: t('match.endMethod.VICTORY_DISQUALIFICATION'), value: 'VICTORY_DISQUALIFICATION' },
-  { label: t('match.endMethod.DRAW'), value: 'DRAW' },
-  { label: t('match.endMethod.NO_CONTEST'), value: 'NO_CONTEST' },
+  { label: t('match.endMethod.victory_unanimous_decision'), value: 'victory_unanimous_decision' },
+  { label: t('match.endMethod.victory_split_decision'), value: 'victory_split_decision' },
+  { label: t('match.endMethod.victory_ko'), value: 'victory_ko' },
+  { label: t('match.endMethod.victory_tko'), value: 'victory_tko' },
+  { label: t('match.endMethod.victory_disqualification'), value: 'victory_disqualification' },
+  { label: t('match.endMethod.draw'), value: 'draw' },
+  { label: t('match.endMethod.no_contest'), value: 'no_contest' },
 ])
 
 // ── Zod schemas ─────────────────────────────────────────────────────────────
 const createSchema = z.object({
-  tournamentId: z.string().min(1),
-  redCornerId: z.string().min(1),
-  blueCornerId: z.string().min(1),
-  weightCategoryId: z.string().min(1),
-  disciplineId: z.string().min(1),
-  redCornerTeam: z.string().min(1),
-  blueCornerTeam: z.string().min(1),
+  tournament_id: z.string().min(1),
+  red_corner_id: z.string().min(1),
+  blue_corner_id: z.string().min(1),
+  weight_category_id: z.string().min(1),
+  discipline_id: z.string().min(1),
+  red_corner_team: z.string().min(1),
+  blue_corner_team: z.string().min(1),
   sort: z.coerce.number().int().min(1),
-  scheduledTime: z.string().optional().nullable(),
+  scheduled_time: z.string().optional().nullable(),
   status: z.enum(MATCH_STATUSES).optional(),
-  winnerId: z.string().optional().nullable(),
-  endMethod: z.string().optional().nullable(),
+  winner_id: z.string().optional().nullable(),
+  end_method: z.string().optional().nullable(),
   rounds: z.coerce.number().int().min(1).max(10),
-  minutesPerRound: z.coerce.number().min(1),
-  endRound: z.string().optional().nullable(),
-  judgesPoints: z.any().optional().nullable(),
+  minutes_per_round: z.coerce.number().min(1),
+  end_round: z.string().optional().nullable(),
+  judges_points: z.any().optional().nullable(),
 })
 
 const editSchema = z.object({
-  redCornerId: z.string().optional().nullable(),
-  blueCornerId: z.string().optional().nullable(),
-  weightCategoryId: z.string().optional().nullable(),
-  disciplineId: z.string().optional().nullable(),
-  redCornerTeam: z.string().optional(),
-  blueCornerTeam: z.string().optional(),
+  red_corner_id: z.string().optional().nullable(),
+  blue_corner_id: z.string().optional().nullable(),
+  weight_category_id: z.string().optional().nullable(),
+  discipline_id: z.string().optional().nullable(),
+  red_corner_team: z.string().optional(),
+  blue_corner_team: z.string().optional(),
   sort: z.coerce.number().int().min(1).optional(),
-  scheduledTime: z.string().optional().nullable(),
+  scheduled_time: z.string().optional().nullable(),
   status: z.enum(MATCH_STATUSES).optional(),
-  winnerId: z.string().optional().nullable(),
-  endMethod: z.string().optional().nullable(),
+  winner_id: z.string().optional().nullable(),
+  end_method: z.string().optional().nullable(),
   rounds: z.coerce.number().int().min(1).max(10),
-  minutesPerRound: z.coerce.number().min(1),
-  endRound: z.string().optional().nullable(),
-  judgesPoints: z.any().optional().nullable(),
+  minutes_per_round: z.coerce.number().min(1),
+  end_round: z.string().optional().nullable(),
+  judges_points: z.any().optional().nullable(),
 })
 
 const schema = computed(() => isEdit.value ? editSchema : createSchema)
@@ -576,23 +586,23 @@ watch(open, async (val) => {
     initializing.value = true
     activeTab.value = props.initialTab ?? 'details'
     forceEntry.value = props.item?.forced ?? false
-    genderFilter.value = props.item?.gender ?? 'MALE'
-    state.tournamentId = props.item?.tournamentId ?? null
-    state.redCornerId = props.item?.redCornerId ?? null
-    state.blueCornerId = props.item?.blueCornerId ?? null
-    state.weightCategoryId = props.item?.weightCategoryId ?? null
-    state.disciplineId = props.item?.disciplineId ?? null
-    state.redCornerTeam = props.item?.redCornerTeam ?? ''
-    state.blueCornerTeam = props.item?.blueCornerTeam ?? ''
+    genderFilter.value = props.item?.gender ?? 'male'
+    state.tournament_id = props.item?.tournament_id ?? null
+    state.red_corner_id = props.item?.red_corner_id ?? null
+    state.blue_corner_id = props.item?.blue_corner_id ?? null
+    state.weight_category_id = props.item?.weight_category_id ?? null
+    state.discipline_id = props.item?.discipline_id ?? null
+    state.red_corner_team = props.item?.red_corner_team ?? ''
+    state.blue_corner_team = props.item?.blue_corner_team ?? ''
     state.sort = props.item?.sort ?? 1
-    state.scheduledTime = props.item?.scheduledTime ?? undefined
-    state.status = props.item?.status ?? 'SCHEDULED'
-    state.winnerId = props.item?.winnerId ?? null
-    state.endMethod = props.item?.endMethod ?? null
+    state.scheduled_time = props.item?.scheduled_time ?? undefined
+    state.status = props.item?.status ?? 'scheduled'
+    state.winner_id = props.item?.winner_id ?? null
+    state.end_method = props.item?.end_method ?? null
     state.rounds = props.item?.rounds ?? null
-    state.minutesPerRound = props.item?.minutesPerRound ?? null
-    state.endRound = props.item?.endRound ?? undefined
-    state.judgesPoints = props.item?.judgesPoints ?? []
+    state.minutes_per_round = props.item?.minutes_per_round ?? null
+    state.end_round = props.item?.end_round ?? undefined
+    state.judges_points = (props.item?.judges_points as JudgePointsRow[] | null) ?? []
     await nextTick()
     initializing.value = false
   }
@@ -600,91 +610,91 @@ watch(open, async (val) => {
 
 // ── When filters change (create mode), reset athlete selections ──────────────
 watch(
-  () => [state.tournamentId, state.disciplineId, state.weightCategoryId],
+  () => [state.tournament_id, state.discipline_id, state.weight_category_id],
   () => {
     if (initializing.value) { return }
-    state.redCornerId = null
-    state.blueCornerId = null
-    state.winnerId = null
+    state.red_corner_id = null
+    state.blue_corner_id = null
+    state.winner_id = null
   },
 )
 
 // ── When gender filter changes, reset athlete selections ─────────────────────
 watch(genderFilter, () => {
   if (initializing.value) { return }
-  state.redCornerId = null
-  state.blueCornerId = null
-  state.winnerId = null
+  state.red_corner_id = null
+  state.blue_corner_id = null
+  state.winner_id = null
 })
 
 // ── When a corner athlete changes, reset winner if it was that athlete ────────
-watch(() => state.redCornerId, (val) => {
-  if (state.winnerId !== null && state.winnerId !== val && state.winnerId !== state.blueCornerId) {
-    state.winnerId = null
+watch(() => state.red_corner_id, (val) => {
+  if (state.winner_id !== null && state.winner_id !== val && state.winner_id !== state.blue_corner_id) {
+    state.winner_id = null
   }
 })
-watch(() => state.blueCornerId, (val) => {
-  if (state.winnerId !== null && state.winnerId !== state.redCornerId && state.winnerId !== val) {
-    state.winnerId = null
+watch(() => state.blue_corner_id, (val) => {
+  if (state.winner_id !== null && state.winner_id !== state.red_corner_id && state.winner_id !== val) {
+    state.winner_id = null
   }
 })
 
-// ── Sync judgesPoints rows when rounds changes ────────────────────────────────
+// ── Sync judges_points rows when rounds changes ───────────────────────────────
 watch(() => state.rounds, (val) => {
   if (!val || val <= 0) { return }
   const n = Math.min(val, 10)
-  const current = state.judgesPoints
-  state.judgesPoints = Array.from({ length: n }, (_, i) => {
+  const current = state.judges_points
+  state.judges_points = Array.from({ length: n }, (_, i) => {
     const existing = current.find(r => r.round === i + 1)
     return existing ?? {
       round: i + 1,
-      redCornerJudge1: null,
-      redCornerJudge2: null,
-      redCornerJudge3: null,
-      blueCornerJudge1: null,
-      blueCornerJudge2: null,
-      blueCornerJudge3: null,
+      red_corner_judge_1: null,
+      red_corner_judge_2: null,
+      red_corner_judge_3: null,
+      blue_corner_judge_1: null,
+      blue_corner_judge_2: null,
+      blue_corner_judge_3: null,
     }
   })
 })
 
 // ── Winner helpers ────────────────────────────────────────────────────────────
 const winnerControlDisabled = computed(
-  () => !state.redCornerId && !state.blueCornerId,
+  () => !state.red_corner_id && !state.blue_corner_id,
 )
 
 function setWinner(value: string | null) {
-  state.winnerId = value
+  state.winner_id = value
 }
 
 // ── Auto-fill team from selected athlete object ───────────────────────────────
 function onRedCornerSelect(item: Record<string, unknown>) {
-  state.redCornerTeam = String(item.teamName ?? '')
+  state.red_corner_team = String(item.team_name ?? '')
 }
 
 function onBlueCornerSelect(item: Record<string, unknown>) {
-  state.blueCornerTeam = String(item.teamName ?? '')
+  state.blue_corner_team = String(item.team_name ?? '')
 }
 
 // ── Corner display labels (resolved from props.item in edit, placeholder in create) ──
 const redCornerLabel = computed(() => {
-  if (props.item?.redCornerFullName) { return props.item.redCornerFullName }
-  return state.redCornerId ? `#${state.redCornerId.slice(0, 6)}` : t('match.redCorner')
+  if (props.item?.red_corner_full_name) { return props.item.red_corner_full_name }
+  return state.red_corner_id ? `#${state.red_corner_id.slice(0, 6)}` : t('match.redCorner')
 })
 const blueCornerLabel = computed(() => {
-  if (props.item?.blueCornerFullName) { return props.item.blueCornerFullName }
-  return state.blueCornerId ? `#${state.blueCornerId.slice(0, 6)}` : t('match.blueCorner')
+  if (props.item?.blue_corner_full_name) { return props.item.blue_corner_full_name }
+  return state.blue_corner_id ? `#${state.blue_corner_id.slice(0, 6)}` : t('match.blueCorner')
 })
 const winnerLabel = computed(() => {
-  if (!state.winnerId) { return null }
-  if (state.winnerId === state.redCornerId) { return redCornerLabel.value }
-  if (state.winnerId === state.blueCornerId) { return blueCornerLabel.value }
-  return props.item?.winnerFullName ?? t('match.winner')
+  if (!state.winner_id) { return null }
+  if (state.winner_id === state.red_corner_id) { return redCornerLabel.value }
+  if (state.winner_id === state.blue_corner_id) { return blueCornerLabel.value }
+  return props.item?.winner_full_name ?? t('match.winner')
 })
 
-const hasWinner = computed(() => !!state.winnerId)
-const isRedWinner = computed(() => hasWinner.value && state.winnerId === state.redCornerId)
-const isBlueWinner = computed(() => hasWinner.value && state.winnerId === state.blueCornerId)
+const hasWinner = computed(() => !!state.winner_id)
+const isRedWinner = computed(() => hasWinner.value && state.winner_id === state.red_corner_id)
+const isBlueWinner = computed(() => hasWinner.value && state.winner_id === state.blue_corner_id)
 
 // ── Submit ───────────────────────────────────────────────────────────────────
 const loading = ref(false)
@@ -692,54 +702,54 @@ const loading = ref(false)
 async function onSubmit(event: FormSubmitEvent<z.infer<typeof createSchema> | z.infer<typeof editSchema>>) {
   loading.value = true
   try {
-    const hasAnyPoints = state.judgesPoints.some(row =>
-      row.redCornerJudge1 !== null || row.redCornerJudge2 !== null || row.redCornerJudge3 !== null
-      || row.blueCornerJudge1 !== null || row.blueCornerJudge2 !== null || row.blueCornerJudge3 !== null,
+    const hasAnyPoints = state.judges_points.some(row =>
+      row.red_corner_judge_1 !== null || row.red_corner_judge_2 !== null || row.red_corner_judge_3 !== null
+      || row.blue_corner_judge_1 !== null || row.blue_corner_judge_2 !== null || row.blue_corner_judge_3 !== null,
     )
-    const judgesPoints = hasAnyPoints ? state.judgesPoints : null
+    const judges_points = hasAnyPoints ? state.judges_points : null
 
     if (isEdit.value) {
       const body = {
-        redCornerId: event.data.redCornerId || null,
-        blueCornerId: event.data.blueCornerId || null,
-        weightCategoryId: event.data.weightCategoryId || null,
-        disciplineId: event.data.disciplineId || null,
-        redCornerTeam: event.data.redCornerTeam || undefined,
-        blueCornerTeam: event.data.blueCornerTeam || undefined,
+        red_corner_id: event.data.red_corner_id || null,
+        blue_corner_id: event.data.blue_corner_id || null,
+        weight_category_id: event.data.weight_category_id || null,
+        discipline_id: event.data.discipline_id || null,
+        red_corner_team: event.data.red_corner_team || undefined,
+        blue_corner_team: event.data.blue_corner_team || undefined,
         sort: event.data.sort ?? undefined,
-        scheduledTime: event.data.scheduledTime || null,
+        scheduled_time: event.data.scheduled_time || null,
         status: event.data.status,
-        winnerId: event.data.winnerId || null,
-        endMethod: event.data.endMethod || null,
+        winner_id: event.data.winner_id || null,
+        end_method: event.data.end_method || null,
         rounds: event.data.rounds,
-        minutesPerRound: event.data.minutesPerRound,
-        endRound: event.data.endRound || null,
+        minutes_per_round: event.data.minutes_per_round,
+        end_round: event.data.end_round || null,
         forced: forceEntry.value,
         gender: genderFilter.value,
-        judgesPoints,
+        judges_points,
       }
       await api.put(`/api/admin/matches/${props.item!.id}`, body)
     } else {
       const createData = event.data as z.infer<typeof createSchema>
       const body = {
-        tournamentId: createData.tournamentId,
-        redCornerId: createData.redCornerId,
-        blueCornerId: createData.blueCornerId,
-        weightCategoryId: createData.weightCategoryId,
-        disciplineId: createData.disciplineId,
-        redCornerTeam: createData.redCornerTeam,
-        blueCornerTeam: createData.blueCornerTeam,
+        tournament_id: createData.tournament_id,
+        red_corner_id: createData.red_corner_id,
+        blue_corner_id: createData.blue_corner_id,
+        weight_category_id: createData.weight_category_id,
+        discipline_id: createData.discipline_id,
+        red_corner_team: createData.red_corner_team,
+        blue_corner_team: createData.blue_corner_team,
         sort: createData.sort,
-        scheduledTime: createData.scheduledTime || null,
-        status: createData.status ?? 'SCHEDULED',
-        winnerId: createData.winnerId || null,
-        endMethod: createData.endMethod || null,
+        scheduled_time: createData.scheduled_time || null,
+        status: createData.status ?? 'scheduled',
+        winner_id: createData.winner_id || null,
+        end_method: createData.end_method || null,
         rounds: createData.rounds,
-        minutesPerRound: createData.minutesPerRound,
-        endRound: createData.endRound || null,
+        minutes_per_round: createData.minutes_per_round,
+        end_round: createData.end_round || null,
         forced: forceEntry.value,
         gender: genderFilter.value,
-        judgesPoints,
+        judges_points,
       }
       await api.post('/api/admin/matches', body)
     }

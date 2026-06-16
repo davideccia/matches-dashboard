@@ -21,8 +21,8 @@
           :columns="columns"
           empty-icon="i-mdi-account"
         >
-          <template #birthDate-cell="{ row }">
-            {{ formatServerDateOnly(((row.original as unknown as Athlete)).birthDate, locale) }}
+          <template #birth_date-cell="{ row }">
+            {{ formatServerDateOnly(((row.original as unknown as Athlete)).birth_date, locale) }}
           </template>
           <template #gender-cell="{ row }">
             {{ genderLabel(((row.original as unknown as Athlete)).gender) }}
@@ -92,17 +92,17 @@ const deleteTarget = ref<Athlete | null>(null)
 const deleting = ref(false)
 
 function genderLabel(gender: string): string {
-  if (gender === 'MALE') { return t('athlete.gender.MALE') }
-  if (gender === 'FEMALE') { return t('athlete.gender.FEMALE') }
+  if (gender === 'male') { return t('athlete.gender.male') }
+  if (gender === 'female') { return t('athlete.gender.female') }
   return gender
 }
 
 const columns = computed(() => [
-  { accessorKey: 'fullName', header: t('athlete.firstName') },
-  { accessorKey: 'birthDate', header: t('athlete.birthDate') },
+  { accessorKey: 'full_name', header: t('athlete.firstName') },
+  { accessorKey: 'birth_date', header: t('athlete.birthDate') },
   { accessorKey: 'gender', header: t('athlete.gender.label') },
-  { accessorKey: 'taxNumber', header: t('athlete.taxNumber') },
-  { accessorKey: 'teamName', header: t('athlete.teamName') },
+  { accessorKey: 'tax_number', header: t('athlete.taxNumber') },
+  { accessorKey: 'team_name', header: t('athlete.teamName') },
   { id: 'actions', header: '' },
 ] as TableColumn<Record<string, unknown>>[])
 

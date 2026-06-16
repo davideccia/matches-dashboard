@@ -29,10 +29,6 @@
           />
         </UFormField>
 
-        <UFormField v-if="canEditSuperadmin" name="superadmin" :label="t('user.superadmin')">
-          <USwitch v-model="state.superadmin" />
-        </UFormField>
-
         <div class="flex justify-end gap-2 pt-2">
           <UButton variant="ghost" color="neutral" type="button" @click="open = false">
             {{ t('common.cancel') }}
@@ -65,23 +61,18 @@ const api = useApi()
 const toast = useToast()
 const { user: currentUser } = useAuth()
 
-const canEditEmail = computed(() =>
-  !!currentUser.value?.superadmin || currentUser.value?.id === props.user?.id,
-)
-const canEditSuperadmin = computed(() => !!currentUser.value?.superadmin)
+const canEditEmail = computed(() => currentUser.value?.id === props.user?.id)
 
 const isEdit = computed(() => props.user !== null)
 
 const createSchema = z.object({
   email: z.email(),
   password: z.string().min(6),
-  superadmin: z.boolean().optional(),
 })
 
 const editSchema = z.object({
   email: z.email(),
   password: z.union([z.string().min(6), z.literal('')]),
-  superadmin: z.boolean().optional(),
 })
 
 const schema = computed(() => isEdit.value ? editSchema : createSchema)
@@ -89,26 +80,23 @@ const schema = computed(() => isEdit.value ? editSchema : createSchema)
 const state = reactive({
   email: '',
   password: '',
-  superadmin: false,
 })
 
 watch(open, (val) => {
   if (val) {
     state.email = props.user?.email ?? ''
     state.password = ''
-    state.superadmin = props.user?.superadmin ?? false
   }
 })
 
 const loading = ref(false)
 
-async function onSubmit(event: FormSubmitEvent<{ email: string, password: string, superadmin?: boolean }>) {
+async function onSubmit(event: FormSubmitEvent<{ email: string, password: string }>) {
   loading.value = true
   try {
     const body: Record<string, unknown> = {}
     if (canEditEmail.value) { body.email = event.data.email }
     if (event.data.password) { body.password = event.data.password }
-    if (canEditSuperadmin.value) { body.superadmin = event.data.superadmin }
 
     if (isEdit.value) {
       await api.put(`/api/admin/users/${props.user!.id}`, body)

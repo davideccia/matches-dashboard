@@ -44,13 +44,13 @@
               <span
                 class="inline-block size-2.5 rounded-full shrink-0"
                 :class="[
-                  row.original.status === 'SCHEDULED' && 'bg-blue-400',
-                  row.original.status === 'IN_PROGRESS' && 'bg-amber-400 animate-pulse',
-                  row.original.status === 'COMPLETED' && 'bg-green-500',
-                  row.original.status === 'CANCELLED' && 'bg-red-400',
+                  row.original.status === 'scheduled' && 'bg-blue-400',
+                  row.original.status === 'in_progress' && 'bg-amber-400 animate-pulse',
+                  row.original.status === 'completed' && 'bg-green-500',
+                  row.original.status === 'cancelled' && 'bg-red-400',
                 ]"
               />
-              {{ matchStatusLabel(((row.original as unknown as Match)).status) }}
+              {{ matchStatusLabel(((row.original as unknown as MatchRecord)).status) }}
             </div>
           </template>
           <template #actions-cell="{ row }">
@@ -60,14 +60,14 @@
                 variant="ghost"
                 color="neutral"
                 size="sm"
-                @click="openEdit((row.original as unknown as Match))"
+                @click="openEdit((row.original as unknown as MatchRecord))"
               />
               <UButton
                 icon="i-mdi-delete"
                 variant="ghost"
                 color="error"
                 size="sm"
-                @click="confirmDelete((row.original as unknown as Match))"
+                @click="confirmDelete((row.original as unknown as MatchRecord))"
               />
             </div>
           </template>
@@ -77,7 +77,7 @@
   </UDashboardPanel>
 
   <ClientOnly>
-    <MatchFormPanel v-model="panelOpen" :item="editingItem" @saved="() => tableRef?.refresh()" />
+    <MatchRecordFormPanel v-model="panelOpen" :item="editingItem" @saved="() => tableRef?.refresh()" />
 
     <UModal v-model:open="confirmOpen" :title="t('common.confirm')">
       <template #body>
@@ -101,7 +101,7 @@
 
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
-import type { Match } from '~/types/models'
+import type { MatchRecord } from '~/types/models'
 
 definePageMeta({ layout: 'default' })
 
@@ -113,30 +113,30 @@ const tableRef = useTemplateRef('tableRef')
 
 const tournamentId = ref<string | null>(null)
 const panelOpen = ref(false)
-const editingItem = ref<Match | null>(null)
+const editingItem = ref<MatchRecord | null>(null)
 const confirmOpen = ref(false)
-const deleteTarget = ref<Match | null>(null)
+const deleteTarget = ref<MatchRecord | null>(null)
 const deleting = ref(false)
 
 const tableParams = computed(() => ({
-  tournamentId: tournamentId.value ?? undefined,
+  tournament_id: tournamentId.value ?? undefined,
 }))
 
 function matchStatusLabel(status: string): string {
-  if (status === 'SCHEDULED') { return t('match.status.SCHEDULED') }
-  if (status === 'IN_PROGRESS') { return t('match.status.IN_PROGRESS') }
-  if (status === 'COMPLETED') { return t('match.status.COMPLETED') }
-  if (status === 'CANCELLED') { return t('match.status.CANCELLED') }
+  if (status === 'scheduled') { return t('match.status.scheduled') }
+  if (status === 'in_progress') { return t('match.status.in_progress') }
+  if (status === 'completed') { return t('match.status.completed') }
+  if (status === 'cancelled') { return t('match.status.cancelled') }
   return status
 }
 
 const columns = computed(() => [
   { accessorKey: 'sort', header: t('match.sort'), meta: { class: { th: 'text-right', td: 'text-right' } } },
-  { accessorKey: 'tournamentName', header: t('match.tournament') },
-  { accessorKey: 'redCornerFullName', header: t('match.redCorner') },
-  { accessorKey: 'blueCornerFullName', header: t('match.blueCorner') },
-  { accessorKey: 'weightCategoryLabel', header: t('match.weightCategory') },
-  { accessorKey: 'disciplineLabel', header: t('match.disciplineLabel') },
+  { accessorKey: 'tournament_name', header: t('match.tournament') },
+  { accessorKey: 'red_corner_full_name', header: t('match.redCorner') },
+  { accessorKey: 'blue_corner_full_name', header: t('match.blueCorner') },
+  { accessorKey: 'weight_category_label', header: t('match.weightCategory') },
+  { accessorKey: 'discipline_label', header: t('match.disciplineLabel') },
   { accessorKey: 'status', header: t('match.status.label') },
   { id: 'actions', header: '' },
 ] as TableColumn<Record<string, unknown>>[])
@@ -146,12 +146,12 @@ function openCreate() {
   panelOpen.value = true
 }
 
-function openEdit(item: Match) {
+function openEdit(item: MatchRecord) {
   editingItem.value = item
   panelOpen.value = true
 }
 
-function confirmDelete(item: Match) {
+function confirmDelete(item: MatchRecord) {
   deleteTarget.value = item
   confirmOpen.value = true
 }

@@ -5,7 +5,7 @@
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
-        <template v-if="currentUser?.superadmin" #right>
+        <template #right>
           <UButton icon="i-mdi-plus" @click="openCreate">
             {{ t('common.add') }}
           </UButton>
@@ -21,8 +21,8 @@
           :columns="columns"
           empty-icon="i-mdi-account-group"
         >
-          <template #createdAt-cell="{ row }">
-            {{ formatServerDate(((row.original as unknown as User)).createdAt, locale) }}
+          <template #created_at-cell="{ row }">
+            {{ formatServerDate(((row.original as unknown as User)).created_at, locale) }}
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1">
@@ -92,7 +92,7 @@ const deleting = ref(false)
 
 const columns = computed(() => [
   { accessorKey: 'email', header: t('user.email') },
-  { accessorKey: 'createdAt', header: t('user.createdAt') },
+  { accessorKey: 'created_at', header: t('user.createdAt') },
   { id: 'actions', header: '' },
 ] as TableColumn<Record<string, unknown>>[])
 

@@ -100,19 +100,19 @@ const deleteTarget = ref<Tournament | null>(null)
 const deleting = ref(false)
 
 function tournamentStatusLabel(status: string): string {
-  if (status === 'SCHEDULED') { return t('tournament.status.SCHEDULED') }
-  if (status === 'REGISTRATIONS_OPENED') { return t('tournament.status.REGISTRATIONS_OPENED') }
-  if (status === 'REGISTRATIONS_CLOSED') { return t('tournament.status.REGISTRATIONS_CLOSED') }
-  if (status === 'IN_PROGRESS') { return t('tournament.status.IN_PROGRESS') }
-  if (status === 'COMPLETED') { return t('tournament.status.COMPLETED') }
-  if (status === 'CANCELLED') { return t('tournament.status.CANCELLED') }
+  if (status === 'scheduled') { return t('tournament.status.scheduled') }
+  if (status === 'registrations_opened') { return t('tournament.status.registrations_opened') }
+  if (status === 'registrations_closed') { return t('tournament.status.registrations_closed') }
+  if (status === 'in_progress') { return t('tournament.status.in_progress') }
+  if (status === 'completed') { return t('tournament.status.completed') }
+  if (status === 'cancelled') { return t('tournament.status.cancelled') }
   return status
 }
 
 const columns = computed(() => [
   { accessorKey: 'name', header: t('tournament.name') },
   { accessorKey: 'date', header: t('tournament.date') },
-  { accessorKey: 'locationCity', header: t('tournament.city') },
+  { accessorKey: 'location_city', header: t('tournament.city') },
   { accessorKey: 'status', header: t('tournament.status.label') },
   { id: 'actions', header: '' },
 ] as TableColumn<Record<string, unknown>>[])

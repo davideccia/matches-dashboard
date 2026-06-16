@@ -3,96 +3,96 @@
     <template #body>
       <UForm :schema="schema" :state="state as any" class="space-y-6 p-6" @submit="(e: any) => onSubmit(e)">
         <template v-if="!isEdit">
-          <UFormField name="athleteId" :label="t('registration.athlete')" required>
+          <UFormField name="athlete_id" :label="t('registration.athlete')" required>
             <div class="flex items-center gap-2">
               <ApiSelectMenu
-                v-model="state.athleteId"
+                v-model="state.athlete_id"
                 endpoint="/api/admin/athletes"
-                label-key="fullName"
+                label-key="full_name"
                 :placeholder="t('registration.selectAthlete')"
                 class="w-full"
               />
               <UButton
-                v-if="state.athleteId !== null"
+                v-if="state.athlete_id !== null"
                 type="button"
                 icon="i-mdi-close"
                 variant="ghost"
                 color="neutral"
                 size="sm"
                 :aria-label="t('common.cancel')"
-                @click="state.athleteId = null"
+                @click="state.athlete_id = null"
               />
             </div>
           </UFormField>
 
-          <UFormField name="tournamentId" :label="t('registration.tournament')" required>
+          <UFormField name="tournament_id" :label="t('registration.tournament')" required>
             <div class="flex items-center gap-2">
               <ApiSelectMenu
-                v-model="state.tournamentId"
+                v-model="state.tournament_id"
                 endpoint="/api/admin/tournaments"
                 label-key="name"
                 :placeholder="t('registration.selectTournament')"
                 class="w-full"
               />
               <UButton
-                v-if="state.tournamentId !== null"
+                v-if="state.tournament_id !== null"
                 type="button"
                 icon="i-mdi-close"
                 variant="ghost"
                 color="neutral"
                 size="sm"
                 :aria-label="t('common.cancel')"
-                @click="state.tournamentId = null"
+                @click="state.tournament_id = null"
               />
             </div>
           </UFormField>
         </template>
 
-        <UFormField name="disciplineId" :label="t('registration.discipline')" required>
+        <UFormField name="discipline_id" :label="t('registration.discipline')" required>
           <div class="flex items-center gap-2">
             <ApiSelectMenu
-              v-model="state.disciplineId"
+              v-model="state.discipline_id"
               endpoint="/api/admin/disciplines"
               label-key="label"
               :placeholder="t('registration.selectDiscipline')"
               class="w-full"
             />
             <UButton
-              v-if="state.disciplineId !== null"
+              v-if="state.discipline_id !== null"
               type="button"
               icon="i-mdi-close"
               variant="ghost"
               color="neutral"
               size="sm"
               :aria-label="t('common.cancel')"
-              @click="state.disciplineId = null"
+              @click="state.discipline_id = null"
             />
           </div>
         </UFormField>
 
-        <UFormField name="weightCategoryId" :label="t('registration.weightCategory')" required>
+        <UFormField name="weight_category_id" :label="t('registration.weightCategory')" required>
           <div class="flex items-center gap-2">
             <ApiSelectMenu
-              v-model="state.weightCategoryId"
+              v-model="state.weight_category_id"
               endpoint="/api/admin/weight_categories"
               label-key="label"
               :placeholder="t('registration.selectWeightCategory')"
               class="w-full"
             />
             <UButton
-              v-if="state.weightCategoryId !== null"
+              v-if="state.weight_category_id !== null"
               type="button"
               icon="i-mdi-close"
               variant="ghost"
               color="neutral"
               size="sm"
               :aria-label="t('common.cancel')"
-              @click="state.weightCategoryId = null"
+              @click="state.weight_category_id = null"
             />
           </div>
         </UFormField>
 
-        <UFormField name="paidAt" :label="t('registration.paidAt')">
+        <UFormField name="paid_at" :label="t('registration.paidAt')">
           <div class="flex flex-col gap-2">
             <UButton
               type="button"
@@ -117,7 +117,7 @@
               </UPopover>
               <UInputTime v-model="paidAtTime" :hour-cycle="24" class="w-1/2" />
               <UButton
-                v-if="state.paidAt"
+                v-if="state.paid_at"
                 type="button"
                 icon="i-mdi-close"
                 variant="ghost"
@@ -152,24 +152,24 @@
             />
           </UFormField>
 
-          <UFormField name="weightIn" :label="t('registration.weightIn')" class="flex-1">
+          <UFormField name="weight_in" :label="t('registration.weightIn')" class="flex-1">
             <div class="flex items-center gap-2">
               <UInput
-                :model-value="state.weightIn !== null ? String(state.weightIn) : ''"
+                :model-value="state.weight_in !== null ? String(state.weight_in) : ''"
                 type="number"
                 step="0.1"
                 min="0"
                 class="w-full"
-                @update:model-value="(v: string) => state.weightIn = v === '' ? null : Number(v)"
+                @update:model-value="(v: string) => state.weight_in = v === '' ? null : Number(v)"
               />
               <UButton
-                v-if="state.weightIn !== null"
+                v-if="state.weight_in !== null"
                 type="button"
                 icon="i-mdi-close"
                 variant="ghost"
                 color="neutral"
                 size="sm"
-                @click="state.weightIn = null"
+                @click="state.weight_in = null"
               />
             </div>
           </UFormField>
@@ -210,35 +210,35 @@ const toast = useToast()
 const isEdit = computed(() => props.item !== null)
 
 const createSchema = z.object({
-  athleteId: z.string().min(1),
-  tournamentId: z.string().min(1),
-  disciplineId: z.string().min(1),
-  weightCategoryId: z.string().min(1),
-  paidAt: z.string().nullable().optional(),
+  athlete_id: z.string().min(1),
+  tournament_id: z.string().min(1),
+  discipline_id: z.string().min(1),
+  weight_category_id: z.string().min(1),
+  paid_at: z.string().nullable().optional(),
   arrived: z.boolean().optional(),
-  weightIn: z.number().nullable().optional(),
+  weight_in: z.number().nullable().optional(),
   notes: z.string().optional(),
 })
 
 const editSchema = z.object({
-  disciplineId: z.string().min(1),
-  weightCategoryId: z.string().min(1),
-  paidAt: z.string().nullable().optional(),
+  discipline_id: z.string().min(1),
+  weight_category_id: z.string().min(1),
+  paid_at: z.string().nullable().optional(),
   arrived: z.boolean().optional(),
-  weightIn: z.number().nullable().optional(),
+  weight_in: z.number().nullable().optional(),
   notes: z.string().optional(),
 })
 
 const schema = computed(() => isEdit.value ? editSchema : createSchema)
 
 const state = reactive({
-  athleteId: null as string | null,
-  tournamentId: null as string | null,
-  disciplineId: null as string | null,
-  weightCategoryId: null as string | null,
-  paidAt: null as string | null,
+  athlete_id: null as string | null,
+  tournament_id: null as string | null,
+  discipline_id: null as string | null,
+  weight_category_id: null as string | null,
+  paid_at: null as string | null,
   arrived: false,
-  weightIn: null as number | null,
+  weight_in: null as number | null,
   notes: '',
 })
 
@@ -248,7 +248,7 @@ const paidAtTime = ref<any>()
 
 let ignoreNextPaidAt = false
 
-watch(() => state.paidAt, (val) => {
+watch(() => state.paid_at, (val) => {
   ignoreNextPaidAt = true
   if (!val) {
     paidAtDate.value = undefined
@@ -264,14 +264,14 @@ watch(() => state.paidAt, (val) => {
 watch([paidAtDate, paidAtTime], ([date, time]) => {
   if (ignoreNextPaidAt) { return }
   if (!date) {
-    state.paidAt = null
+    state.paid_at = null
     return
   }
   const d = `${String(date.year).padStart(4, '0')}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`
   const tStr = time
     ? `${String(time.hour).padStart(2, '0')}:${String(time.minute).padStart(2, '0')}`
     : '00:00'
-  state.paidAt = `${d}T${tStr}`
+  state.paid_at = `${d}T${tStr}`
 })
 
 function setPaidAtNow() {
@@ -287,13 +287,13 @@ function clearPaidAt() {
 
 watch(open, (val) => {
   if (val) {
-    state.athleteId = props.item?.athleteId ?? null
-    state.tournamentId = props.item?.tournamentId ?? null
-    state.disciplineId = props.item?.disciplineId ?? null
-    state.weightCategoryId = props.item?.weightCategoryId ?? null
-    state.paidAt = serverDateToInput(props.item?.paidAt) || null
+    state.athlete_id = props.item?.athlete_id ?? null
+    state.tournament_id = props.item?.tournament_id ?? null
+    state.discipline_id = props.item?.discipline_id ?? null
+    state.weight_category_id = props.item?.weight_category_id ?? null
+    state.paid_at = serverDateToInput(props.item?.paid_at) || null
     state.arrived = props.item?.arrived ?? false
-    state.weightIn = props.item?.weightIn ?? null
+    state.weight_in = props.item?.weight_in ?? null
     state.notes = props.item?.notes ?? ''
   }
 })
@@ -305,23 +305,23 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof createSchema>>) {
   try {
     if (isEdit.value) {
       const body = {
-        disciplineId: event.data.disciplineId,
-        weightCategoryId: event.data.weightCategoryId,
-        paidAt: inputDateToServer(event.data.paidAt),
+        discipline_id: event.data.discipline_id,
+        weight_category_id: event.data.weight_category_id,
+        paid_at: inputDateToServer(event.data.paid_at),
         arrived: event.data.arrived ?? false,
-        weightIn: event.data.weightIn ?? null,
+        weight_in: event.data.weight_in ?? null,
         notes: event.data.notes || null,
       }
       await api.put(`/api/admin/registrations/${props.item!.id}`, body)
     } else {
       const body = {
-        athleteId: event.data.athleteId,
-        tournamentId: event.data.tournamentId,
-        disciplineId: event.data.disciplineId,
-        weightCategoryId: event.data.weightCategoryId,
-        paidAt: inputDateToServer(event.data.paidAt),
+        athlete_id: event.data.athlete_id,
+        tournament_id: event.data.tournament_id,
+        discipline_id: event.data.discipline_id,
+        weight_category_id: event.data.weight_category_id,
+        paid_at: inputDateToServer(event.data.paid_at),
         arrived: event.data.arrived ?? false,
-        weightIn: event.data.weightIn ?? null,
+        weight_in: event.data.weight_in ?? null,
         notes: event.data.notes || null,
       }
       await api.post('/api/admin/registrations', body)

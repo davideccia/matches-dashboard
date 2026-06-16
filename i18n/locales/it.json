@@ -83,12 +83,12 @@
     "deleted": "Torneo eliminato",
     "status": {
       "label": "Stato",
-      "SCHEDULED": "Programmato",
-      "REGISTRATIONS_OPENED": "Iscrizioni aperte",
-      "REGISTRATIONS_CLOSED": "Iscrizioni chiuse",
-      "IN_PROGRESS": "In corso",
-      "COMPLETED": "Concluso",
-      "CANCELLED": "Annullato"
+      "scheduled": "Programmato",
+      "registrations_opened": "Iscrizioni aperte",
+      "registrations_closed": "Iscrizioni chiuse",
+      "in_progress": "In corso",
+      "completed": "Concluso",
+      "cancelled": "Annullato"
     },
     "pdf": {
       "board": "Dettagliata",
@@ -141,20 +141,20 @@
     "deleted": "Incontro eliminato",
     "endMethod": {
       "label": "Motivo fine",
-      "VICTORY_UNANIMOUS_DECISION": "Decisione unanime",
-      "VICTORY_SPLIT_DECISION": "Decisione non unanime",
-      "VICTORY_KO": "KO",
-      "VICTORY_TKO": "TKO",
-      "VICTORY_DISQUALIFICATION": "Squalifica",
-      "DRAW": "Pareggio",
-      "NO_CONTEST": "No contest"
+      "victory_unanimous_decision": "Decisione unanime",
+      "victory_split_decision": "Decisione non unanime",
+      "victory_ko": "KO",
+      "victory_tko": "TKO",
+      "victory_disqualification": "Squalifica",
+      "draw": "Pareggio",
+      "no_contest": "No contest"
     },
     "status": {
       "label": "Stato",
-      "SCHEDULED": "Programmato",
-      "IN_PROGRESS": "In corso",
-      "COMPLETED": "Concluso",
-      "CANCELLED": "Annullato"
+      "scheduled": "Programmato",
+      "in_progress": "In corso",
+      "completed": "Concluso",
+      "cancelled": "Annullato"
     },
     "disciplineLabel": "Disciplina",
     "tab": {
@@ -163,9 +163,9 @@
     },
     "gender": {
       "label": "Sesso",
-      "MALE": "Maschile",
-      "FEMALE": "Femminile",
-      "HYBRID": "Nessuno"
+      "male": "Maschile",
+      "female": "Femminile",
+      "hybrid": "Nessuno"
     },
     "cornerPreview": "Anteprima incontro"
   },
@@ -188,8 +188,8 @@
     "deleted": "Atleta eliminato",
     "gender": {
       "label": "Sesso",
-      "MALE": "Maschile",
-      "FEMALE": "Femminile"
+      "male": "Maschile",
+      "female": "Femminile"
     }
   },
   "login": {

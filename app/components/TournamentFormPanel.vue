@@ -10,17 +10,17 @@
         </UFormField>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UFormField name="locationName" :label="t('tournament.locationName')" required>
-            <UInput v-model="state.locationName" class="w-full" />
+          <UFormField name="location_name" :label="t('tournament.locationName')" required>
+            <UInput v-model="state.location_name" class="w-full" />
           </UFormField>
 
-          <UFormField name="locationCity" :label="t('tournament.locationCity')" required>
-            <UInput v-model="state.locationCity" class="w-full" />
+          <UFormField name="location_city" :label="t('tournament.locationCity')" required>
+            <UInput v-model="state.location_city" class="w-full" />
           </UFormField>
         </div>
 
-        <UFormField name="locationAddress" :label="t('tournament.locationAddress')" required>
-          <UInput v-model="state.locationAddress" class="w-full" />
+        <UFormField name="location_address" :label="t('tournament.locationAddress')" required>
+          <UInput v-model="state.location_address" class="w-full" />
         </UFormField>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -68,40 +68,40 @@ const toast = useToast()
 const isEdit = computed(() => props.item !== null)
 
 const statusOptions = computed(() => [
-  { label: t('tournament.status.SCHEDULED'), value: 'SCHEDULED' },
-  { label: t('tournament.status.REGISTRATIONS_OPENED'), value: 'REGISTRATIONS_OPENED' },
-  { label: t('tournament.status.REGISTRATIONS_CLOSED'), value: 'REGISTRATIONS_CLOSED' },
-  { label: t('tournament.status.IN_PROGRESS'), value: 'IN_PROGRESS' },
-  { label: t('tournament.status.COMPLETED'), value: 'COMPLETED' },
-  { label: t('tournament.status.CANCELLED'), value: 'CANCELLED' },
+  { label: t('tournament.status.scheduled'), value: 'scheduled' },
+  { label: t('tournament.status.registrations_opened'), value: 'registrations_opened' },
+  { label: t('tournament.status.registrations_closed'), value: 'registrations_closed' },
+  { label: t('tournament.status.in_progress'), value: 'in_progress' },
+  { label: t('tournament.status.completed'), value: 'completed' },
+  { label: t('tournament.status.cancelled'), value: 'cancelled' },
 ])
 
 const schema = z.object({
   name: z.string().min(1),
-  locationName: z.string().min(1),
-  locationAddress: z.string().min(1),
-  locationCity: z.string().min(1),
+  location_name: z.string().min(1),
+  location_address: z.string().min(1),
+  location_city: z.string().min(1),
   date: z.string().min(1),
   status: z.enum(TOURNAMENT_STATUSES),
 })
 
 const state = reactive({
   name: '',
-  locationName: '',
-  locationAddress: '',
-  locationCity: '',
+  location_name: '',
+  location_address: '',
+  location_city: '',
   date: '',
-  status: 'SCHEDULED' as TournamentStatus,
+  status: 'scheduled' as TournamentStatus,
 })
 
 watch(open, (val) => {
   if (val) {
     state.name = props.item?.name ?? ''
-    state.locationName = props.item?.locationName ?? ''
-    state.locationAddress = props.item?.locationAddress ?? ''
-    state.locationCity = props.item?.locationCity ?? ''
+    state.location_name = props.item?.location_name ?? ''
+    state.location_address = props.item?.location_address ?? ''
+    state.location_city = props.item?.location_city ?? ''
     state.date = props.item?.date ?? ''
-    state.status = props.item?.status ?? 'SCHEDULED'
+    state.status = props.item?.status ?? 'scheduled'
   }
 })
 
@@ -112,9 +112,9 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   try {
     const body = {
       name: event.data.name,
-      locationName: event.data.locationName,
-      locationAddress: event.data.locationAddress,
-      locationCity: event.data.locationCity,
+      location_name: event.data.location_name,
+      location_address: event.data.location_address,
+      location_city: event.data.location_city,
       date: event.data.date,
       status: event.data.status,
     }

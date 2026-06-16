@@ -1,36 +1,36 @@
-export const GENDERS = ['MALE', 'FEMALE', 'HYBRID'] as const
+export const GENDERS = ['male', 'female', 'hybrid'] as const
 export type Gender = typeof GENDERS[number]
 
 export const TOURNAMENT_STATUSES = [
-  'SCHEDULED',
-  'REGISTRATIONS_OPENED',
-  'REGISTRATIONS_CLOSED',
-  'IN_PROGRESS',
-  'COMPLETED',
-  'CANCELLED',
+  'scheduled',
+  'registrations_opened',
+  'registrations_closed',
+  'in_progress',
+  'completed',
+  'cancelled',
 ] as const
 export type TournamentStatus = typeof TOURNAMENT_STATUSES[number]
 
 export const MATCH_STATUSES = [
-  'SCHEDULED',
-  'IN_PROGRESS',
-  'COMPLETED',
-  'CANCELLED',
+  'scheduled',
+  'in_progress',
+  'completed',
+  'cancelled',
 ] as const
 export type MatchStatus = typeof MATCH_STATUSES[number]
 
 export const END_METHODS = [
-  'VICTORY_UNANIMOUS_DECISION',
-  'VICTORY_SPLIT_DECISION',
-  'VICTORY_KO',
-  'VICTORY_TKO',
-  'VICTORY_DISQUALIFICATION',
-  'DRAW',
-  'NO_CONTEST',
+  'victory_unanimous_decision',
+  'victory_split_decision',
+  'victory_ko',
+  'victory_tko',
+  'victory_disqualification',
+  'draw',
+  'no_contest',
 ] as const
 export type EndMethod = typeof END_METHODS[number]
 
-export const CLIENT_TYPES = ['DESKTOP', 'MOBILE'] as const
+export const CLIENT_TYPES = ['desktop', 'mobile'] as const
 export type ClientType = typeof CLIENT_TYPES[number]
 
 export const PAGE_SIZES = [10, 20, 50, 100] as const

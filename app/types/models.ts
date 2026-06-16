@@ -1,107 +1,141 @@
 import type { EndMethod, Gender, MatchStatus, TournamentStatus } from '~/utils/constants'
 
-export interface User {
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+export interface Discipline {
   id: string
-  email: string
-  superadmin: boolean
-  createdAt: string
+  label: string
+  created_at: string
+  updated_at: string
 }
 
 export interface WeightCategory {
   id: string
   label: string
   value: number
-}
-
-export interface Discipline {
-  id: string
-  label: string
+  created_at: string
+  updated_at: string
 }
 
 export interface Athlete {
   id: string
-  firstName: string
-  lastName: string
-  birthDate: string
+  first_name: string
+  last_name: string
+  full_name: string
+  birth_date: string // "YYYY-MM-DD"
   gender: Gender
-  taxNumber: string
-  teamName: string | null
-  defaultWeightCategoryId: string | null
-  defaultDisciplineId: string | null
+  tax_number: string | null
+  team_name: string | null
+  default_weight_category_id: string | null
+  default_discipline_id: string | null
+  created_at: string
+  updated_at: string
+  // relazioni opzionali (se caricate con with())
+  default_weight_category?: WeightCategory
+  default_discipline?: Discipline
+  registrations?: Registration[]
 }
 
 export interface Tournament {
   id: string
   name: string
-  locationName: string
-  locationAddress: string
-  locationCity: string
-  date: string
+  location_name: string
+  location_address: string
+  location_city: string
+  date: string // "YYYY-MM-DD"
   status: TournamentStatus
+  created_at: string
+  updated_at: string
+  // relazioni opzionali
+  registrations?: Registration[]
+  match_records?: MatchRecord[]
 }
 
 export interface Registration {
   id: string
-  athleteId: string
-  tournamentId: string
-  disciplineId: string
-  weightCategoryId: string
-  paidAt: string | null
+  athlete_id: string
+  tournament_id: string
+  discipline_id: string
+  weight_category_id: string
+  paid_at: string | null // ISO 8601 datetime
   arrived: boolean
-  weightIn: number | null
+  weight_in: number | null
   notes: string | null
-  athleteFullName?: string
-  tournamentName?: string
-  disciplineLabel?: string
-  weightCategoryLabel?: string
-  weightCategoryValue?: number
+  created_at: string
+  updated_at: string
+  // relazioni opzionali
+  athlete?: Athlete
+  tournament?: Tournament
+  discipline?: Discipline
+  weight_category?: WeightCategory
 }
 
-export interface JudgePointsRow {
-  round: number
-  redCornerJudge1: number | null
-  redCornerJudge2: number | null
-  redCornerJudge3: number | null
-  blueCornerJudge1: number | null
-  blueCornerJudge2: number | null
-  blueCornerJudge3: number | null
-}
-
-export interface Match {
+export interface MatchRecord {
   id: string
-  tournamentId: string
-  redCornerId: string
-  blueCornerId: string
-  weightCategoryId: string
-  disciplineId: string
+  tournament_id: string
+  red_corner_id: string | null
+  blue_corner_id: string | null
+  weight_category_id: string | null
+  discipline_id: string | null
   gender: Gender
   forced: boolean
-  redCornerTeam: string
-  blueCornerTeam: string
+  red_corner_team: string | null
+  blue_corner_team: string | null
   sort: number
-  scheduledTime: string | null
-  winnerId: string | null
-  endRound: string | null
-  endMethod: EndMethod | null
+  scheduled_time: string | null // "HH:MM:SS"
+  winner_id: string | null
+  end_round: string | null
+  end_method: EndMethod | null
   status: MatchStatus
-  rounds: number | null
-  minutesPerRound: number | null
-  judgesPoints: JudgePointsRow[] | null
-  tournamentName?: string
-  redCornerFullName?: string
-  blueCornerFullName?: string
-  winnerFullName?: string | null
-  weightCategoryLabel?: string
-  disciplineLabel?: string
+  rounds: number
+  minutes_per_round: number
+  judges_points: Array<Record<string, unknown>> | null
+  created_at: string
+  updated_at: string
+  // relazioni opzionali
+  tournament?: Tournament
+  red_corner?: Athlete
+  blue_corner?: Athlete
+  winner?: Athlete
+  weight_category?: WeightCategory
+  discipline?: Discipline
+  // campi appended dall'API
+  tournament_name?: string
+  red_corner_full_name?: string | null
+  blue_corner_full_name?: string | null
+  winner_full_name?: string | null
+  weight_category_label?: string
+  discipline_label?: string
 }
 
-export interface PersonalAccessToken {
-  id: number
-  userId: string
-  name: string
-  tokenHash: string
-  clientType: 'DESKTOP' | 'MOBILE'
-  lastUsedAt: string | null
-  expiresAt: string | null
-  createdAt: string
+export interface User {
+  id: string
+  username: string
+  email: string
+  email_verified_at: string | null
+  created_at: string
+  updated_at: string
+  // password e remember_token sono $hidden — non compaiono mai nella risposta
+}
+
+// ─── Risposta paginata Laravel ────────────────────────────────────────────────
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  links: {
+    first: string
+    last: string
+    prev: string | null
+    next: string | null
+  }
+  meta: {
+    current_page: number
+    from: number | null
+    last_page: number
+    per_page: number
+    to: number | null
+    total: number
+    path: string
+    links: Array<{ url: string | null; label: string; active: boolean }>
+  }
 }
