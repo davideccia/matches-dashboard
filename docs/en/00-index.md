@@ -1,40 +1,38 @@
-# matches-dashboard — Technical Documentation
+# matches-dashboard — Developer Documentation
 
-Frontend for an amateur boxing tournament management platform. A thin Nuxt 4 SPA that renders UI, validates input, and talks HTTP + WebSocket to a separate Spring Boot API.
+Welcome. This documentation explains the **matches-dashboard** codebase to a developer who is comfortable programming but may be **new to Nuxt/Vue** and **new to the amateur-boxing tournament domain**. Language-specific terms get an inline gloss `(≈ plain-language analogy)` the first time they appear, and every glossed term is collected in the [Glossary](11-glossary.md).
 
-This documentation is written for a developer who is comfortable with general web programming but new to Vue, Nuxt, and the TypeScript ecosystem. Framework-specific terms are glossed inline on first use and collected in the [Glossary](11-glossary.md).
+## What this project is, in one line
 
-## Table of Contents
+A **web dashboard** (the browser-side user interface) for running amateur boxing tournaments: an admin area for organisers to manage athletes, tournaments and live match scoring, plus public pages for athletes to register and for spectators to follow a live scoreboard.
 
-| #  | Chapter                                                  | Contents                                                        |
-|----|----------------------------------------------------------|-----------------------------------------------------------------|
-| 00 | [Index](00-index.md)                                     | This file                                                       |
-| 01 | [Overview](01-overview.md)                               | What the project does, who it serves, top-level architecture    |
-| 02 | [Module Structure](02-module-structure.md)               | Folder layout under `app/` and what each piece is for           |
-| 03 | [Build, Run, Test](03-build-run-test.md)                 | Local dev, production build, lint, type-check, Docker           |
-| 04 | [UI & Navigation](04-ui-navigation.md)                   | File-based routing, layouts, route middleware, i18n URLs        |
-| 05 | [Data Flow](05-data-flow.md)                             | How a screen gets data: composables, reactive state, refresh    |
-| 06 | [External Integrations](06-external-integrations.md)     | REST via `useApi`, JWT, STOMP/WebSocket scoreboard              |
-| 07 | [Domain Models](07-domain-models.md)                     | Enums, Zod schemas, Spring `Page<T>` envelope                   |
-| 08 | [Configuration & Env](08-configuration-env.md)           | `nuxt.config.ts`, runtime config, `localStorage` settings       |
-| 09 | [Dependencies](09-dependencies.md)                       | Each dependency in `package.json` and what it gives us          |
-| 10 | [Notable Patterns](10-notable-patterns.md)               | DataTable + FormPanel recipe, auth plugin, notify-then-refetch  |
-| 11 | [Glossary](11-glossary.md)                               | Vue/Nuxt/TS terms in plain language                             |
+It is a **thin client** (≈ a front-of-house that holds no data of its own): all real data and rules live in a separate **Laravel** (a PHP web framework) backend. This repository is *only* the user interface.
 
-### Chapters intentionally omitted
+> [!IMPORTANT]
+> The root `README.md` describes a Spring Boot backend with STOMP/JWT. That description is **out of date**. The code in this repository targets a **Laravel** backend, authenticates with **Laravel Sanctum** tokens, and receives realtime updates over **Laravel Reverb** (an Echo/Pusher-protocol WebSocket server). This documentation reflects the *code as it actually is*. See [Chapter 05](05-authentication.md) and [Chapter 08](08-realtime-scoreboard.md).
 
-- **Request lifecycle** — there is no server-side rendering (`ssr: false`); the only request path is browser → REST/WS, covered in [05](05-data-flow.md) and [06](06-external-integrations.md).
-- **Controllers / view-models** — Vue has no controller layer; the equivalent (Composition API + composables) is in [05](05-data-flow.md) and [10](10-notable-patterns.md).
-- **Persistence / repository** — there is no client-side database; the only persisted state is the JWT and a few UI preferences in `localStorage`, covered in [08](08-configuration-env.md).
+## How to read this
 
-## How to Read This Book
+Start here, then read in order. Each chapter is self-contained but builds on earlier ones.
 
-- Chapters can be read in order; each includes cross-references.
-- All paths are relative to the repository root.
-- Language-specific terms are explained inline on first use and collected in the Glossary.
+| # | Chapter | What you'll learn |
+|---|---------|-------------------|
+| 01 | [Overview](01-overview.md) | What the app does, who uses it, the client/backend split, the domain in plain words |
+| 02 | [Tech Stack & Concepts](02-tech-stack-concepts.md) | Nuxt, Vue, SPA and the key libraries — each glossed for newcomers |
+| 03 | [Project Structure](03-project-structure.md) | A guided tour of the `app/` directory and how file-based routing works |
+| 04 | [Build, Run & Configure](04-build-run-configure.md) | Commands, environment variables, build-time config, Docker/nginx |
+| 05 | [Authentication](05-authentication.md) | Sanctum token login, admin vs public routes, how access is gated |
+| 06 | [Admin CRUD Pattern](06-admin-crud-pattern.md) | The DataTable + form-panel + select-menu recipe every admin page follows |
+| 07 | [Data Flow & API Layer](07-data-flow-api.md) | How data moves: `useApi`, paginated responses, Zod-validated forms |
+| 08 | [Realtime Scoreboard](08-realtime-scoreboard.md) | The live match board: Echo + Reverb, the notify-then-refetch pattern |
+| 09 | [Domain Model](09-domain-model.md) | Tournaments, athletes, registrations, match records and the enums that tie them together |
+| 10 | [i18n & Theming](10-i18n-theming.md) | Italian/English locales, runtime colour theme, light/dark mode |
+| 11 | [Glossary](11-glossary.md) | Every glossed term, alphabetised |
 
-## Notation Conventions
+## Authoritative references already in the repo
 
-- `Code` → identifiers, file names, commands.
-- *italics* → domain concepts.
-- → / ⇆ → data flow direction (unidirectional / bidirectional).
+This documentation links to, rather than duplicates, files that already live at the repository root:
+
+- [`CLAUDE.md`](../../CLAUDE.md) — concise architecture notes and commands (the most accurate top-level summary).
+- [`DB.md`](../../DB.md) — the backend database schema in DBML. The frontend mirrors these shapes; see [Chapter 09](09-domain-model.md).
+- [`README.md`](../../README.md) — useful for commands and routes, but its *backend/realtime/auth* sections are stale (see the note above).

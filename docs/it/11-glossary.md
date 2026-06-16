@@ -1,78 +1,85 @@
 # 11 — Glossario
 
-> Vedi anche: tutti i capitoli.
+Tutti i termini specifici di linguaggio e framework spiegati in questa documentazione, in ordine alfabetico. I termini di dominio (torneo, incontro, ecc.) sono definiti nel [Capitolo 09](09-domain-model.md).
 
-Termini specifici di Vue, Nuxt, TypeScript e delle librerie usate in questo codice, spiegati per uno sviluppatore che non li ha mai incontrati.
+- **Auto-import (Nuxt)** — Nuxt rende automaticamente disponibili le funzioni di Vue, i tuoi composable e i tuoi componenti senza scrivere istruzioni `import`. Spiega perché `useApi()` o `<DataTable />` compaiono senza una riga di import.
 
-## Vue
+- **Bearer token** — una credenziale di autenticazione inviata nell'header HTTP `Authorization: Bearer <token>`. Il client Sanctum lo allega automaticamente; l'helper `download` lo fa manualmente.
 
-| Termine | Significato in parole semplici |
-|---------|--------------------------------|
-| **SFC** (Single-File Component) | Un file `.vue` con tre sezioni: `<template>` (markup), `<script setup>` (logica), `<style>` (CSS). Un componente per file. |
-| **Composition API** | Lo stile Vue moderno in cui la logica vive dentro un blocco `<script setup>` usando funzioni come `ref`, `computed`, `watch`. Sostituisce la vecchia Options API. |
-| **`ref<T>()`** | Un contenitore reattivo a singola cella. `count.value` legge/scrive; nel template viene auto-unwrappato in `count`. ≈ un observable a singola cella (BehaviorSubject). |
-| **`computed()`** | Un valore reattivo derivato. Si ricalcola quando cambiano le dipendenze. ≈ `useMemo` di React in automatico. |
-| **`watch()`** | Esegue una callback quando uno o più valori reattivi cambiano. |
-| **`onMounted` / `onBeforeUnmount`** | Hook di ciclo di vita. ≈ `useEffect(..., [])` di React e la sua funzione di cleanup. |
-| **Composable** | Una funzione (chiamata `use…`) che raggruppa stato reattivo e comportamento per il riuso. ≈ hook React. |
-| **`defineProps` / `defineEmits` / `defineExpose`** | Macro compile-time dentro `<script setup>` che dichiarano input, eventi e metodi accessibili dall'esterno di un componente. |
-| **Slot** | Un buco con nome nel template di un componente figlio che il genitore riempie. `<template #header>` si infila nello slot `header`. ≈ `children` di React più i children con nome. |
-| **`v-model`** | Binding a due vie. `<UInput v-model="x" />` ↔ `<UInput :model-value="x" @update:model-value="x = $event" />`. |
-| **Direttiva** | `v-if`, `v-for`, `v-on` (`@click`), `v-bind` (`:prop`). Istruzioni di template compile-time. |
+- **Build-time vs runtime** — la configurazione *build-time* è fissata quando compili l'app (`nuxt.config.ts`, variabili d'ambiente incorporate nel bundle). Quella *runtime* può cambiare mentre l'app gira (`app.config.ts`, il colore del tema).
 
-## Nuxt
+- **Componente (Vue)** — un pezzo di UI riutilizzabile e autonomo definito in un file `.vue` (template + script + stile opzionale). Il mattone dell'interfaccia.
 
-| Termine | Significato in parole semplici |
-|---------|--------------------------------|
-| **`pages/`** | Auto-routato. Ogni `.vue` diventa un URL. `[id].vue` è un segmento dinamico. |
-| **`layouts/`** | Wrapper attorno alle pagine. `default.vue` si applica se la pagina non specifica `definePageMeta({ layout: false })`. |
-| **`middleware/`** | Funzioni eseguite prima della navigazione. Il suffisso `.global.ts` le fa girare per ogni rotta. |
-| **`plugins/`** | Vengono eseguiti una volta all'avvio dell'app. Suffisso `.client.ts` → solo browser; `.server.ts` → solo server. |
-| **Auto-import** | I file in `components/`, `composables/`, `utils/` sono globalmente disponibili — nessun `import` necessario. |
-| **`definePageMeta`** | Macro compile-time che attacca metadati (layout, middleware) a una rotta. Non viene eseguita a runtime. |
-| **`useState<T>(key, factory)`** | Ref condivisa SSR-safe chiavata per stringa. In una SPA, di fatto un singleton di ref. |
-| **`useAsyncData` / `useLazyAsyncData`** | Composable che avvolgono un fetcher e restituiscono `{ data, status, refresh, error }`. La variante `Lazy` non blocca la navigazione. |
-| **`$fetch`** | Il client HTTP built-in di Nuxt (basato su `ofetch`). Lancia eccezione sulle risposte non-2xx. |
-| **`useRuntimeConfig()`** | Accede ai valori dichiarati in `nuxt.config.ts` sotto `runtimeConfig`. I valori `public.*` sono esposti al bundle del browser. |
-| **`useAppConfig()`** | Accede all'oggetto reattivo esportato da `app.config.ts`. Diverso dalla runtime config — pensato per i token UI. |
-| **`navigateTo()`** | Navigazione programmatica. Restituisce un redirect da middleware/pages. |
-| **`ssr: false`** | Disabilita il server-side rendering. L'output è una SPA statica. |
-| **HMR** (Hot Module Replacement) | Vite sostituisce a caldo i moduli modificati in un'app in esecuzione senza un reload completo. |
+- **Composable** — una convenzione Vue/Nuxt: una funzione riutilizzabile chiamata `useQualcosa()` che impacchetta logica con stato così che più componenti possano condividerla (≈ un mini-servizio). Esempio: `useApi`, `useAuth`.
 
-## TypeScript
+- **`computed`** — un valore reattivo derivato da altri valori reattivi; si ricalcola automaticamente quando i suoi input cambiano.
 
-| Termine | Significato in parole semplici |
-|---------|--------------------------------|
-| **`as const`** | Restringe i tipi letterali e rende array/oggetti profondamente readonly. `['A','B'] as const` ha tipo `readonly ['A', 'B']`, non `string[]`. |
-| **`typeof X[number]`** | Data una tupla `X`, è l'unione dei tipi dei suoi elementi. Combinato con `as const`, dà un enum di literal string. |
-| **`z.infer<typeof schema>`** | Estrae il tipo TypeScript da uno schema Zod così che lo stato del form e il validatore restino allineati. |
-| **Componente generico** | `<DataTable>` dichiara `generic="T extends Record<string, unknown>"` in `<script setup>`, così le `columns` e il tipo della riga sono collegati. |
+- **CRUD** — Create, Read, Update, Delete: le quattro operazioni di base su un record. Le pagine admin sono schermate CRUD. Vedi il [Capitolo 06](06-admin-crud-pattern.md).
 
-## i18n
+- **Debounce** — attendere che l'attività si fermi prima di agire (es. aspettare 300 ms dopo che l'utente smette di digitare prima di inviare una ricerca), per evitare una raffica di chiamate.
 
-| Termine | Significato in parole semplici |
-|---------|--------------------------------|
-| **Locale** | Un tag di lingua (`it`, `en`). |
-| **`useI18n()`** | Restituisce `{ t, locale, ... }` per il componente corrente. `t('key')` cerca la traduzione. |
-| **`useLocalePath()`** | Restituisce una funzione che trasforma un path semplice (`/admin`) nel path locale-aware (`/admin` in italiano, `/en/admin` in inglese). |
-| **`prefix_except_default`** | Strategia di routing — la locale di default ha URL puliti; le altre locale sono prefissate (`/en/...`). |
+- **`defineExpose`** — un'API Vue che permette a un componente di pubblicare metodi/valori al genitore tramite un `ref` nel template. `DataTable` espone così `refresh()`.
 
-## @nuxt/ui (libreria di componenti)
+- **`definePageMeta`** — API Nuxt per allegare metadati a una pagina (il suo layout, le regole di autenticazione). Es. `{ layout: false, sanctum: { excluded: true } }`.
 
-| Termine | Significato in parole semplici |
-|---------|--------------------------------|
-| **`UApp`** | Provider radice. Ospita toast, modali, tooltip. |
-| **`UDashboardSidebar` / `UDashboardPanel` / `UDashboardGroup`** | Primitive di layout per gli shell admin. |
-| **`USlideover`** | Un drawer laterale destro. Qui è la casa di ogni form panel. |
-| **`UForm` + `:schema`** | Un form che esegue uno schema Zod al submit e mostra gli errori sui campi. |
-| **`UTable`** | Un componente di tabella dati semi-headless. Avvolto da `DataTable` per aggiungere paginazione e stato vuoto. |
-| **Token di tema** | `primary`, `secondary`, `neutral` ecc. sono configurati in `app.config.ts` e applicati come classi utility Tailwind del tipo `bg-primary` e `text-muted`. |
+- **Eager-load (`with=`)** — chiedere al backend di includere i record correlati in una risposta (es. un incontro con i suoi atleti angolo rosso/blu), tramite un parametro di query `with=relazione1,relazione2`. Altrimenti quei campi relazione sono assenti.
 
-## STOMP / WebSocket
+- **Echo (Laravel Echo)** — la libreria client lato browser per sottoscriversi agli eventi inviati dal server in tempo reale via WebSocket. Vedi il [Capitolo 08](08-realtime-scoreboard.md).
 
-| Termine | Significato in parole semplici |
-|---------|--------------------------------|
-| **WebSocket** | Una connessione TCP bidirezionale e persistente ottenuta tramite upgrade HTTP. |
-| **STOMP** | Simple Text-Oriented Messaging Protocol — un piccolo framing pub/sub di messaggi sovrapposto al WebSocket. Il backend espone destinazioni come `/topic/...`; i client fanno `subscribe`. |
-| **`Client` (da `@stomp/stompjs`)** | L'oggetto client STOMP. `.activate()` si connette, `.deactivate()` si disconnette, `onConnect` è il posto in cui sottoscriversi. |
-| **Topic** | Una destinazione di broadcast. Qualsiasi sottoscrittore a `/topic/tournaments/{id}/matches` riceve ogni messaggio pubblicato lì. |
+- **Enum** — un insieme fisso di valori stringa ammessi (es. gli stati degli incontri). Dichiarati come array `as const` in `constants.ts` così che TypeScript ne derivi un tipo unione.
+
+- **Routing basato sui file** — Nuxt trasforma l'albero dei file `app/pages/` direttamente in URL; `pages/admin/settings.vue` diventa `/admin/settings`. Nessuna tabella di rotte manuale.
+
+- **i18n** — *internazionalizzazione*: supportare più lingue. Gestita da `@nuxtjs/i18n`. Vedi il [Capitolo 10](10-i18n-theming.md).
+
+- **IntersectionObserver** — un'API del browser che invoca una callback quando un elemento entra nella vista. `ApiSelectMenu` la usa per implementare lo scroll infinito.
+
+- **Locale (lingua)** — un'impostazione di lingua/regione (`it`, `en`). Determina le traduzioni e il prefisso URL.
+
+- **Middleware (di rotta)** — codice che gira prima che una rotta si carichi, per consentirla/reindirizzarla. Il *middleware globale* di Sanctum protegge ogni rotta a meno che una pagina non si tiri fuori.
+
+- **Modulo (Nuxt)** — un pacchetto che estende le capacità di Nuxt, registrato in `nuxt.config.ts` (`@nuxt/ui`, `@nuxtjs/i18n`, `nuxt-auth-sanctum`, `@nuxt/eslint`).
+
+- **Notifica-poi-rilettura** — il pattern realtime qui: il messaggio WebSocket è un segnale minimo "qualcosa è cambiato"; il client poi ri-recupera i dati autorevoli via HTTP. Vedi il [Capitolo 08](08-realtime-scoreboard.md).
+
+- **Pinia / store** — *non usato qui*; lo stato è tenuto nei composable e nella cache dati di Nuxt. Elencato solo per notarne l'assenza.
+
+- **Plugin (Nuxt)** — codice che gira una volta all'avvio dell'app per inizializzare le cose (es. creare la connessione Echo). File in `app/plugins/`; `.client.ts` = solo browser.
+
+- **pnpm** — il gestore di pacchetti usato (un'alternativa a npm più veloce ed efficiente su disco). Comandi: `pnpm <script>`.
+
+- **`provide` / `$echo`** — un plugin può `provide` un valore che diventa disponibile in tutta l'app sull'istanza Nuxt (qui `$echo`, il client Echo).
+
+- **Protocollo Pusher / pusher-js** — il protocollo di messaggistica WebSocket che Laravel Reverb parla e che Echo usa sotto il cofano tramite la libreria `pusher-js`.
+
+- **`reactive` / `ref`** — le primitive di reattività di Vue. `ref(x)` avvolge un singolo valore (accesso via `.value` nello script); `reactive({...})` avvolge un oggetto. Modificarli ri-renderizza la UI.
+
+- **Reverb (Laravel Reverb)** — il server WebSocket lato Laravel che spinge gli eventi in tempo reale al browser. Vedi il [Capitolo 08](08-realtime-scoreboard.md).
+
+- **Sanctum (Laravel Sanctum)** — il sistema di autenticazione a token di Laravel. Il modulo `nuxt-auth-sanctum` lo integra. Vedi il [Capitolo 05](05-authentication.md).
+
+- **Schema (Zod)** — una descrizione dichiarata della forma di un dato e delle sue regole. Zod valida i dati dei form rispetto ad esso prima dell'invio.
+
+- **`<script setup>`** — la sintassi concisa di Vue per i componenti single-file dove le dichiarazioni di primo livello sono auto-esposte al template.
+
+- **Slide-over (`USlideover`)** — un pannello `@nuxt/ui` che scivola dal bordo dello schermo; usato per i form di creazione/modifica.
+
+- **Slot** — un segnaposto nel template di un componente che il genitore riempie con markup personalizzato. `DataTable` usa slot con nome come `#actions-cell` per renderizzare le colonne in modo personalizzato.
+
+- **SPA (Single-Page Application)** — un'app web che carica un unico guscio HTML e renderizza/naviga tutto lato client con JavaScript. Questo progetto è una SPA (`ssr: false`).
+
+- **SSR (Server-Side Rendering)** — renderizzare le pagine su un server prima di inviare l'HTML. Qui esplicitamente *disabilitato* (`ssr: false`), rendendo l'app una SPA statica.
+
+- **Tailwind CSS** — un framework CSS utility-first: stilizzi gli elementi con molte piccole classi (`flex gap-4 rounded-xl`) direttamente nel markup.
+
+- **Toast** — una piccola notifica transitoria a comparsa. Usata per il feedback di successo/errore dopo le chiamate API (`useToast()`).
+
+- **`useAsyncData` / `useLazyAsyncData`** — helper di Nuxt che eseguono un fetcher asincrono e restituiscono `data` / `status` / `refresh` reattivi. La variante "lazy" non blocca la navigazione durante il caricamento.
+
+- **`useCookie`** — un composable di Nuxt per leggere/scrivere un cookie in modo reattivo. Usato per il colore del tema e il token Sanctum.
+
+- **`v-model`** — il binding bidirezionale di Vue tra un input (o un componente figlio) e una variabile.
+
+- **WebSocket** — una connessione bidirezionale persistente tra browser e server che permette al server di spingere messaggi senza essere interrogato. La base del tabellone live.
+
+- **Zod** — una libreria TypeScript di validazione di schema usata per validare i dati di ogni form. Vedi il [Capitolo 07](07-data-flow-api.md).
