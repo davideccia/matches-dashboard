@@ -17,15 +17,14 @@
       <img
         :src="logoSrc"
         alt="Logo"
-        class="w-20 h-20 drop-shadow-lg relative z-10 rounded-2xl"
+        class="w-20 h-20 drop-shadow-lg relative z-10 rounded-2xl border-4 border-primary"
       >
     </div>
 
-    <!-- Card: grows full height on mobile, fixed max-width centered on desktop -->
     <div
       class="flex flex-col lg:flex-row w-full max-w-370 grow lg:grow-0 overflow-hidden rounded-t-10 lg:rounded-10 lg:min-h-187.5 lg:mx-6"
     >
-      <!-- Left panel: visible only on desktop -->
+      <!-- Left panel -->
       <div
         class="hidden lg:flex lg:w-1/2 bg-default rounded-3xl m-10 items-center justify-center relative overflow-hidden border-2 border-accented"
       >
@@ -51,12 +50,35 @@
       <div
         class="flex flex-col w-full lg:w-1/2 bg-default px-10 pt-8 pb-6 lg:px-25 lg:pt-25 lg:pb-10 overflow-y-auto"
       >
+        <!-- Success state -->
+        <div
+          v-if="sent"
+          class="flex flex-col gap-6"
+        >
+          <UAlert
+            color="success"
+            variant="soft"
+            :title="t('forgotPassword.successTitle')"
+            :description="t('forgotPassword.successDescription')"
+            icon="i-mdi-email-check-outline"
+          />
+          <UButton
+            :label="t('forgotPassword.backToLogin')"
+            icon="i-mdi-arrow-left"
+            block
+            variant="ghost"
+            @click="navigateTo('/login')"
+          />
+        </div>
+
+        <!-- Form state -->
         <UAuthForm
+          v-else
           :schema="schema"
           :fields="fields"
-          :title="t('login.title')"
-          :description="t('login.description')"
-          :submit="{ label: t('login.submit'), loading }"
+          :title="t('forgotPassword.title')"
+          :description="t('forgotPassword.description')"
+          :submit="{ label: t('forgotPassword.submit'), loading }"
           @submit="onSubmit"
         >
           <template v-if="errorMsg" #validation>
@@ -68,28 +90,13 @@
             />
           </template>
           <template #footer>
+            <USeparator class="mb-4" />
             <UButton
-              :label="t('login.forgotPassword')"
-              icon="i-mdi-lock-reset"
+              :label="t('forgotPassword.backToLogin')"
+              icon="i-mdi-arrow-left"
               block
               variant="ghost"
-              @click="navigateTo('/forgot-password')"
-            />
-            <USeparator class="mb-4" />
-            <UButton
-              :label="t('login.registerCard.cta')"
-              icon="i-mdi-account-plus"
-              block
-              variant="outline"
-              @click="navigateTo('/public/athletes/registration')"
-            />
-            <USeparator class="mb-4" />
-            <UButton
-              :label="t('login.tournamentsView.cta')"
-              icon="i-mdi-sword-cross"
-              block
-              variant="outline"
-              @click="navigateTo('/public/tournaments/match_records')"
+              @click="navigateTo('/login')"
             />
           </template>
         </UAuthForm>
@@ -111,11 +118,14 @@ definePageMeta({
 })
 
 const { t } = useI18n()
-const { clear } = useUser()
+const { post } = useApi()
+
+const sent = ref(false)
+const loading = ref(false)
+const errorMsg = ref<string | null>(null)
 
 const schema = z.object({
-  email: z.email(t('login.email')),
-  password: z.string().min(1, t('login.password')),
+  email: z.email(t('forgotPassword.email')),
 })
 
 type Schema = z.output<typeof schema>
@@ -124,31 +134,31 @@ const fields = computed(() => [
   {
     name: 'email',
     type: 'email' as const,
-    label: t('login.email'),
+    label: t('forgotPassword.email'),
     placeholder: 'email@esempio.com',
-    required: true,
-  },
-  {
-    name: 'password',
-    type: 'password' as const,
-    label: t('login.password'),
-    placeholder: '••••••••',
     required: true,
   },
 ])
 
-const loading = ref(false)
-const errorMsg = ref<string | null>(null)
+function extractErrorMessage(e: unknown): string | null {
+  if (e && typeof e === 'object' && 'data' in e) {
+    const data = (e as { data?: { message?: string, errors?: Record<string, string[]> } }).data
+    if (data?.errors) {
+      return Object.values(data.errors).flat().join(' ')
+    }
+    return data?.message ?? null
+  }
+  return null
+}
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   errorMsg.value = null
   loading.value = true
   try {
-    clear()
-    await useAuth().login({ email: event.data.email, password: event.data.password })
-    await navigateTo('/admin')
-  } catch {
-    errorMsg.value = t('login.error')
+    await post('/api/admin/auth/forgot_password', { email: event.data.email })
+    sent.value = true
+  } catch (e) {
+    errorMsg.value = extractErrorMessage(e) ?? t('forgotPassword.errorRequest')
   } finally {
     loading.value = false
   }

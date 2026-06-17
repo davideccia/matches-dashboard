@@ -210,17 +210,27 @@
     },
     "forgotPassword": "Password dimenticata?"
   },
+  "forgotPassword": {
+    "title": "Password dimenticata",
+    "description": "Inserisci la tua email per ricevere il link di recupero",
+    "email": "Indirizzo email",
+    "submit": "Invia link di recupero",
+    "successTitle": "Email inviata",
+    "successDescription": "Se l'indirizzo è registrato, riceverai un'email con le istruzioni per reimpostare la password.",
+    "backToLogin": "Torna al login",
+    "errorRequest": "Impossibile inviare l'email. Riprova."
+  },
   "resetPassword": {
     "title": "Reimposta password",
-    "description": "Inserisci la tua email per ricevere un codice di verifica",
-    "email": "Indirizzo email",
-    "code": "Codice di verifica",
+    "description": "Inserisci la tua nuova password",
     "newPassword": "Nuova password",
-    "sendCode": "Invia codice",
+    "confirmPassword": "Conferma password",
+    "passwordMismatch": "Le password non coincidono",
     "resetPassword": "Reimposta password",
     "backToLogin": "Torna al login",
-    "errorRequest": "Impossibile inviare il codice. Riprova.",
-    "errorReset": "Codice non valido o scaduto. Riprova."
+    "invalidLink": "Link non valido o scaduto. Richiedi un nuovo link.",
+    "requestNewLink": "Richiedi un nuovo link",
+    "errorReset": "Impossibile reimpostare la password. Riprova."
   },
   "user": {
     "email": "Email",

@@ -13,7 +13,7 @@
       <img
         :src="logoSrc"
         alt="Logo"
-        class="w-20 h-20 drop-shadow-lg relative z-10 rounded-2xl"
+        class="w-20 h-20 drop-shadow-lg relative z-10 rounded-2xl border-4 border-primary"
       >
     </div>
 
@@ -32,53 +32,43 @@
         <img
           :src="logoSrc"
           alt="Logo"
-          class="w-48 h-48 drop-shadow-2xl relative z-10 rounded-3xl"
+          class="w-48 h-48 drop-shadow-2xl relative z-10 rounded-3xl border-4 border-primary"
         >
       </div>
 
-      <!-- Right panel: form -->
+      <!-- Right panel -->
       <div
         class="flex flex-col w-full lg:w-1/2 bg-default px-10 pt-8 pb-6 lg:px-25 lg:pt-25 lg:pb-10 overflow-y-auto"
       >
-        <!-- Step 0: request code -->
-        <UAuthForm
-          v-if="step === 0"
-          :schema="schemaStep0"
-          :fields="fieldsStep0"
-          :title="t('resetPassword.title')"
-          :description="t('resetPassword.description')"
-          :submit="{ label: t('resetPassword.sendCode'), loading }"
-          @submit="onRequestCode"
+        <!-- Invalid link state -->
+        <div
+          v-if="!token || !email"
+          class="flex flex-col gap-6"
         >
-          <template v-if="errorMsg" #validation>
-            <UAlert
-              color="error"
-              variant="soft"
-              :title="errorMsg"
-              icon="i-mdi-alert-circle"
-            />
-          </template>
-          <template #footer>
-            <USeparator class="mb-4" />
-            <UButton
-              :label="t('resetPassword.backToLogin')"
-              icon="i-mdi-arrow-left"
-              block
-              variant="ghost"
-              @click="navigateTo('/login')"
-            />
-          </template>
-        </UAuthForm>
+          <UAlert
+            color="error"
+            variant="soft"
+            :title="t('resetPassword.invalidLink')"
+            icon="i-mdi-alert-circle"
+          />
+          <UButton
+            :label="t('resetPassword.requestNewLink')"
+            icon="i-mdi-arrow-left"
+            block
+            variant="ghost"
+            @click="navigateTo('/forgot-password')"
+          />
+        </div>
 
-        <!-- Step 1: enter code + new password -->
+        <!-- Reset form -->
         <UAuthForm
           v-else
-          :schema="schemaStep1"
-          :fields="fieldsStep1"
+          :schema="schema"
+          :fields="fields"
           :title="t('resetPassword.title')"
-          :description="email"
+          :description="t('resetPassword.description')"
           :submit="{ label: t('resetPassword.resetPassword'), loading }"
-          @submit="onReset"
+          @submit="onSubmit"
         >
           <template v-if="errorMsg" #validation>
             <UAlert
@@ -118,44 +108,25 @@ definePageMeta({
 
 const { t } = useI18n()
 const { post } = useApi()
+const route = useRoute()
 
-const step = ref(0)
-const email = ref('')
+const token = route.query.token as string | undefined
+const email = route.query.email as string | undefined
+
 const loading = ref(false)
 const errorMsg = ref<string | null>(null)
 
-// Step 0 schema
-const schemaStep0 = z.object({
-  email: z.email(t('resetPassword.email')),
-})
-
-type SchemaStep0 = z.output<typeof schemaStep0>
-
-const fieldsStep0 = computed(() => [
-  {
-    name: 'email',
-    type: 'email' as const,
-    label: t('resetPassword.email'),
-    placeholder: 'email@esempio.com',
-    required: true,
-  },
-])
-
-// Step 1 schema
-const schemaStep1 = z.object({
-  code: z.string().min(1, t('resetPassword.code')),
+const schema = z.object({
   password: z.string().min(8, t('resetPassword.newPassword')),
+  password_confirmation: z.string().min(1, t('resetPassword.confirmPassword')),
+}).refine(d => d.password === d.password_confirmation, {
+  message: t('resetPassword.passwordMismatch'),
+  path: ['password_confirmation'],
 })
 
-type SchemaStep1 = z.output<typeof schemaStep1>
+type Schema = z.output<typeof schema>
 
-const fieldsStep1 = computed(() => [
-  {
-    name: 'code',
-    type: 'text' as const,
-    label: t('resetPassword.code'),
-    required: true,
-  },
+const fields = computed(() => [
   {
     name: 'password',
     type: 'password' as const,
@@ -163,35 +134,39 @@ const fieldsStep1 = computed(() => [
     placeholder: '••••••••',
     required: true,
   },
+  {
+    name: 'password_confirmation',
+    type: 'password' as const,
+    label: t('resetPassword.confirmPassword'),
+    placeholder: '••••••••',
+    required: true,
+  },
 ])
 
-async function onRequestCode(event: FormSubmitEvent<SchemaStep0>) {
-  errorMsg.value = null
-  loading.value = true
-  try {
-    await post('/forgot_password', { email: event.data.email })
-    email.value = event.data.email
-    step.value = 1
-  } catch {
-    errorMsg.value = t('resetPassword.errorRequest')
-  } finally {
-    loading.value = false
+function extractErrorMessage(e: unknown): string | null {
+  if (e && typeof e === 'object' && 'data' in e) {
+    const data = (e as { data?: { message?: string, errors?: Record<string, string[]> } }).data
+    if (data?.errors) {
+      return Object.values(data.errors).flat().join(' ')
+    }
+    return data?.message ?? null
   }
+  return null
 }
 
-async function onReset(event: FormSubmitEvent<SchemaStep1>) {
+async function onSubmit(event: FormSubmitEvent<Schema>) {
   errorMsg.value = null
   loading.value = true
   try {
-    await post('/reset_password', {
-      email: email.value,
-      code: event.data.code,
+    await post('/api/admin/auth/reset_password', {
+      token,
+      email,
       password: event.data.password,
+      password_confirmation: event.data.password_confirmation,
     })
-    await useAuth().login({ email: email.value, password: event.data.password })
-    await navigateTo('/admin')
-  } catch {
-    errorMsg.value = t('resetPassword.errorReset')
+    await navigateTo('/login')
+  } catch (e) {
+    errorMsg.value = extractErrorMessage(e) ?? t('resetPassword.errorReset')
   } finally {
     loading.value = false
   }

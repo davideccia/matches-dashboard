@@ -210,17 +210,27 @@
     },
     "forgotPassword": "Forgot your password?"
   },
+  "forgotPassword": {
+    "title": "Forgot your password?",
+    "description": "Enter your email address to receive a recovery link",
+    "email": "Email address",
+    "submit": "Send recovery link",
+    "successTitle": "Email sent",
+    "successDescription": "If the address is registered, you will receive an email with instructions to reset your password.",
+    "backToLogin": "Back to login",
+    "errorRequest": "Could not send the email. Please try again."
+  },
   "resetPassword": {
     "title": "Reset password",
-    "description": "Enter your email address to receive a verification code",
-    "email": "Email address",
-    "code": "Verification code",
+    "description": "Enter your new password",
     "newPassword": "New password",
-    "sendCode": "Send code",
+    "confirmPassword": "Confirm password",
+    "passwordMismatch": "Passwords do not match",
     "resetPassword": "Reset password",
     "backToLogin": "Back to login",
-    "errorRequest": "Could not send the code. Please try again.",
-    "errorReset": "Invalid or expired code. Please try again."
+    "invalidLink": "Invalid or expired link. Please request a new one.",
+    "requestNewLink": "Request a new link",
+    "errorReset": "Could not reset the password. Please try again."
   },
   "user": {
     "email": "Email",
