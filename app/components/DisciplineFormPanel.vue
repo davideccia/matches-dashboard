@@ -4,7 +4,16 @@
     :title="isEdit ? t('discipline.editTitle') : t('discipline.createTitle')"
   >
     <template #body>
-      <UForm :schema="schema" :state="state" class="space-y-6 p-6" @submit="onSubmit">
+      <div v-if="fetching" class="flex items-center justify-center p-12">
+        <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />
+      </div>
+      <UForm
+        v-else
+        :schema="schema"
+        :state="state"
+        class="space-y-6 p-6"
+        @submit="onSubmit"
+      >
         <UFormField name="label" :label="t('discipline.label')" required>
           <UInput v-model="state.label" class="w-full" />
         </UFormField>
@@ -50,9 +59,23 @@ const state = reactive({
   label: '',
 })
 
-watch(open, (val) => {
-  if (val) {
-    state.label = props.item?.label ?? ''
+const fetching = ref(false)
+
+watch(open, async (val) => {
+  if (!val) { return }
+  if (isEdit.value) {
+    fetching.value = true
+    try {
+      const { data: item } = await api.get<{ data: Discipline }>(`/api/admin/disciplines/${props.item!.id}`)
+      state.label = item.label
+    } catch (e) {
+      toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+      open.value = false
+    } finally {
+      fetching.value = false
+    }
+  } else {
+    state.label = ''
   }
 })
 

@@ -5,7 +5,16 @@
     :ui="{ content: 'sm:max-w-none sm:w-[50vw]' }"
   >
     <template #body>
-      <UForm :schema="schema" :state="state" class="flex flex-col h-full" @submit="onSubmit">
+      <div v-if="fetching" class="flex items-center justify-center p-12">
+        <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />
+      </div>
+      <UForm
+        v-else
+        :schema="schema"
+        :state="state"
+        class="flex flex-col h-full"
+        @submit="onSubmit"
+      >
         <UTabs
           v-model="activeTab"
           :items="tabs"
@@ -561,31 +570,62 @@ const schema = z.object({
 })
 
 // ── Populate state when slideover opens ─────────────────────────────────────
+const fetching = ref(false)
+
 watch(open, async (val) => {
-  if (val) {
-    initializing.value = true
-    activeTab.value = props.initialTab ?? 'details'
-    forceEntry.value = props.item?.forced ?? false
-    genderFilter.value = props.item?.gender ?? 'male'
-    state.tournament_id = props.item?.tournament_id ?? null
-    state.red_corner_id = props.item?.red_corner_id ?? null
-    state.blue_corner_id = props.item?.blue_corner_id ?? null
-    state.weight_category_id = props.item?.weight_category_id ?? null
-    state.discipline_id = props.item?.discipline_id ?? null
-    state.red_corner_team = props.item?.red_corner_team ?? ''
-    state.blue_corner_team = props.item?.blue_corner_team ?? ''
-    state.sort = props.item?.sort ?? 1
-    state.scheduled_time = props.item?.scheduled_time ?? undefined
-    state.status = props.item?.status ?? 'scheduled'
-    state.winner_id = props.item?.winner_id ?? null
-    state.end_method = props.item?.end_method ?? null
-    state.rounds = props.item?.rounds ?? null
-    state.minutes_per_round = props.item?.minutes_per_round ?? null
-    state.end_round = props.item?.end_round ?? undefined
-    state.judges_points = (props.item?.judges_points as JudgePointsRow[] | null) ?? []
-    await nextTick()
-    initializing.value = false
+  if (!val) { return }
+  initializing.value = true
+  activeTab.value = props.initialTab ?? 'details'
+  if (isEdit.value) {
+    fetching.value = true
+    try {
+      const { data: item } = await api.get<{ data: MatchRecord }>(`/api/admin/match_records/${props.item!.id}`)
+      forceEntry.value = item.forced ?? false
+      genderFilter.value = item.gender ?? 'male'
+      state.tournament_id = item.tournament_id ?? null
+      state.red_corner_id = item.red_corner_id ?? null
+      state.blue_corner_id = item.blue_corner_id ?? null
+      state.weight_category_id = item.weight_category_id ?? null
+      state.discipline_id = item.discipline_id ?? null
+      state.red_corner_team = item.red_corner_team ?? ''
+      state.blue_corner_team = item.blue_corner_team ?? ''
+      state.sort = item.sort ?? 1
+      state.scheduled_time = item.scheduled_time ?? undefined
+      state.status = item.status ?? 'scheduled'
+      state.winner_id = item.winner_id ?? null
+      state.end_method = item.end_method ?? null
+      state.rounds = item.rounds ?? null
+      state.minutes_per_round = item.minutes_per_round ?? null
+      state.end_round = item.end_round ?? undefined
+      state.judges_points = (item.judges_points as JudgePointsRow[] | null) ?? []
+    } catch (e) {
+      toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+      open.value = false
+    } finally {
+      fetching.value = false
+    }
+  } else {
+    forceEntry.value = false
+    genderFilter.value = 'male'
+    state.tournament_id = null
+    state.red_corner_id = null
+    state.blue_corner_id = null
+    state.weight_category_id = null
+    state.discipline_id = null
+    state.red_corner_team = ''
+    state.blue_corner_team = ''
+    state.sort = 1
+    state.scheduled_time = undefined
+    state.status = 'scheduled'
+    state.winner_id = null
+    state.end_method = null
+    state.rounds = null
+    state.minutes_per_round = null
+    state.end_round = undefined
+    state.judges_points = []
   }
+  await nextTick()
+  initializing.value = false
 })
 
 // ── When filters change (create mode), reset athlete selections ──────────────

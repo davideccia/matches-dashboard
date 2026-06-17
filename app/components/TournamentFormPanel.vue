@@ -133,7 +133,7 @@ watch(open, async (val) => {
       state.location_name = tournament.location_name
       state.location_address = tournament.location_address
       state.location_city = tournament.location_city
-      state.date = tournament.date
+      state.date = tournament.date.slice(0, 10)
       state.status = tournament.status
       coverMedia.value = tournament.cover_media ?? null
     } catch (e) {

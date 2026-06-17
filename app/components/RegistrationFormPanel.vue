@@ -1,7 +1,16 @@
 <template>
   <USlideover v-model:open="open" :title="isEdit ? t('registration.editTitle') : t('registration.createTitle')">
     <template #body>
-      <UForm :schema="schema" :state="state as any" class="space-y-6 p-6" @submit="(e: any) => onSubmit(e)">
+      <div v-if="fetching" class="flex items-center justify-center p-12">
+        <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />
+      </div>
+      <UForm
+        v-else
+        :schema="schema"
+        :state="state as any"
+        class="space-y-6 p-6"
+        @submit="(e: any) => onSubmit(e)"
+      >
         <UFormField name="athlete_id" :label="t('registration.athlete')" required>
           <div class="flex items-center gap-2">
             <ApiSelectMenu
@@ -274,16 +283,37 @@ function clearPaidAt() {
   paidAtTime.value = undefined
 }
 
-watch(open, (val) => {
-  if (val) {
-    state.athlete_id = props.item?.athlete_id ?? null
-    state.tournament_id = props.item?.tournament_id ?? null
-    state.discipline_id = props.item?.discipline_id ?? null
-    state.weight_category_id = props.item?.weight_category_id ?? null
-    state.paid_at = serverDateToInput(props.item?.paid_at) || null
-    state.arrived = props.item?.arrived ?? false
-    state.weight_in = props.item?.weight_in ?? null
-    state.notes = props.item?.notes ?? ''
+const fetching = ref(false)
+
+watch(open, async (val) => {
+  if (!val) { return }
+  if (isEdit.value) {
+    fetching.value = true
+    try {
+      const { data: item } = await api.get<{ data: Registration }>(`/api/admin/registrations/${props.item!.id}`)
+      state.athlete_id = item.athlete_id ?? null
+      state.tournament_id = item.tournament_id ?? null
+      state.discipline_id = item.discipline_id ?? null
+      state.weight_category_id = item.weight_category_id ?? null
+      state.paid_at = serverDateToInput(item.paid_at) || null
+      state.arrived = item.arrived ?? false
+      state.weight_in = item.weight_in ?? null
+      state.notes = item.notes ?? ''
+    } catch (e) {
+      toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+      open.value = false
+    } finally {
+      fetching.value = false
+    }
+  } else {
+    state.athlete_id = null
+    state.tournament_id = null
+    state.discipline_id = null
+    state.weight_category_id = null
+    state.paid_at = null
+    state.arrived = false
+    state.weight_in = null
+    state.notes = ''
   }
 })
 
