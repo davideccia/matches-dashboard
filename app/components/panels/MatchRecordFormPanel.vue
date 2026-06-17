@@ -57,6 +57,7 @@
                     :placeholder="t('match.selectDiscipline')"
                     :disabled="filtersLocked"
                     class="w-full"
+                    @select="onDisciplineSelect"
                   />
                   <UButton
                     v-if="state.discipline_id !== null && !filtersLocked"
@@ -163,13 +164,23 @@
                 </UFormField>
 
                 <UFormField name="minutes_per_round" :label="t('match.minutesPerRound')" required>
-                  <UInput
-                    v-model="state.minutes_per_round"
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    class="w-full"
-                  />
+                  <div class="flex items-center gap-2">
+                    <UInput
+                      v-model="state.minutes_per_round"
+                      type="time"
+                      class="w-full"
+                    />
+                    <UButton
+                      v-if="state.minutes_per_round"
+                      type="button"
+                      icon="i-mdi-close"
+                      variant="ghost"
+                      color="neutral"
+                      size="sm"
+                      :aria-label="t('common.cancel')"
+                      @click="state.minutes_per_round = undefined"
+                    />
+                  </div>
                 </UFormField>
               </div>
 
@@ -498,7 +509,7 @@ const state = reactive({
   winner_id: null as string | null,
   end_method: null as string | null,
   rounds: null as number | null,
-  minutes_per_round: null as number | null,
+  minutes_per_round: undefined as string | undefined,
   end_round: undefined as string | undefined,
   judges_points: [] as JudgePointsRow[],
 })
@@ -564,7 +575,7 @@ const schema = z.object({
   winner_id: z.string().optional().nullable(),
   end_method: z.string().optional().nullable(),
   rounds: z.coerce.number().int().min(1).max(10),
-  minutes_per_round: z.coerce.number().min(1),
+  minutes_per_round: z.string().optional().nullable(),
   end_round: z.string().optional().nullable(),
   judges_points: z.any().optional().nullable(),
 })
@@ -595,7 +606,7 @@ watch(open, async (val) => {
       state.winner_id = item.winner_id ?? null
       state.end_method = item.end_method ?? null
       state.rounds = item.rounds ?? null
-      state.minutes_per_round = item.minutes_per_round ?? null
+      state.minutes_per_round = item.minutes_per_round ?? undefined
       state.end_round = item.end_round ?? undefined
       state.judges_points = (item.judges_points as JudgePointsRow[] | null) ?? []
     } catch (e) {
@@ -620,7 +631,7 @@ watch(open, async (val) => {
     state.winner_id = null
     state.end_method = null
     state.rounds = null
-    state.minutes_per_round = null
+    state.minutes_per_round = undefined
     state.end_round = undefined
     state.judges_points = []
   }
@@ -685,6 +696,13 @@ const winnerControlDisabled = computed(
 
 function setWinner(value: string | null) {
   state.winner_id = value
+}
+
+// ── Auto-fill rounds/minutes_per_round from selected discipline ───────────────
+function onDisciplineSelect(item: Record<string, unknown>) {
+  if (initializing.value) { return }
+  state.rounds = item.rounds != null ? Number(item.rounds) : null
+  state.minutes_per_round = item.minutes_per_round != null ? String(item.minutes_per_round) : undefined
 }
 
 // ── Auto-fill team from selected athlete object ───────────────────────────────
@@ -754,7 +772,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       const { data } = await api.put<{ data: MatchRecord }>(`/api/admin/match_records/${props.item!.id}`, body)
       saved = data
     } else {
-      const { data } = await api.post<{ data: MatchRecord }>('/api/admin/matches', body)
+      const { data } = await api.post<{ data: MatchRecord }>('/api/admin/match_records', body)
       saved = data
     }
 
@@ -774,7 +792,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     state.winner_id = saved.winner_id ?? null
     state.end_method = saved.end_method ?? null
     state.rounds = saved.rounds ?? null
-    state.minutes_per_round = saved.minutes_per_round ?? null
+    state.minutes_per_round = saved.minutes_per_round ?? undefined
     state.end_round = saved.end_round ?? undefined
     state.judges_points = (saved.judges_points as JudgePointsRow[] | null) ?? []
     await nextTick()

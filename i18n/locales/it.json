@@ -279,6 +279,8 @@
   },
   "discipline": {
     "label": "Etichetta",
+    "rounds": "Round",
+    "minutesPerRound": "Min/round",
     "createTitle": "Nuova disciplina",
     "editTitle": "Modifica disciplina",
     "deleteConfirm": "Sei sicuro di voler eliminare questa disciplina?",

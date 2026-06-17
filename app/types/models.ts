@@ -5,6 +5,8 @@ import type { EndMethod, Gender, MatchStatus, TournamentStatus } from '~/utils/c
 export interface Discipline {
   id: string
   label: string
+  rounds: number | null
+  minutes_per_round: string | null
   created_at: string
   updated_at: string
 }
@@ -89,7 +91,7 @@ export interface MatchRecord {
   end_method: EndMethod | null
   status: MatchStatus
   rounds: number
-  minutes_per_round: number
+  minutes_per_round: string | null
   judges_points: Array<Record<string, unknown>> | null
   created_at: string
   updated_at: string

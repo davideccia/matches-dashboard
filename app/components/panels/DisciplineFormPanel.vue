@@ -19,6 +19,32 @@
           <UInput v-model="state.label" class="w-full" />
         </UFormField>
 
+        <UFormField name="rounds" :label="t('discipline.rounds')">
+          <UInput
+            v-model="state.rounds"
+            type="number"
+            min="1"
+            max="10"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField name="minutes_per_round" :label="t('discipline.minutesPerRound')">
+          <div class="flex items-center gap-2">
+            <UInput v-model="state.minutes_per_round" type="time" class="w-full" />
+            <UButton
+              v-if="state.minutes_per_round"
+              type="button"
+              icon="i-mdi-close"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              :aria-label="t('common.cancel')"
+              @click="state.minutes_per_round = undefined"
+            />
+          </div>
+        </UFormField>
+
         <div class="flex justify-end gap-2 pt-2">
           <UButton variant="ghost" color="neutral" type="button" @click="open = false">
             {{ t('common.cancel') }}
@@ -54,10 +80,14 @@ const isEdit = computed(() => props.item !== null)
 
 const schema = z.object({
   label: z.string().min(1),
+  rounds: z.coerce.number().int().min(1).optional().nullable(),
+  minutes_per_round: z.string().optional().nullable(),
 })
 
 const state = reactive({
   label: '',
+  rounds: null as number | null,
+  minutes_per_round: undefined as string | undefined,
 })
 
 const fetching = ref(false)
@@ -69,6 +99,8 @@ watch(open, async (val) => {
     try {
       const { data: item } = await api.get<{ data: Discipline }>(`/api/admin/disciplines/${props.item!.id}`)
       state.label = item.label
+      state.rounds = item.rounds ?? null
+      state.minutes_per_round = item.minutes_per_round ?? undefined
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
       open.value = false
@@ -77,6 +109,8 @@ watch(open, async (val) => {
     }
   } else {
     state.label = ''
+    state.rounds = null
+    state.minutes_per_round = undefined
   }
 })
 
@@ -85,7 +119,11 @@ const loading = ref(false)
 async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   loading.value = true
   try {
-    const body = { label: event.data.label }
+    const body = {
+      label: event.data.label,
+      rounds: event.data.rounds ?? null,
+      minutes_per_round: event.data.minutes_per_round ?? null,
+    }
 
     let saved: Discipline
     if (isEdit.value) {
@@ -97,6 +135,8 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     }
 
     state.label = saved.label
+    state.rounds = saved.rounds ?? null
+    state.minutes_per_round = saved.minutes_per_round ?? undefined
 
     emit('saved')
     toast.add({
