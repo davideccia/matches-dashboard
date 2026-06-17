@@ -1,7 +1,8 @@
 <template>
   <USlideover
     v-model:open="open"
-    :title="isEdit ? t('user.editTitle') : t('user.createTitle')"
+    :title="isEdit ? t('discipline.editTitle') : t('discipline.createTitle')"
+    :ui="{ content: 'w-2/5 max-w-none' }"
   >
     <template #body>
       <div v-if="fetching" class="flex items-center justify-center p-12">
@@ -14,28 +15,8 @@
         class="space-y-6 p-6"
         @submit="onSubmit"
       >
-        <UFormField name="email" :label="t('user.email')" required>
-          <UInput
-            v-model="state.email"
-            type="email"
-            class="w-full"
-            autocomplete="off"
-            :disabled="!canEditEmail"
-          />
-        </UFormField>
-
-        <UFormField
-          name="password"
-          :label="t('user.password')"
-          :required="!isEdit"
-          :hint="isEdit ? t('user.passwordHint') : undefined"
-        >
-          <UInput
-            v-model="state.password"
-            type="password"
-            class="w-full"
-            autocomplete="new-password"
-          />
+        <UFormField name="label" :label="t('discipline.label')" required>
+          <UInput v-model="state.label" class="w-full" />
         </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">
@@ -53,11 +34,11 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { User } from '~/types/models'
+import type { Discipline } from '~/types/models'
 import * as z from 'zod'
 
 const props = defineProps<{
-  user: User | null
+  item: Discipline | null
 }>()
 
 const emit = defineEmits<{
@@ -68,20 +49,15 @@ const open = defineModel<boolean>({ default: false })
 const { t } = useI18n()
 const api = useApi()
 const toast = useToast()
-const { user: currentUser } = useAuth()
 
-const canEditEmail = computed(() => currentUser.value?.id === props.user?.id)
-
-const isEdit = computed(() => props.user !== null)
+const isEdit = computed(() => props.item !== null)
 
 const schema = z.object({
-  email: z.email(),
-  password: z.union([z.string().min(6), z.literal('')]),
+  label: z.string().min(1),
 })
 
 const state = reactive({
-  email: '',
-  password: '',
+  label: '',
 })
 
 const fetching = ref(false)
@@ -91,9 +67,8 @@ watch(open, async (val) => {
   if (isEdit.value) {
     fetching.value = true
     try {
-      const { data: user } = await api.get<{ data: User }>(`/api/admin/users/${props.user!.id}`)
-      state.email = user.email
-      state.password = ''
+      const { data: item } = await api.get<{ data: Discipline }>(`/api/admin/disciplines/${props.item!.id}`)
+      state.label = item.label
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
       open.value = false
@@ -101,8 +76,7 @@ watch(open, async (val) => {
       fetching.value = false
     }
   } else {
-    state.email = ''
-    state.password = ''
+    state.label = ''
   }
 })
 
@@ -111,21 +85,22 @@ const loading = ref(false)
 async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   loading.value = true
   try {
-    const body: Record<string, unknown> = {
-      email: event.data.email,
-    }
-    if (event.data.password) { body.password = event.data.password }
+    const body = { label: event.data.label }
 
+    let saved: Discipline
     if (isEdit.value) {
-      await api.put(`/api/admin/users/${props.user!.id}`, body)
+      const { data } = await api.put<{ data: Discipline }>(`/api/admin/disciplines/${props.item!.id}`, body)
+      saved = data
     } else {
-      await api.post('/api/admin/users', body)
+      const { data } = await api.post<{ data: Discipline }>('/api/admin/disciplines', body)
+      saved = data
     }
 
-    open.value = false
+    state.label = saved.label
+
     emit('saved')
     toast.add({
-      title: isEdit.value ? t('user.updated') : t('user.created'),
+      title: isEdit.value ? t('discipline.updated') : t('discipline.created'),
       color: 'success',
     })
   } catch (e) {

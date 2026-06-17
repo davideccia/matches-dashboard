@@ -1,5 +1,9 @@
 <template>
-  <USlideover v-model:open="open" :title="isEdit ? t('weightCategory.editTitle') : t('weightCategory.createTitle')">
+  <USlideover
+    v-model:open="open"
+    :title="isEdit ? t('user.editTitle') : t('user.createTitle')"
+    :ui="{ content: 'w-2/5 max-w-none' }"
+  >
     <template #body>
       <div v-if="fetching" class="flex items-center justify-center p-12">
         <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />
@@ -11,12 +15,28 @@
         class="space-y-6 p-6"
         @submit="onSubmit"
       >
-        <UFormField name="label" :label="t('weightCategory.label')" required>
-          <UInput v-model="state.label" class="w-full" />
+        <UFormField name="email" :label="t('user.email')" required>
+          <UInput
+            v-model="state.email"
+            type="email"
+            class="w-full"
+            autocomplete="off"
+            :disabled="!canEditEmail"
+          />
         </UFormField>
 
-        <UFormField name="value" :label="t('weightCategory.value')" required>
-          <UInput v-model="state.value" type="number" step="0.1" class="w-full" />
+        <UFormField
+          name="password"
+          :label="t('user.password')"
+          :required="!isEdit"
+          :hint="isEdit ? t('user.passwordHint') : undefined"
+        >
+          <UInput
+            v-model="state.password"
+            type="password"
+            class="w-full"
+            autocomplete="new-password"
+          />
         </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">
@@ -34,11 +54,11 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { WeightCategory } from '~/types/models'
+import type { User } from '~/types/models'
 import * as z from 'zod'
 
 const props = defineProps<{
-  item: WeightCategory | null
+  user: User | null
 }>()
 
 const emit = defineEmits<{
@@ -49,17 +69,20 @@ const open = defineModel<boolean>({ default: false })
 const { t } = useI18n()
 const api = useApi()
 const toast = useToast()
+const { user: currentUser } = useAuth()
 
-const isEdit = computed(() => props.item !== null)
+const canEditEmail = computed(() => currentUser.value?.id === props.user?.id)
+
+const isEdit = computed(() => props.user !== null)
 
 const schema = z.object({
-  label: z.string().min(1),
-  value: z.coerce.number().positive(),
+  email: z.email(),
+  password: z.union([z.string().min(6), z.literal('')]),
 })
 
 const state = reactive({
-  label: '',
-  value: '' as unknown as number,
+  email: '',
+  password: '',
 })
 
 const fetching = ref(false)
@@ -69,9 +92,9 @@ watch(open, async (val) => {
   if (isEdit.value) {
     fetching.value = true
     try {
-      const { data: item } = await api.get<{ data: WeightCategory }>(`/api/admin/weight_categories/${props.item!.id}`)
-      state.label = item.label
-      state.value = item.value
+      const { data: user } = await api.get<{ data: User }>(`/api/admin/users/${props.user!.id}`)
+      state.email = user.email
+      state.password = ''
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
       open.value = false
@@ -79,8 +102,8 @@ watch(open, async (val) => {
       fetching.value = false
     }
   } else {
-    state.label = ''
-    state.value = '' as unknown as number
+    state.email = ''
+    state.password = ''
   }
 })
 
@@ -89,18 +112,26 @@ const loading = ref(false)
 async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   loading.value = true
   try {
-    const body = { label: event.data.label, value: event.data.value }
+    const body: Record<string, unknown> = {
+      email: event.data.email,
+    }
+    if (event.data.password) { body.password = event.data.password }
 
+    let saved: User
     if (isEdit.value) {
-      await api.put(`/api/admin/weight_categories/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: User }>(`/api/admin/users/${props.user!.id}`, body)
+      saved = data
     } else {
-      await api.post('/api/admin/weight_categories', body)
+      const { data } = await api.post<{ data: User }>('/api/admin/users', body)
+      saved = data
     }
 
-    open.value = false
+    state.email = saved.email
+    state.password = ''
+
     emit('saved')
     toast.add({
-      title: isEdit.value ? t('weightCategory.updated') : t('weightCategory.created'),
+      title: isEdit.value ? t('user.updated') : t('user.created'),
       color: 'success',
     })
   } catch (e) {

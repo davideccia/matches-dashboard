@@ -24,7 +24,8 @@
         <img
           :src="item.temporary_url!"
           :alt="item.file_name"
-          class="w-full max-h-60 object-contain rounded"
+          class="w-full object-contain rounded"
+          :class="[compact ? 'max-h-32' : 'max-h-60']"
         >
       </div>
       <div
@@ -56,9 +57,12 @@
 <script setup lang="ts">
 import type { MediaAttachment } from '~/types/models'
 
-defineProps<{
+withDefaults(defineProps<{
   items: MediaAttachment[]
-}>()
+  compact?: boolean
+}>(), {
+  compact: false,
+})
 
 function isImage(item: MediaAttachment): boolean {
   return item.mime_type.startsWith('image/')

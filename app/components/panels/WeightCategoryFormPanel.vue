@@ -1,8 +1,5 @@
 <template>
-  <USlideover
-    v-model:open="open"
-    :title="isEdit ? t('discipline.editTitle') : t('discipline.createTitle')"
-  >
+  <USlideover v-model:open="open" :title="isEdit ? t('weightCategory.editTitle') : t('weightCategory.createTitle')" :ui="{ content: 'w-2/5 max-w-none' }">
     <template #body>
       <div v-if="fetching" class="flex items-center justify-center p-12">
         <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />
@@ -14,8 +11,12 @@
         class="space-y-6 p-6"
         @submit="onSubmit"
       >
-        <UFormField name="label" :label="t('discipline.label')" required>
+        <UFormField name="label" :label="t('weightCategory.label')" required>
           <UInput v-model="state.label" class="w-full" />
+        </UFormField>
+
+        <UFormField name="value" :label="t('weightCategory.value')" required>
+          <UInput v-model="state.value" type="number" step="0.1" class="w-full" />
         </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">
@@ -33,11 +34,11 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { Discipline } from '~/types/models'
+import type { WeightCategory } from '~/types/models'
 import * as z from 'zod'
 
 const props = defineProps<{
-  item: Discipline | null
+  item: WeightCategory | null
 }>()
 
 const emit = defineEmits<{
@@ -53,10 +54,12 @@ const isEdit = computed(() => props.item !== null)
 
 const schema = z.object({
   label: z.string().min(1),
+  value: z.coerce.number().positive(),
 })
 
 const state = reactive({
   label: '',
+  value: '' as unknown as number,
 })
 
 const fetching = ref(false)
@@ -66,8 +69,9 @@ watch(open, async (val) => {
   if (isEdit.value) {
     fetching.value = true
     try {
-      const { data: item } = await api.get<{ data: Discipline }>(`/api/admin/disciplines/${props.item!.id}`)
+      const { data: item } = await api.get<{ data: WeightCategory }>(`/api/admin/weight_categories/${props.item!.id}`)
       state.label = item.label
+      state.value = item.value
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
       open.value = false
@@ -76,6 +80,7 @@ watch(open, async (val) => {
     }
   } else {
     state.label = ''
+    state.value = '' as unknown as number
   }
 })
 
@@ -84,18 +89,23 @@ const loading = ref(false)
 async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   loading.value = true
   try {
-    const body = { label: event.data.label }
+    const body = { label: event.data.label, value: event.data.value }
 
+    let saved: WeightCategory
     if (isEdit.value) {
-      await api.put(`/api/admin/disciplines/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: WeightCategory }>(`/api/admin/weight_categories/${props.item!.id}`, body)
+      saved = data
     } else {
-      await api.post('/api/admin/disciplines', body)
+      const { data } = await api.post<{ data: WeightCategory }>('/api/admin/weight_categories', body)
+      saved = data
     }
 
-    open.value = false
+    state.label = saved.label
+    state.value = saved.value
+
     emit('saved')
     toast.add({
-      title: isEdit.value ? t('discipline.updated') : t('discipline.created'),
+      title: isEdit.value ? t('weightCategory.updated') : t('weightCategory.created'),
       color: 'success',
     })
   } catch (e) {

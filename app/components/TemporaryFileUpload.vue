@@ -75,7 +75,7 @@ function formatSize(size: string): string {
 }
 
 function getValue(): string | string[] | null {
-  if (props.multiple) return uploaded.value.map(f => f.id)
+  if (props.multiple) { return uploaded.value.map(f => f.id) }
   return uploaded.value[0]?.id ?? null
 }
 

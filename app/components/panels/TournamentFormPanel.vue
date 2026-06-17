@@ -2,6 +2,7 @@
   <USlideover
     v-model:open="open"
     :title="isEdit ? t('tournament.editTitle') : t('tournament.createTitle')"
+    :ui="{ content: 'w-2/5 max-w-none' }"
   >
     <template #body>
       <div v-if="fetching" class="flex items-center justify-center p-12">
@@ -23,6 +24,7 @@
             <MediaAttachmentPreview
               v-if="coverMedia"
               :items="[coverMedia]"
+              compact
             />
 
             <TemporaryFileUpload ref="coverUploadRef" accept="image/*" />
@@ -33,29 +35,25 @@
           <UInput v-model="state.name" class="w-full" />
         </UFormField>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UFormField name="location_name" :label="t('tournament.locationName')" required>
-            <UInput v-model="state.location_name" class="w-full" />
-          </UFormField>
+        <UFormField name="location_name" :label="t('tournament.locationName')" required>
+          <UInput v-model="state.location_name" class="w-full" />
+        </UFormField>
 
-          <UFormField name="location_city" :label="t('tournament.locationCity')" required>
-            <UInput v-model="state.location_city" class="w-full" />
-          </UFormField>
-        </div>
+        <UFormField name="location_city" :label="t('tournament.locationCity')" required>
+          <UInput v-model="state.location_city" class="w-full" />
+        </UFormField>
 
         <UFormField name="location_address" :label="t('tournament.locationAddress')" required>
           <UInput v-model="state.location_address" class="w-full" />
         </UFormField>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UFormField name="date" :label="t('tournament.date')" required>
-            <UInput v-model="state.date" type="date" class="w-full" />
-          </UFormField>
+        <UFormField name="date" :label="t('tournament.date')" required>
+          <UInput v-model="state.date" type="date" class="w-full" />
+        </UFormField>
 
-          <UFormField name="status" :label="t('tournament.status.label')" required>
-            <USelect v-model="state.status" :items="statusOptions" class="w-full" />
-          </UFormField>
-        </div>
+        <UFormField name="status" :label="t('tournament.status.label')" required>
+          <USelect v-model="state.status" :items="statusOptions" class="w-full" />
+        </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">
           <UButton variant="ghost" color="neutral" type="button" @click="open = false">
@@ -168,13 +166,23 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       status: event.data.status,
     }
 
+    let saved: Tournament
     if (isEdit.value) {
-      await api.put(`/api/admin/tournaments/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: Tournament }>(`/api/admin/tournaments/${props.item!.id}?with=coverMedia`, body)
+      saved = data
     } else {
-      await api.post('/api/admin/tournaments', body)
+      const { data } = await api.post<{ data: Tournament }>('/api/admin/tournaments?with=coverMedia', body)
+      saved = data
     }
 
-    open.value = false
+    state.name = saved.name
+    state.location_name = saved.location_name
+    state.location_address = saved.location_address
+    state.location_city = saved.location_city
+    state.date = saved.date.slice(0, 10)
+    state.status = saved.status
+    coverMedia.value = saved.cover_media ?? null
+
     emit('saved')
     toast.add({
       title: isEdit.value ? t('tournament.updated') : t('tournament.created'),

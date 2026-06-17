@@ -749,11 +749,36 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       judges_points,
     }
 
+    let saved: MatchRecord
     if (isEdit.value) {
-      await api.put(`/api/admin/match_records/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: MatchRecord }>(`/api/admin/match_records/${props.item!.id}`, body)
+      saved = data
     } else {
-      await api.post('/api/admin/matches', body)
+      const { data } = await api.post<{ data: MatchRecord }>('/api/admin/matches', body)
+      saved = data
     }
+
+    initializing.value = true
+    forceEntry.value = saved.forced ?? false
+    genderFilter.value = saved.gender ?? 'male'
+    state.tournament_id = saved.tournament_id ?? null
+    state.red_corner_id = saved.red_corner_id ?? null
+    state.blue_corner_id = saved.blue_corner_id ?? null
+    state.weight_category_id = saved.weight_category_id ?? null
+    state.discipline_id = saved.discipline_id ?? null
+    state.red_corner_team = saved.red_corner_team ?? ''
+    state.blue_corner_team = saved.blue_corner_team ?? ''
+    state.sort = saved.sort ?? 1
+    state.scheduled_time = saved.scheduled_time ?? undefined
+    state.status = saved.status ?? 'scheduled'
+    state.winner_id = saved.winner_id ?? null
+    state.end_method = saved.end_method ?? null
+    state.rounds = saved.rounds ?? null
+    state.minutes_per_round = saved.minutes_per_round ?? null
+    state.end_round = saved.end_round ?? undefined
+    state.judges_points = (saved.judges_points as JudgePointsRow[] | null) ?? []
+    await nextTick()
+    initializing.value = false
 
     emit('saved')
     toast.add({
