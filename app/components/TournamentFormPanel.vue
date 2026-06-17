@@ -4,7 +4,31 @@
     :title="isEdit ? t('tournament.editTitle') : t('tournament.createTitle')"
   >
     <template #body>
-      <UForm :schema="schema" :state="state" class="space-y-6 p-6" @submit="onSubmit">
+      <div v-if="fetching" class="flex items-center justify-center p-12">
+        <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />
+      </div>
+      <UForm
+        v-else
+        :schema="schema"
+        :state="state"
+        class="space-y-6 p-6"
+        @submit="onSubmit"
+      >
+        <UCard>
+          <template #header>
+            <span class="text-sm font-medium">{{ t('tournament.cover') }}</span>
+          </template>
+
+          <div class="space-y-4">
+            <MediaAttachmentPreview
+              v-if="coverMedia"
+              :items="[coverMedia]"
+            />
+
+            <TemporaryFileUpload ref="coverUploadRef" accept="image/*" />
+          </div>
+        </UCard>
+
         <UFormField name="name" :label="t('tournament.name')" required>
           <UInput v-model="state.name" class="w-full" />
         </UFormField>
@@ -48,7 +72,7 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { Tournament } from '~/types/models'
+import type { MediaAttachment, Tournament } from '~/types/models'
 import * as z from 'zod'
 import { TOURNAMENT_STATUSES, type TournamentStatus } from '~/utils/constants'
 
@@ -85,6 +109,9 @@ const schema = z.object({
   status: z.enum(TOURNAMENT_STATUSES),
 })
 
+const coverUploadRef = ref<{ getValue: () => string | string[] | null } | null>(null)
+const coverMedia = ref<MediaAttachment | null>(null)
+
 const state = reactive({
   name: '',
   location_name: '',
@@ -94,14 +121,35 @@ const state = reactive({
   status: 'scheduled' as TournamentStatus,
 })
 
-watch(open, (val) => {
-  if (val) {
-    state.name = props.item?.name ?? ''
-    state.location_name = props.item?.location_name ?? ''
-    state.location_address = props.item?.location_address ?? ''
-    state.location_city = props.item?.location_city ?? ''
-    state.date = props.item?.date ?? ''
-    state.status = props.item?.status ?? 'scheduled'
+const fetching = ref(false)
+
+watch(open, async (val) => {
+  if (!val) { return }
+  if (isEdit.value) {
+    fetching.value = true
+    try {
+      const { data: tournament } = await api.get<{ data: Tournament }>(`/api/admin/tournaments/${props.item!.id}?with=coverMedia`)
+      state.name = tournament.name
+      state.location_name = tournament.location_name
+      state.location_address = tournament.location_address
+      state.location_city = tournament.location_city
+      state.date = tournament.date
+      state.status = tournament.status
+      coverMedia.value = tournament.cover_media ?? null
+    } catch (e) {
+      toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+      open.value = false
+    } finally {
+      fetching.value = false
+    }
+  } else {
+    state.name = ''
+    state.location_name = ''
+    state.location_address = ''
+    state.location_city = ''
+    state.date = ''
+    state.status = 'scheduled'
+    coverMedia.value = null
   }
 })
 
@@ -111,6 +159,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   loading.value = true
   try {
     const body = {
+      cover: coverUploadRef.value?.getValue() as string | null ?? null,
       name: event.data.name,
       location_name: event.data.location_name,
       location_address: event.data.location_address,

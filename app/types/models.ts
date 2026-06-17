@@ -49,6 +49,7 @@ export interface Tournament {
   // relazioni opzionali
   registrations?: Registration[]
   match_records?: MatchRecord[]
+  cover_media?: MediaAttachment | null
 }
 
 export interface Registration {
@@ -109,6 +110,27 @@ export interface User {
   created_at: string
   updated_at: string
   // password e remember_token sono $hidden — non compaiono mai nella risposta
+}
+
+export interface TemporaryUpload {
+  id: string
+  original_name: string
+  mime_type: string
+  size: string
+}
+
+export interface MediaAttachment {
+  id: number
+  uuid: string
+  collection_name: string
+  name: string
+  file_name: string
+  mime_type: string
+  size: number
+  order_column: number
+  created_at: string
+  updated_at: string
+  temporary_url: string | null
 }
 
 // ─── Risposta paginata Laravel ────────────────────────────────────────────────

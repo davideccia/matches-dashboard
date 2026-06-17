@@ -63,6 +63,7 @@
     "set_empty": "Svuota",
     "yes": "Sì",
     "no": "No",
+    "download": "Scarica",
     "close": "Chiudi"
   },
   "tournament": {
@@ -90,6 +91,7 @@
       "completed": "Concluso",
       "cancelled": "Annullato"
     },
+    "cover": "Copertina",
     "pdf": {
       "board": "Dettagliata",
       "list": "Lista"
@@ -348,5 +350,10 @@
     "privacyLabel": "Ho letto e accetto la",
     "privacyLink": "privacy policy",
     "privacyRequired": "Devi accettare la privacy policy per procedere"
+  },
+  "fileUpload": {
+    "upload": "Carica file",
+    "uploading": "Caricamento...",
+    "remove": "Rimuovi"
   }
 }

@@ -14,13 +14,13 @@ pnpm nuxi typecheck   # Type-check
 
 All env vars are baked into the bundle at **build time** (not read at runtime) because `ssr: false`:
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `NUXT_PUBLIC_API_BASE` | `http://localhost:8081` | Laravel API base URL |
-| `NUXT_PUBLIC_REVERB_APP_KEY` | — | Laravel Reverb app key |
-| `NUXT_PUBLIC_REVERB_HOST` | `localhost` | Reverb WebSocket host |
-| `NUXT_PUBLIC_REVERB_PORT` | `8080` | Reverb WebSocket port |
-| `NUXT_PUBLIC_REVERB_SCHEME` | `http` | `http` or `https` |
+| Variable                     | Default                 | Purpose                |
+| ---------------------------- | ----------------------- | ---------------------- |
+| `NUXT_PUBLIC_API_BASE`       | `http://localhost:8081` | Laravel API base URL   |
+| `NUXT_PUBLIC_REVERB_APP_KEY` | —                       | Laravel Reverb app key |
+| `NUXT_PUBLIC_REVERB_HOST`    | `localhost`             | Reverb WebSocket host  |
+| `NUXT_PUBLIC_REVERB_PORT`    | `8080`                  | Reverb WebSocket port  |
+| `NUXT_PUBLIC_REVERB_SCHEME`  | `http`                  | `http` or `https`      |
 
 ## Architecture
 

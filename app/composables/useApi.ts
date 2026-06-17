@@ -20,6 +20,9 @@ export function useApi() {
   const post = <T>(path: string, body?: Record<string, unknown>, params?: QueryParams) =>
     client<T>(path, { method: 'POST', body, params, headers: lang() })
 
+  const upload = <T>(path: string, formData: FormData, params?: QueryParams) =>
+    client<T>(path, { method: 'POST', body: formData, params, headers: lang() })
+
   const put = <T>(path: string, body?: Record<string, unknown>, params?: QueryParams) =>
     client<T>(path, { method: 'PUT', body, params, headers: lang() })
 
@@ -46,5 +49,5 @@ export function useApi() {
     URL.revokeObjectURL(url)
   }
 
-  return { get, post, put, del, download }
+  return { get, post, put, del, download, upload }
 }
