@@ -63,6 +63,7 @@
     "set_empty": "Set Empty",
     "yes": "Yes",
     "no": "No",
+    "download": "Download",
     "close": "Close"
   },
   "tournament": {
@@ -90,6 +91,7 @@
       "completed": "Completed",
       "cancelled": "Cancelled"
     },
+    "cover": "Cover",
     "pdf": {
       "board": "Detailed",
       "list": "Simple list"
@@ -277,6 +279,8 @@
   },
   "discipline": {
     "label": "Label",
+    "rounds": "Rounds",
+    "minutesPerRound": "Min/round",
     "createTitle": "New discipline",
     "editTitle": "Edit discipline",
     "deleteConfirm": "Are you sure you want to delete this discipline?",
@@ -348,5 +352,10 @@
     "privacyLabel": "I have read and accept the",
     "privacyLink": "privacy policy",
     "privacyRequired": "You must accept the privacy policy to proceed"
+  },
+  "fileUpload": {
+    "upload": "Upload file",
+    "uploading": "Uploading...",
+    "remove": "Remove"
   }
 }

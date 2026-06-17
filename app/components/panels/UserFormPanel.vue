@@ -2,9 +2,19 @@
   <USlideover
     v-model:open="open"
     :title="isEdit ? t('user.editTitle') : t('user.createTitle')"
+    :ui="{ content: 'w-2/5 max-w-none' }"
   >
     <template #body>
-      <UForm :schema="schema" :state="state" class="space-y-6 p-6" @submit="onSubmit">
+      <div v-if="fetching" class="flex items-center justify-center p-12">
+        <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />
+      </div>
+      <UForm
+        v-else
+        :schema="schema"
+        :state="state"
+        class="space-y-6 p-6"
+        @submit="onSubmit"
+      >
         <UFormField name="email" :label="t('user.email')" required>
           <UInput
             v-model="state.email"
@@ -75,9 +85,24 @@ const state = reactive({
   password: '',
 })
 
-watch(open, (val) => {
-  if (val) {
-    state.email = props.user?.email ?? ''
+const fetching = ref(false)
+
+watch(open, async (val) => {
+  if (!val) { return }
+  if (isEdit.value) {
+    fetching.value = true
+    try {
+      const { data: user } = await api.get<{ data: User }>(`/api/admin/users/${props.user!.id}`)
+      state.email = user.email
+      state.password = ''
+    } catch (e) {
+      toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+      open.value = false
+    } finally {
+      fetching.value = false
+    }
+  } else {
+    state.email = ''
     state.password = ''
   }
 })
@@ -92,13 +117,18 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     }
     if (event.data.password) { body.password = event.data.password }
 
+    let saved: User
     if (isEdit.value) {
-      await api.put(`/api/admin/users/${props.user!.id}`, body)
+      const { data } = await api.put<{ data: User }>(`/api/admin/users/${props.user!.id}`, body)
+      saved = data
     } else {
-      await api.post('/api/admin/users', body)
+      const { data } = await api.post<{ data: User }>('/api/admin/users', body)
+      saved = data
     }
 
-    open.value = false
+    state.email = saved.email
+    state.password = ''
+
     emit('saved')
     toast.add({
       title: isEdit.value ? t('user.updated') : t('user.created'),

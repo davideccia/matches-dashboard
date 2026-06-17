@@ -5,7 +5,16 @@
     :ui="{ content: 'sm:max-w-none sm:w-[50vw]' }"
   >
     <template #body>
-      <UForm :schema="schema" :state="state" class="flex flex-col h-full" @submit="onSubmit">
+      <div v-if="fetching" class="flex items-center justify-center p-12">
+        <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />
+      </div>
+      <UForm
+        v-else
+        :schema="schema"
+        :state="state"
+        class="flex flex-col h-full"
+        @submit="onSubmit"
+      >
         <UTabs
           v-model="activeTab"
           :items="tabs"
@@ -48,6 +57,7 @@
                     :placeholder="t('match.selectDiscipline')"
                     :disabled="filtersLocked"
                     class="w-full"
+                    @select="onDisciplineSelect"
                   />
                   <UButton
                     v-if="state.discipline_id !== null && !filtersLocked"
@@ -154,13 +164,23 @@
                 </UFormField>
 
                 <UFormField name="minutes_per_round" :label="t('match.minutesPerRound')" required>
-                  <UInput
-                    v-model="state.minutes_per_round"
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    class="w-full"
-                  />
+                  <div class="flex items-center gap-2">
+                    <UInput
+                      v-model="state.minutes_per_round"
+                      type="time"
+                      class="w-full"
+                    />
+                    <UButton
+                      v-if="state.minutes_per_round"
+                      type="button"
+                      icon="i-mdi-close"
+                      variant="ghost"
+                      color="neutral"
+                      size="sm"
+                      :aria-label="t('common.cancel')"
+                      @click="state.minutes_per_round = undefined"
+                    />
+                  </div>
                 </UFormField>
               </div>
 
@@ -489,7 +509,7 @@ const state = reactive({
   winner_id: null as string | null,
   end_method: null as string | null,
   rounds: null as number | null,
-  minutes_per_round: null as number | null,
+  minutes_per_round: undefined as string | undefined,
   end_round: undefined as string | undefined,
   judges_points: [] as JudgePointsRow[],
 })
@@ -555,37 +575,68 @@ const schema = z.object({
   winner_id: z.string().optional().nullable(),
   end_method: z.string().optional().nullable(),
   rounds: z.coerce.number().int().min(1).max(10),
-  minutes_per_round: z.coerce.number().min(1),
+  minutes_per_round: z.string().optional().nullable(),
   end_round: z.string().optional().nullable(),
   judges_points: z.any().optional().nullable(),
 })
 
 // ── Populate state when slideover opens ─────────────────────────────────────
+const fetching = ref(false)
+
 watch(open, async (val) => {
-  if (val) {
-    initializing.value = true
-    activeTab.value = props.initialTab ?? 'details'
-    forceEntry.value = props.item?.forced ?? false
-    genderFilter.value = props.item?.gender ?? 'male'
-    state.tournament_id = props.item?.tournament_id ?? null
-    state.red_corner_id = props.item?.red_corner_id ?? null
-    state.blue_corner_id = props.item?.blue_corner_id ?? null
-    state.weight_category_id = props.item?.weight_category_id ?? null
-    state.discipline_id = props.item?.discipline_id ?? null
-    state.red_corner_team = props.item?.red_corner_team ?? ''
-    state.blue_corner_team = props.item?.blue_corner_team ?? ''
-    state.sort = props.item?.sort ?? 1
-    state.scheduled_time = props.item?.scheduled_time ?? undefined
-    state.status = props.item?.status ?? 'scheduled'
-    state.winner_id = props.item?.winner_id ?? null
-    state.end_method = props.item?.end_method ?? null
-    state.rounds = props.item?.rounds ?? null
-    state.minutes_per_round = props.item?.minutes_per_round ?? null
-    state.end_round = props.item?.end_round ?? undefined
-    state.judges_points = (props.item?.judges_points as JudgePointsRow[] | null) ?? []
-    await nextTick()
-    initializing.value = false
+  if (!val) { return }
+  initializing.value = true
+  activeTab.value = props.initialTab ?? 'details'
+  if (isEdit.value) {
+    fetching.value = true
+    try {
+      const { data: item } = await api.get<{ data: MatchRecord }>(`/api/admin/match_records/${props.item!.id}`)
+      forceEntry.value = item.forced ?? false
+      genderFilter.value = item.gender ?? 'male'
+      state.tournament_id = item.tournament_id ?? null
+      state.red_corner_id = item.red_corner_id ?? null
+      state.blue_corner_id = item.blue_corner_id ?? null
+      state.weight_category_id = item.weight_category_id ?? null
+      state.discipline_id = item.discipline_id ?? null
+      state.red_corner_team = item.red_corner_team ?? ''
+      state.blue_corner_team = item.blue_corner_team ?? ''
+      state.sort = item.sort ?? 1
+      state.scheduled_time = item.scheduled_time ?? undefined
+      state.status = item.status ?? 'scheduled'
+      state.winner_id = item.winner_id ?? null
+      state.end_method = item.end_method ?? null
+      state.rounds = item.rounds ?? null
+      state.minutes_per_round = item.minutes_per_round ?? undefined
+      state.end_round = item.end_round ?? undefined
+      state.judges_points = (item.judges_points as JudgePointsRow[] | null) ?? []
+    } catch (e) {
+      toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+      open.value = false
+    } finally {
+      fetching.value = false
+    }
+  } else {
+    forceEntry.value = false
+    genderFilter.value = 'male'
+    state.tournament_id = null
+    state.red_corner_id = null
+    state.blue_corner_id = null
+    state.weight_category_id = null
+    state.discipline_id = null
+    state.red_corner_team = ''
+    state.blue_corner_team = ''
+    state.sort = 1
+    state.scheduled_time = undefined
+    state.status = 'scheduled'
+    state.winner_id = null
+    state.end_method = null
+    state.rounds = null
+    state.minutes_per_round = undefined
+    state.end_round = undefined
+    state.judges_points = []
   }
+  await nextTick()
+  initializing.value = false
 })
 
 // ── When filters change (create mode), reset athlete selections ──────────────
@@ -645,6 +696,13 @@ const winnerControlDisabled = computed(
 
 function setWinner(value: string | null) {
   state.winner_id = value
+}
+
+// ── Auto-fill rounds/minutes_per_round from selected discipline ───────────────
+function onDisciplineSelect(item: Record<string, unknown>) {
+  if (initializing.value) { return }
+  state.rounds = item.rounds != null ? Number(item.rounds) : null
+  state.minutes_per_round = item.minutes_per_round != null ? String(item.minutes_per_round) : undefined
 }
 
 // ── Auto-fill team from selected athlete object ───────────────────────────────
@@ -709,11 +767,36 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       judges_points,
     }
 
+    let saved: MatchRecord
     if (isEdit.value) {
-      await api.put(`/api/admin/match_records/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: MatchRecord }>(`/api/admin/match_records/${props.item!.id}`, body)
+      saved = data
     } else {
-      await api.post('/api/admin/matches', body)
+      const { data } = await api.post<{ data: MatchRecord }>('/api/admin/match_records', body)
+      saved = data
     }
+
+    initializing.value = true
+    forceEntry.value = saved.forced ?? false
+    genderFilter.value = saved.gender ?? 'male'
+    state.tournament_id = saved.tournament_id ?? null
+    state.red_corner_id = saved.red_corner_id ?? null
+    state.blue_corner_id = saved.blue_corner_id ?? null
+    state.weight_category_id = saved.weight_category_id ?? null
+    state.discipline_id = saved.discipline_id ?? null
+    state.red_corner_team = saved.red_corner_team ?? ''
+    state.blue_corner_team = saved.blue_corner_team ?? ''
+    state.sort = saved.sort ?? 1
+    state.scheduled_time = saved.scheduled_time ?? undefined
+    state.status = saved.status ?? 'scheduled'
+    state.winner_id = saved.winner_id ?? null
+    state.end_method = saved.end_method ?? null
+    state.rounds = saved.rounds ?? null
+    state.minutes_per_round = saved.minutes_per_round ?? undefined
+    state.end_round = saved.end_round ?? undefined
+    state.judges_points = (saved.judges_points as JudgePointsRow[] | null) ?? []
+    await nextTick()
+    initializing.value = false
 
     emit('saved')
     toast.add({

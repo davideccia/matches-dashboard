@@ -87,6 +87,8 @@ const deleting = ref(false)
 
 const columns = computed(() => [
   { accessorKey: 'label', header: t('discipline.label') },
+  { accessorKey: 'rounds', header: t('discipline.rounds') },
+  { accessorKey: 'minutes_per_round', header: t('discipline.minutesPerRound') },
   { id: 'actions', header: '' },
 ] as TableColumn<Record<string, unknown>>[])
 

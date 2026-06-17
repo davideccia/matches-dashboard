@@ -1,26 +1,31 @@
 <template>
-  <USlideover v-model:open="open" :title="isEdit ? t('athlete.editTitle') : t('athlete.createTitle')">
+  <USlideover v-model:open="open" :title="isEdit ? t('athlete.editTitle') : t('athlete.createTitle')" :ui="{ content: 'w-2/5 max-w-none' }">
     <template #body>
-      <UForm :schema="schema" :state="state" class="space-y-6 p-6" @submit="onSubmit">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UFormField name="first_name" :label="t('athlete.firstName')" required>
-            <UInput v-model="state.first_name" class="w-full" />
-          </UFormField>
+      <div v-if="fetching" class="flex items-center justify-center p-12">
+        <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />
+      </div>
+      <UForm
+        v-else
+        :schema="schema"
+        :state="state"
+        class="space-y-6 p-6"
+        @submit="onSubmit"
+      >
+        <UFormField name="first_name" :label="t('athlete.firstName')" required>
+          <UInput v-model="state.first_name" class="w-full" />
+        </UFormField>
 
-          <UFormField name="last_name" :label="t('athlete.lastName')" required>
-            <UInput v-model="state.last_name" class="w-full" />
-          </UFormField>
-        </div>
+        <UFormField name="last_name" :label="t('athlete.lastName')" required>
+          <UInput v-model="state.last_name" class="w-full" />
+        </UFormField>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UFormField name="birth_date" :label="t('athlete.birthDate')" required>
-            <UInput v-model="state.birth_date" type="date" class="w-full" />
-          </UFormField>
+        <UFormField name="birth_date" :label="t('athlete.birthDate')" required>
+          <UInput v-model="state.birth_date" type="date" class="w-full" />
+        </UFormField>
 
-          <UFormField name="gender" :label="t('athlete.gender.label')" required>
-            <USelect v-model="state.gender" :items="genderOptions" class="w-full" />
-          </UFormField>
-        </div>
+        <UFormField name="gender" :label="t('athlete.gender.label')" required>
+          <USelect v-model="state.gender" :items="genderOptions" class="w-full" />
+        </UFormField>
 
         <UFormField name="tax_number" :label="t('athlete.taxNumber')" required>
           <UInput v-model="state.tax_number" class="w-full" />
@@ -135,16 +140,37 @@ const state = reactive({
   default_discipline_id: null as string | null,
 })
 
-watch(open, (val) => {
-  if (val) {
-    state.first_name = props.item?.first_name ?? ''
-    state.last_name = props.item?.last_name ?? ''
-    state.birth_date = props.item?.birth_date?.slice(0, 10) ?? ''
-    state.gender = props.item?.gender ?? 'male'
-    state.tax_number = props.item?.tax_number ?? ''
-    state.team_name = props.item?.team_name ?? ''
-    state.default_weight_category_id = props.item?.default_weight_category_id ?? null
-    state.default_discipline_id = props.item?.default_discipline_id ?? null
+const fetching = ref(false)
+
+watch(open, async (val) => {
+  if (!val) { return }
+  if (isEdit.value) {
+    fetching.value = true
+    try {
+      const { data: item } = await api.get<{ data: Athlete }>(`/api/admin/athletes/${props.item!.id}`)
+      state.first_name = item.first_name
+      state.last_name = item.last_name
+      state.birth_date = item.birth_date?.slice(0, 10) ?? ''
+      state.gender = item.gender ?? 'male'
+      state.tax_number = item.tax_number ?? ''
+      state.team_name = item.team_name ?? ''
+      state.default_weight_category_id = item.default_weight_category_id ?? null
+      state.default_discipline_id = item.default_discipline_id ?? null
+    } catch (e) {
+      toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+      open.value = false
+    } finally {
+      fetching.value = false
+    }
+  } else {
+    state.first_name = ''
+    state.last_name = ''
+    state.birth_date = ''
+    state.gender = 'male'
+    state.tax_number = ''
+    state.team_name = ''
+    state.default_weight_category_id = null
+    state.default_discipline_id = null
   }
 })
 
@@ -164,13 +190,24 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       default_discipline_id: event.data.default_discipline_id || null,
     }
 
+    let saved: Athlete
     if (isEdit.value) {
-      await api.put(`/api/admin/athletes/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: Athlete }>(`/api/admin/athletes/${props.item!.id}`, body)
+      saved = data
     } else {
-      await api.post('/api/admin/athletes', body)
+      const { data } = await api.post<{ data: Athlete }>('/api/admin/athletes', body)
+      saved = data
     }
 
-    open.value = false
+    state.first_name = saved.first_name
+    state.last_name = saved.last_name
+    state.birth_date = saved.birth_date?.slice(0, 10) ?? ''
+    state.gender = saved.gender ?? 'male'
+    state.tax_number = saved.tax_number ?? ''
+    state.team_name = saved.team_name ?? ''
+    state.default_weight_category_id = saved.default_weight_category_id ?? null
+    state.default_discipline_id = saved.default_discipline_id ?? null
+
     emit('saved')
     toast.add({
       title: isEdit.value ? t('athlete.updated') : t('athlete.created'),

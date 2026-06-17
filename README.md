@@ -25,7 +25,7 @@ A single Nuxt 4 application serving two audiences: **administrators** managing t
 
 - **Admin panel** — manage athletes, tournaments, disciplines, weight categories, and users; review and approve registrations; build the match grid and update scores
 - **Public registration form** — unauthenticated athlete entry flow for open tournaments
-- **Live scoreboard** — Laravel Echo + Reverb with a *notify-then-refetch* pattern that keeps REST as the single source of truth
+- **Live scoreboard** — Laravel Echo + Reverb with a _notify-then-refetch_ pattern that keeps REST as the single source of truth
 - **Match board** — a dedicated grid view of bouts for a selected tournament
 - **Bilingual** — Italian (default, no URL prefix) and English under `/en/…`
 - **Light / dark mode** — follows OS preference, with a manual override
@@ -34,17 +34,17 @@ A single Nuxt 4 application serving two audiences: **administrators** managing t
 
 ## Tech stack
 
-| Layer             | Technology                                                            |
-| ----------------- | --------------------------------------------------------------------- |
-| Framework         | [Nuxt 4](https://nuxt.com) (`ssr: false` — static SPA output)         |
-| Component library | [@nuxt/ui v4](https://ui.nuxt.com) — 125+ accessible Vue components   |
-| Styling           | [Tailwind CSS v4](https://tailwindcss.com)                            |
-| Auth              | [nuxt-auth-sanctum](https://github.com/manchenkoff/nuxt-auth-sanctum) (Laravel Sanctum, token mode) |
+| Layer             | Technology                                                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Framework         | [Nuxt 4](https://nuxt.com) (`ssr: false` — static SPA output)                                                                  |
+| Component library | [@nuxt/ui v4](https://ui.nuxt.com) — 125+ accessible Vue components                                                            |
+| Styling           | [Tailwind CSS v4](https://tailwindcss.com)                                                                                     |
+| Auth              | [nuxt-auth-sanctum](https://github.com/manchenkoff/nuxt-auth-sanctum) (Laravel Sanctum, token mode)                            |
 | Realtime          | [Laravel Echo](https://laravel.com/docs/broadcasting) + Reverb (via [pusher-js](https://github.com/pusher/pusher-js-protocol)) |
-| i18n              | [@nuxtjs/i18n](https://i18n.nuxtjs.org)                               |
-| Form validation   | [Zod v4](https://zod.dev)                                             |
-| Package manager   | [pnpm](https://pnpm.io)                                               |
-| Backend           | Laravel API (separate repository)                                     |
+| i18n              | [@nuxtjs/i18n](https://i18n.nuxtjs.org)                                                                                        |
+| Form validation   | [Zod v4](https://zod.dev)                                                                                                      |
+| Package manager   | [pnpm](https://pnpm.io)                                                                                                        |
+| Backend           | Laravel API (separate repository)                                                                                              |
 
 ## Architecture
 
@@ -56,10 +56,10 @@ Browser (Nuxt SPA)  ──REST + Sanctum token──►  Laravel API  ──► 
 
 The app splits into two route namespaces:
 
-| Namespace | URL prefix            | Auth                          | Purpose                                  |
-| --------- | --------------------- | ----------------------------- | ---------------------------------------- |
-| Admin     | `/admin/**`, `/login` | Sanctum token (cookie)        | Full tournament management               |
-| Public    | `/public/**`          | none                          | Athlete registration and live scoreboard |
+| Namespace | URL prefix            | Auth                   | Purpose                                  |
+| --------- | --------------------- | ---------------------- | ---------------------------------------- |
+| Admin     | `/admin/**`, `/login` | Sanctum token (cookie) | Full tournament management               |
+| Public    | `/public/**`          | none                   | Athlete registration and live scoreboard |
 
 Sanctum's global middleware protects every route by default; public pages opt out with `definePageMeta({ sanctum: { excluded: true } })`. Root `/` redirects authenticated users to `/admin`, everyone else to `/login`.
 
@@ -111,42 +111,42 @@ NUXT_PUBLIC_API_BASE=http://localhost:9090 pnpm dev
 
 ## Configuration
 
-| Variable                    | Default                 | Purpose                          |
-| --------------------------- | ----------------------- | -------------------------------- |
-| `NUXT_PUBLIC_API_BASE`      | `http://localhost:8081` | Laravel API base URL             |
-| `NUXT_PUBLIC_REVERB_APP_KEY`| —                       | Laravel Reverb app key           |
-| `NUXT_PUBLIC_REVERB_HOST`   | `localhost`             | Reverb WebSocket host            |
-| `NUXT_PUBLIC_REVERB_PORT`   | `8080`                  | Reverb WebSocket port            |
-| `NUXT_PUBLIC_REVERB_SCHEME` | `http`                  | `http` or `https`                |
+| Variable                     | Default                 | Purpose                |
+| ---------------------------- | ----------------------- | ---------------------- |
+| `NUXT_PUBLIC_API_BASE`       | `http://localhost:8081` | Laravel API base URL   |
+| `NUXT_PUBLIC_REVERB_APP_KEY` | —                       | Laravel Reverb app key |
+| `NUXT_PUBLIC_REVERB_HOST`    | `localhost`             | Reverb WebSocket host  |
+| `NUXT_PUBLIC_REVERB_PORT`    | `8080`                  | Reverb WebSocket port  |
+| `NUXT_PUBLIC_REVERB_SCHEME`  | `http`                  | `http` or `https`      |
 
 ## Routes
 
-| URL                                       | Audience | Description                                     |
-| ----------------------------------------- | -------- | ----------------------------------------------- |
-| `/login`                                  | Admin    | Sign-in page                                    |
-| `/admin`                                  | Admin    | Dashboard home                                  |
-| `/admin/configurations/athletes`          | Admin    | Manage athletes                                 |
-| `/admin/configurations/disciplines`       | Admin    | Manage disciplines                              |
-| `/admin/configurations/weight_categories` | Admin    | Manage weight categories                        |
-| `/admin/configurations/users`             | Admin    | Manage admin users                              |
-| `/admin/tournaments`                      | Admin    | Manage tournaments                              |
-| `/admin/tournaments/registrations`        | Admin    | Review and approve registrations                |
-| `/admin/tournaments/match_records`        | Admin    | Build and update the match grid                 |
-| `/admin/tournaments/match_records/board`  | Admin    | Match board view                                |
-| `/admin/settings`                         | Admin    | Theme color and locale preferences              |
-| `/public/athletes/registration`           | Public   | Athlete registration form                       |
-| `/public/tournaments/match_records`       | Public   | Live scoreboard with realtime updates           |
+| URL                                       | Audience | Description                           |
+| ----------------------------------------- | -------- | ------------------------------------- |
+| `/login`                                  | Admin    | Sign-in page                          |
+| `/admin`                                  | Admin    | Dashboard home                        |
+| `/admin/configurations/athletes`          | Admin    | Manage athletes                       |
+| `/admin/configurations/disciplines`       | Admin    | Manage disciplines                    |
+| `/admin/configurations/weight_categories` | Admin    | Manage weight categories              |
+| `/admin/configurations/users`             | Admin    | Manage admin users                    |
+| `/admin/tournaments`                      | Admin    | Manage tournaments                    |
+| `/admin/tournaments/registrations`        | Admin    | Review and approve registrations      |
+| `/admin/tournaments/match_records`        | Admin    | Build and update the match grid       |
+| `/admin/tournaments/match_records/board`  | Admin    | Match board view                      |
+| `/admin/settings`                         | Admin    | Theme color and locale preferences    |
+| `/public/athletes/registration`           | Public   | Athlete registration form             |
+| `/public/tournaments/match_records`       | Public   | Live scoreboard with realtime updates |
 
 ## Domain model
 
-| Entity              | Description                                                                                                                          |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Entity              | Description                                                                                                                                   |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Tournament**      | A scheduled event. Status flow: `scheduled` → `registrations_opened` → `registrations_closed` → `in_progress` → `completed` (or `cancelled`). |
-| **Athlete**         | A person record, identified by Italian tax number (codice fiscale).                                                                |
-| **Registration**    | An athlete's entry into a tournament with a discipline and weight category, reviewed by an admin.                                   |
-| **Match record**    | A single bout between two athletes — tracks corners, judge scores, end method, and winner.                                          |
-| **Discipline**      | A fighting style.                                                                                                                   |
-| **Weight category** | A weight bracket.                                                                                                                   |
+| **Athlete**         | A person record, identified by Italian tax number (codice fiscale).                                                                           |
+| **Registration**    | An athlete's entry into a tournament with a discipline and weight category, reviewed by an admin.                                             |
+| **Match record**    | A single bout between two athletes — tracks corners, judge scores, end method, and winner.                                                    |
+| **Discipline**      | A fighting style.                                                                                                                             |
+| **Weight category** | A weight bracket.                                                                                                                             |
 
 Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GENDERS`) are mirrored as `as const` arrays in [`app/utils/constants.ts`](app/utils/constants.ts). The full schema lives in [`DB.md`](DB.md) (DBML).
 

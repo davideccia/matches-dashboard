@@ -6,6 +6,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/eslint', 'nuxt-auth-sanctum'],
 
+  components: [
+    { path: '~/components/panels', pathPrefix: false },
+    '~/components',
+  ],
+
   app: {
     head: {
       link: [

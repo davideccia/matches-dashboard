@@ -1,7 +1,16 @@
 <template>
-  <USlideover v-model:open="open" :title="isEdit ? t('weightCategory.editTitle') : t('weightCategory.createTitle')">
+  <USlideover v-model:open="open" :title="isEdit ? t('weightCategory.editTitle') : t('weightCategory.createTitle')" :ui="{ content: 'w-2/5 max-w-none' }">
     <template #body>
-      <UForm :schema="schema" :state="state" class="space-y-6 p-6" @submit="onSubmit">
+      <div v-if="fetching" class="flex items-center justify-center p-12">
+        <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />
+      </div>
+      <UForm
+        v-else
+        :schema="schema"
+        :state="state"
+        class="space-y-6 p-6"
+        @submit="onSubmit"
+      >
         <UFormField name="label" :label="t('weightCategory.label')" required>
           <UInput v-model="state.label" class="w-full" />
         </UFormField>
@@ -53,10 +62,25 @@ const state = reactive({
   value: '' as unknown as number,
 })
 
-watch(open, (val) => {
-  if (val) {
-    state.label = props.item?.label ?? ''
-    state.value = props.item?.value ?? ('' as unknown as number)
+const fetching = ref(false)
+
+watch(open, async (val) => {
+  if (!val) { return }
+  if (isEdit.value) {
+    fetching.value = true
+    try {
+      const { data: item } = await api.get<{ data: WeightCategory }>(`/api/admin/weight_categories/${props.item!.id}`)
+      state.label = item.label
+      state.value = item.value
+    } catch (e) {
+      toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+      open.value = false
+    } finally {
+      fetching.value = false
+    }
+  } else {
+    state.label = ''
+    state.value = '' as unknown as number
   }
 })
 
@@ -67,13 +91,18 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   try {
     const body = { label: event.data.label, value: event.data.value }
 
+    let saved: WeightCategory
     if (isEdit.value) {
-      await api.put(`/api/admin/weight_categories/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: WeightCategory }>(`/api/admin/weight_categories/${props.item!.id}`, body)
+      saved = data
     } else {
-      await api.post('/api/admin/weight_categories', body)
+      const { data } = await api.post<{ data: WeightCategory }>('/api/admin/weight_categories', body)
+      saved = data
     }
 
-    open.value = false
+    state.label = saved.label
+    state.value = saved.value
+
     emit('saved')
     toast.add({
       title: isEdit.value ? t('weightCategory.updated') : t('weightCategory.created'),

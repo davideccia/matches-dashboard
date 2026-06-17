@@ -1,7 +1,16 @@
 <template>
-  <USlideover v-model:open="open" :title="isEdit ? t('registration.editTitle') : t('registration.createTitle')">
+  <USlideover v-model:open="open" :title="isEdit ? t('registration.editTitle') : t('registration.createTitle')" :ui="{ content: 'w-2/5 max-w-none' }">
     <template #body>
-      <UForm :schema="schema" :state="state as any" class="space-y-6 p-6" @submit="(e: any) => onSubmit(e)">
+      <div v-if="fetching" class="flex items-center justify-center p-12">
+        <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />
+      </div>
+      <UForm
+        v-else
+        :schema="schema"
+        :state="state as any"
+        class="space-y-6 p-6"
+        @submit="(e: any) => onSubmit(e)"
+      >
         <UFormField name="athlete_id" :label="t('registration.athlete')" required>
           <div class="flex items-center gap-2">
             <ApiSelectMenu
@@ -139,41 +148,39 @@
           {{ t('registration.liveManagement') }}
         </p>
 
-        <div class="flex gap-4">
-          <UFormField name="arrived" :label="t('registration.arrived')" class="flex-1">
-            <UButton
-              type="button"
-              :icon="state.arrived ? 'i-mdi-check-circle' : 'i-mdi-circle-outline'"
-              :variant="state.arrived ? 'solid' : 'outline'"
-              :color="state.arrived ? 'primary' : 'neutral'"
-              size="sm"
-              class="w-full"
-              @click="state.arrived = !state.arrived"
-            />
-          </UFormField>
+        <UFormField name="arrived" :label="t('registration.arrived')">
+          <UButton
+            type="button"
+            :icon="state.arrived ? 'i-mdi-check-circle' : 'i-mdi-circle-outline'"
+            :variant="state.arrived ? 'solid' : 'outline'"
+            :color="state.arrived ? 'primary' : 'neutral'"
+            size="sm"
+            class="w-full"
+            @click="state.arrived = !state.arrived"
+          />
+        </UFormField>
 
-          <UFormField name="weight_in" :label="t('registration.weightIn')" class="flex-1">
-            <div class="flex items-center gap-2">
-              <UInput
-                :model-value="state.weight_in !== null ? String(state.weight_in) : ''"
-                type="number"
-                step="0.1"
-                min="0"
-                class="w-full"
-                @update:model-value="(v: string) => state.weight_in = v === '' ? null : Number(v)"
-              />
-              <UButton
-                v-if="state.weight_in !== null"
-                type="button"
-                icon="i-mdi-close"
-                variant="ghost"
-                color="neutral"
-                size="sm"
-                @click="state.weight_in = null"
-              />
-            </div>
-          </UFormField>
-        </div>
+        <UFormField name="weight_in" :label="t('registration.weightIn')">
+          <div class="flex items-center gap-2">
+            <UInput
+              :model-value="state.weight_in !== null ? String(state.weight_in) : ''"
+              type="number"
+              step="0.1"
+              min="0"
+              class="w-full"
+              @update:model-value="(v: string) => state.weight_in = v === '' ? null : Number(v)"
+            />
+            <UButton
+              v-if="state.weight_in !== null"
+              type="button"
+              icon="i-mdi-close"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              @click="state.weight_in = null"
+            />
+          </div>
+        </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">
           <UButton variant="ghost" color="neutral" type="button" @click="open = false">
@@ -274,16 +281,37 @@ function clearPaidAt() {
   paidAtTime.value = undefined
 }
 
-watch(open, (val) => {
-  if (val) {
-    state.athlete_id = props.item?.athlete_id ?? null
-    state.tournament_id = props.item?.tournament_id ?? null
-    state.discipline_id = props.item?.discipline_id ?? null
-    state.weight_category_id = props.item?.weight_category_id ?? null
-    state.paid_at = serverDateToInput(props.item?.paid_at) || null
-    state.arrived = props.item?.arrived ?? false
-    state.weight_in = props.item?.weight_in ?? null
-    state.notes = props.item?.notes ?? ''
+const fetching = ref(false)
+
+watch(open, async (val) => {
+  if (!val) { return }
+  if (isEdit.value) {
+    fetching.value = true
+    try {
+      const { data: item } = await api.get<{ data: Registration }>(`/api/admin/registrations/${props.item!.id}`)
+      state.athlete_id = item.athlete_id ?? null
+      state.tournament_id = item.tournament_id ?? null
+      state.discipline_id = item.discipline_id ?? null
+      state.weight_category_id = item.weight_category_id ?? null
+      state.paid_at = serverDateToInput(item.paid_at) || null
+      state.arrived = item.arrived ?? false
+      state.weight_in = item.weight_in ?? null
+      state.notes = item.notes ?? ''
+    } catch (e) {
+      toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+      open.value = false
+    } finally {
+      fetching.value = false
+    }
+  } else {
+    state.athlete_id = null
+    state.tournament_id = null
+    state.discipline_id = null
+    state.weight_category_id = null
+    state.paid_at = null
+    state.arrived = false
+    state.weight_in = null
+    state.notes = ''
   }
 })
 
@@ -302,13 +330,24 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       weight_in: event.data.weight_in ?? null,
       notes: event.data.notes || null,
     }
+    let saved: Registration
     if (isEdit.value) {
-      await api.put(`/api/admin/registrations/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: Registration }>(`/api/admin/registrations/${props.item!.id}`, body)
+      saved = data
     } else {
-      await api.post('/api/admin/registrations', body)
+      const { data } = await api.post<{ data: Registration }>('/api/admin/registrations', body)
+      saved = data
     }
 
-    open.value = false
+    state.athlete_id = saved.athlete_id ?? null
+    state.tournament_id = saved.tournament_id ?? null
+    state.discipline_id = saved.discipline_id ?? null
+    state.weight_category_id = saved.weight_category_id ?? null
+    state.paid_at = serverDateToInput(saved.paid_at) || null
+    state.arrived = saved.arrived ?? false
+    state.weight_in = saved.weight_in ?? null
+    state.notes = saved.notes ?? ''
+
     emit('saved')
     toast.add({
       title: isEdit.value ? t('registration.updated') : t('registration.created'),
