@@ -77,7 +77,7 @@
         <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <div
             v-for="item in items"
-            :key="item.tournamentId"
+            :key="item.tournament_id"
             class="rounded-xl border border-default bg-elevated p-4 flex flex-col gap-4 hover:border-accented transition-colors"
           >
             <!-- Card header -->
@@ -87,7 +87,7 @@
                   to="/admin/tournaments"
                   class="font-semibold text-default truncate hover:text-primary transition-colors leading-tight"
                 >
-                  {{ item.tournamentName }}
+                  {{ item.tournament_name }}
                 </NuxtLink>
                 <UBadge
                   :color="statusBadgeColor(item.status)"
@@ -171,20 +171,20 @@ const { t, locale } = useI18n()
 const { get } = useApi()
 
 interface DashboardItem {
-  tournamentId: string
-  tournamentName: string
+  tournament_id: string
+  tournament_name: string
   status: TournamentStatus
   date: string
-  totalRegistrations: number
-  arrivedRegistrations: number
-  absentRegistrations: number
-  paidRegistrations: number
-  unpaidRegistrations: number
-  totalMatches: number
-  scheduledMatches: number
-  inProgressMatches: number
-  completedMatches: number
-  cancelledMatches: number
+  total_registrations: number
+  arrived_registrations: number
+  absent_registrations: number
+  paid_registrations: number
+  unpaid_registrations: number
+  total_matches: number
+  scheduled_matches: number
+  in_progress_matches: number
+  completed_matches: number
+  cancelled_matches: number
 }
 
 interface StatEntry {
@@ -250,26 +250,26 @@ function tournamentStatusLabel(status: TournamentStatus): string {
 
 function registrationMainStats(item: DashboardItem): StatEntry[] {
   return [
-    { key: 'total', value: item.totalRegistrations, label: t('dashboard.total'), valueClass: 'text-default' },
+    { key: 'total', value: item.total_registrations, label: t('dashboard.total'), valueClass: 'text-default' },
   ]
 }
 
 function registrationLiveStats(item: DashboardItem): StatEntry[] {
   return [
-    { key: 'arrived', value: item.arrivedRegistrations, label: t('dashboard.arrived'), valueClass: 'text-green-500' },
-    { key: 'absent', value: item.absentRegistrations, label: t('dashboard.absent'), valueClass: item.absentRegistrations > 0 ? 'text-red-500' : 'text-default' },
-    { key: 'paid', value: item.paidRegistrations, label: t('dashboard.paid'), valueClass: 'text-green-500' },
-    { key: 'unpaid', value: item.unpaidRegistrations, label: t('dashboard.unpaid'), valueClass: item.unpaidRegistrations > 0 ? 'text-amber-500' : 'text-default' },
+    { key: 'arrived', value: item.arrived_registrations, label: t('dashboard.arrived'), valueClass: 'text-green-500' },
+    { key: 'absent', value: item.absent_registrations, label: t('dashboard.absent'), valueClass: item.absent_registrations > 0 ? 'text-red-500' : 'text-default' },
+    { key: 'paid', value: item.paid_registrations, label: t('dashboard.paid'), valueClass: 'text-green-500' },
+    { key: 'unpaid', value: item.unpaid_registrations, label: t('dashboard.unpaid'), valueClass: item.unpaid_registrations > 0 ? 'text-amber-500' : 'text-default' },
   ]
 }
 
 function matchStats(item: DashboardItem): StatEntry[] {
   return [
-    { key: 'total', value: item.totalMatches, label: t('dashboard.total'), valueClass: 'text-default' },
-    { key: 'scheduled', value: item.scheduledMatches, label: t('dashboard.scheduled'), valueClass: 'text-default' },
-    { key: 'inProgress', value: item.inProgressMatches, label: t('dashboard.inProgress'), valueClass: item.inProgressMatches > 0 ? 'text-amber-500' : 'text-default', pulse: item.inProgressMatches > 0 },
-    { key: 'completed', value: item.completedMatches, label: t('dashboard.completed'), valueClass: item.completedMatches > 0 ? 'text-green-500' : 'text-default' },
-    { key: 'cancelled', value: item.cancelledMatches, label: t('dashboard.cancelled'), valueClass: item.cancelledMatches > 0 ? 'text-red-500' : 'text-default' },
+    { key: 'total', value: item.total_matches, label: t('dashboard.total'), valueClass: 'text-default' },
+    { key: 'scheduled', value: item.scheduled_matches, label: t('dashboard.scheduled'), valueClass: 'text-default' },
+    { key: 'inProgress', value: item.in_progress_matches, label: t('dashboard.inProgress'), valueClass: item.in_progress_matches > 0 ? 'text-amber-500' : 'text-default', pulse: item.in_progress_matches > 0 },
+    { key: 'completed', value: item.completed_matches, label: t('dashboard.completed'), valueClass: item.completed_matches > 0 ? 'text-green-500' : 'text-default' },
+    { key: 'cancelled', value: item.cancelled_matches, label: t('dashboard.cancelled'), valueClass: item.cancelled_matches > 0 ? 'text-red-500' : 'text-default' },
   ]
 }
 </script>
