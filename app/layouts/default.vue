@@ -30,7 +30,7 @@
             class="w-full"
             :class="collapsed ? 'justify-center' : 'gap-2 px-2'"
           >
-            <UAvatar :text="userInitials" size="2xs" />
+            <UAvatar :text="userInitials" size="2xs" color="neutral" />
             <span v-if="!collapsed" class="text-xs text-muted truncate flex-1 text-left">{{ user?.email }}</span>
             <UIcon v-if="!collapsed" name="i-mdi-unfold-more-vertical" class="text-dimmed size-3 shrink-0" />
           </UButton>
