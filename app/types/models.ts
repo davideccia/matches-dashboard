@@ -30,6 +30,7 @@ export interface Athlete {
   team_name: string | null
   default_weight_category_id: string | null
   default_discipline_id: string | null
+  match_records_count?: number
   created_at: string
   updated_at: string
   // relazioni opzionali (se caricate con with())
@@ -73,6 +74,16 @@ export interface Registration {
   weight_category?: WeightCategory
 }
 
+export interface JudgesPointsRow {
+  round: number
+  judge1_red: number | null
+  judge1_blue: number | null
+  judge2_red: number | null
+  judge2_blue: number | null
+  judge3_red: number | null
+  judge3_blue: number | null
+}
+
 export interface MatchRecord {
   id: string
   tournament_id: string
@@ -92,7 +103,7 @@ export interface MatchRecord {
   status: MatchStatus
   rounds: number
   minutes_per_round: string | null
-  judges_points: Array<Record<string, unknown>> | null
+  judges_points: JudgesPointsRow[] | null
   created_at: string
   updated_at: string
   // relazioni opzionali

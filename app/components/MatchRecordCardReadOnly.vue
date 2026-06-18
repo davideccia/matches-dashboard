@@ -231,8 +231,8 @@ const hasJudgePoints = computed(() => {
   const points = props.match.judges_points
   if (!Array.isArray(points) || points.length === 0) { return false }
   return points.some(row =>
-    row.red_corner_judge_1 !== null || row.red_corner_judge_2 !== null || row.red_corner_judge_3 !== null
-    || row.blue_corner_judge_1 !== null || row.blue_corner_judge_2 !== null || row.blue_corner_judge_3 !== null,
+    row.judge1_red !== null || row.judge2_red !== null || row.judge3_red !== null
+    || row.judge1_blue !== null || row.judge2_blue !== null || row.judge3_blue !== null,
   )
 })
 
@@ -243,6 +243,5 @@ const isBlueWinner = computed(
   () => hasWinner.value && props.match.winner_id === props.match.blue_corner_id,
 )
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const judgesPointsRows = computed(() => (props.match.judges_points ?? []) as any[])
+const judgesPointsRows = computed(() => props.match.judges_points ?? [])
 </script>

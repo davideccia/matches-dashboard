@@ -213,12 +213,26 @@
                           v-model="state.red_corner_id"
                           endpoint="/api/admin/athletes"
                           label-key="full_name"
+                          :paginated="false"
                           :placeholder="t('match.selectAthlete')"
                           :disabled="!filtersReady && !forceEntry"
                           :query-params="filterParams"
                           class="w-full"
                           @select="onRedCornerSelect"
-                        />
+                        >
+                          <template #label="{ item }">
+                            <span class="flex items-center gap-2 min-w-0 w-full">
+                              <span class="truncate flex-1">{{ item.full_name }}</span>
+                              <span
+                                v-if="item.match_records_count != null"
+                                class="inline-flex items-center gap-1 shrink-0 rounded-full border border-muted bg-elevated px-1.5 py-px text-[11px] font-medium text-muted"
+                              >
+                                <UIcon name="i-mdi-boxing-glove" class="size-3 opacity-70" />
+                                {{ item.match_records_count }}
+                              </span>
+                            </span>
+                          </template>
+                        </ApiSelectMenu>
                         <UButton
                           v-if="state.red_corner_id !== null && (filtersReady || forceEntry)"
                           type="button"
@@ -248,12 +262,26 @@
                           v-model="state.blue_corner_id"
                           endpoint="/api/admin/athletes"
                           label-key="full_name"
+                          :paginated="false"
                           :placeholder="t('match.selectAthlete')"
                           :disabled="!filtersReady && !forceEntry"
                           :query-params="filterParams"
                           class="w-full"
                           @select="onBlueCornerSelect"
-                        />
+                        >
+                          <template #label="{ item }">
+                            <span class="flex items-center gap-2 min-w-0 w-full">
+                              <span class="truncate flex-1">{{ item.full_name }}</span>
+                              <span
+                                v-if="item.match_records_count != null"
+                                class="inline-flex items-center gap-1 shrink-0 rounded-full border border-muted bg-elevated px-1.5 py-px text-[11px] font-medium text-muted"
+                              >
+                                <UIcon name="i-mdi-boxing-glove" class="size-3 opacity-70" />
+                                {{ item.match_records_count }}
+                              </span>
+                            </span>
+                          </template>
+                        </ApiSelectMenu>
                         <UButton
                           v-if="state.blue_corner_id !== null && (filtersReady || forceEntry)"
                           type="button"
@@ -457,18 +485,9 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
 import type { MatchRecord } from '~/types/models'
+import type { JudgesPointsRow } from '~/types/models'
 import * as z from 'zod'
 import { type Gender, MATCH_STATUSES, type MatchStatus } from '~/utils/constants'
-
-interface JudgePointsRow {
-  round: number
-  red_corner_judge_1: number | null
-  red_corner_judge_2: number | null
-  red_corner_judge_3: number | null
-  blue_corner_judge_1: number | null
-  blue_corner_judge_2: number | null
-  blue_corner_judge_3: number | null
-}
 
 const props = defineProps<{
   item: MatchRecord | null
@@ -511,7 +530,7 @@ const state = reactive({
   rounds: null as number | null,
   minutes_per_round: undefined as string | undefined,
   end_round: undefined as string | undefined,
-  judges_points: [] as JudgePointsRow[],
+  judges_points: [] as JudgesPointsRow[],
 })
 
 // ── Gender filter (mandatory, defaults to MALE) ───────────────────────────────
@@ -608,7 +627,7 @@ watch(open, async (val) => {
       state.rounds = item.rounds ?? null
       state.minutes_per_round = item.minutes_per_round ?? undefined
       state.end_round = item.end_round ?? undefined
-      state.judges_points = (item.judges_points as JudgePointsRow[] | null) ?? []
+      state.judges_points = (item.judges_points as JudgesPointsRow[] | null) ?? []
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
       open.value = false
@@ -679,12 +698,12 @@ watch(() => state.rounds, (val) => {
     const existing = current.find(r => r.round === i + 1)
     return existing ?? {
       round: i + 1,
-      red_corner_judge_1: null,
-      red_corner_judge_2: null,
-      red_corner_judge_3: null,
-      blue_corner_judge_1: null,
-      blue_corner_judge_2: null,
-      blue_corner_judge_3: null,
+      judge1_red: null,
+      judge2_red: null,
+      judge3_red: null,
+      judge1_blue: null,
+      judge2_blue: null,
+      judge3_blue: null,
     }
   })
 })
@@ -741,8 +760,8 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   loading.value = true
   try {
     const hasAnyPoints = state.judges_points.some(row =>
-      row.red_corner_judge_1 !== null || row.red_corner_judge_2 !== null || row.red_corner_judge_3 !== null
-      || row.blue_corner_judge_1 !== null || row.blue_corner_judge_2 !== null || row.blue_corner_judge_3 !== null,
+      row.judge1_red !== null || row.judge2_red !== null || row.judge3_red !== null
+      || row.judge1_blue !== null || row.judge2_blue !== null || row.judge3_blue !== null,
     )
     const judges_points = hasAnyPoints ? state.judges_points : null
 
@@ -794,7 +813,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     state.rounds = saved.rounds ?? null
     state.minutes_per_round = saved.minutes_per_round ?? undefined
     state.end_round = saved.end_round ?? undefined
-    state.judges_points = (saved.judges_points as JudgePointsRow[] | null) ?? []
+    state.judges_points = (saved.judges_points as JudgesPointsRow[] | null) ?? []
     await nextTick()
     initializing.value = false
 
