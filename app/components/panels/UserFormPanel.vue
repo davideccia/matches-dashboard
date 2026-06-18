@@ -15,6 +15,14 @@
         class="space-y-6 p-6"
         @submit="onSubmit"
       >
+        <UFormField name="username" :label="t('user.username')" required>
+          <UInput
+            v-model="state.username"
+            class="w-full"
+            autocomplete="off"
+          />
+        </UFormField>
+
         <UFormField name="email" :label="t('user.email')" required>
           <UInput
             v-model="state.email"
@@ -37,6 +45,10 @@
             class="w-full"
             autocomplete="new-password"
           />
+        </UFormField>
+
+        <UFormField v-if="currentUser?.superadmin" name="superadmin" :label="t('user.superadmin')">
+          <USwitch v-model="state.superadmin" />
         </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">
@@ -71,18 +83,22 @@ const api = useApi()
 const toast = useToast()
 const { user: currentUser } = useAuth()
 
-const canEditEmail = computed(() => currentUser.value?.id === props.user?.id)
+const canEditEmail = computed(() => currentUser.value?.superadmin || currentUser.value?.id === props.user?.id)
 
 const isEdit = computed(() => props.user !== null)
 
 const schema = z.object({
+  username: z.string().min(1),
   email: z.email(),
   password: z.union([z.string().min(6), z.literal('')]),
+  superadmin: z.boolean().optional(),
 })
 
 const state = reactive({
+  username: '',
   email: '',
   password: '',
+  superadmin: false,
 })
 
 const fetching = ref(false)
@@ -93,8 +109,10 @@ watch(open, async (val) => {
     fetching.value = true
     try {
       const { data: user } = await api.get<{ data: User }>(`/api/admin/users/${props.user!.id}`)
+      state.username = user.username
       state.email = user.email
       state.password = ''
+      state.superadmin = user.superadmin
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
       open.value = false
@@ -102,6 +120,7 @@ watch(open, async (val) => {
       fetching.value = false
     }
   } else {
+    state.username = ''
     state.email = ''
     state.password = ''
   }
@@ -113,9 +132,11 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   loading.value = true
   try {
     const body: Record<string, unknown> = {
+      username: event.data.username,
       email: event.data.email,
     }
     if (event.data.password) { body.password = event.data.password }
+    if (currentUser.value?.superadmin) { body.superadmin = event.data.superadmin }
 
     let saved: User
     if (isEdit.value) {
@@ -126,8 +147,10 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       saved = data
     }
 
+    state.username = saved.username
     state.email = saved.email
     state.password = ''
+    state.superadmin = saved.superadmin
 
     emit('saved')
     toast.add({

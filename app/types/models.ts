@@ -120,6 +120,7 @@ export interface User {
   username: string
   email: string
   email_verified_at: string | null
+  superadmin: boolean
   created_at: string
   updated_at: string
   // password e remember_token sono $hidden — non compaiono mai nella risposta

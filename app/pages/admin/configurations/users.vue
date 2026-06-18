@@ -5,7 +5,7 @@
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
-        <template #right>
+        <template v-if="currentUser?.superadmin" #right>
           <UButton icon="i-mdi-plus" @click="openCreate">
             {{ t('common.add') }}
           </UButton>
@@ -27,6 +27,7 @@
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1">
               <UButton
+                v-if="currentUser?.superadmin || ((row.original as unknown as User)).id === currentUser?.id"
                 icon="i-mdi-pencil"
                 variant="ghost"
                 color="neutral"
@@ -34,7 +35,7 @@
                 @click="openEdit((row.original as unknown as User))"
               />
               <UButton
-                v-if="((row.original as unknown as User)).id !== currentUser?.id"
+                v-if="currentUser?.superadmin && ((row.original as unknown as User)).id !== currentUser?.id"
                 icon="i-mdi-delete"
                 variant="ghost"
                 color="error"

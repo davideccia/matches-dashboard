@@ -235,6 +235,7 @@
     "errorReset": "Impossibile reimpostare la password. Riprova."
   },
   "user": {
+    "username": "Username",
     "email": "Email",
     "password": "Password",
     "passwordHint": "Lascia vuoto per non modificare",

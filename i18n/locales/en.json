@@ -235,6 +235,7 @@
     "errorReset": "Could not reset the password. Please try again."
   },
   "user": {
+    "username": "Username",
     "email": "Email",
     "password": "Password",
     "passwordHint": "Leave blank to keep unchanged",
