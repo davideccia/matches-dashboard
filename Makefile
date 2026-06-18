@@ -1,4 +1,8 @@
-.PHONY: setup up up-host build preview lint lint-fix typecheck clean release help
+REGISTRY := 192.168.1.50:10140
+IMAGE := matches-dashboard-laravel
+TAG := latest
+
+.PHONY: setup up up-host build preview docker-builder docker-build lint lint-fix typecheck clean release help
 
 # ── Setup ─────────────────────────────────────────────────────────────────────
 
@@ -26,6 +30,18 @@ build: ## Build for production
 
 preview: ## Preview production build locally
 	pnpm preview
+
+
+# ── Build & preview ───────────────────────────────────────────────────────────
+
+docker-builder:
+	docker buildx create --config ~/.docker/buildkitd.toml --name multiarch-builder --driver docker-container --bootstrap --use
+
+docker-build:
+	docker buildx build --platform linux/amd64,linux/arm64 \
+		--tag $(REGISTRY)/$(IMAGE):$(TAG) \
+		. --push
+
 
 # ── Code quality ──────────────────────────────────────────────────────────────
 
