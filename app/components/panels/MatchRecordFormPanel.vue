@@ -210,15 +210,15 @@
                           class="w-full"
                           @select="onRedCornerSelect"
                         >
-                          <template #label="{ item }">
+                          <template #label="{ item: slotItem }">
                             <span class="flex items-center gap-2 min-w-0 w-full">
-                              <span class="truncate flex-1">{{ item.full_name }}</span>
+                              <span class="truncate flex-1">{{ slotItem.full_name }}</span>
                               <span
-                                v-if="item.match_records_count != null"
+                                v-if="slotItem.match_records_count != null"
                                 class="inline-flex items-center gap-1 shrink-0 rounded-full border border-muted bg-elevated px-1.5 py-px text-[11px] font-medium text-muted"
                               >
-                                <UIcon name="i-mdi-boxing-glove" class="size-3 opacity-70" />
-                                {{ item.match_records_count }}
+                                <UIcon name="i-mdi-boxing-glove" class="size-4 opacity-70 bg-red-400" />
+                                {{ slotItem.match_records_count }}
                               </span>
                             </span>
                           </template>
@@ -259,15 +259,15 @@
                           class="w-full"
                           @select="onBlueCornerSelect"
                         >
-                          <template #label="{ item }">
+                          <template #label="{ item: slotItem }">
                             <span class="flex items-center gap-2 min-w-0 w-full">
-                              <span class="truncate flex-1">{{ item.full_name }}</span>
+                              <span class="truncate flex-1">{{ slotItem.full_name }}</span>
                               <span
-                                v-if="item.match_records_count != null"
+                                v-if="slotItem.match_records_count != null"
                                 class="inline-flex items-center gap-1 shrink-0 rounded-full border border-muted bg-elevated px-1.5 py-px text-[11px] font-medium text-muted"
                               >
-                                <UIcon name="i-mdi-boxing-glove" class="size-3 opacity-70" />
-                                {{ item.match_records_count }}
+                                <UIcon name="i-mdi-boxing-glove" class="size-4 opacity-70 bg-blue-400" />
+                                {{ slotItem.match_records_count }}
                               </span>
                             </span>
                           </template>

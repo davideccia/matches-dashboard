@@ -25,7 +25,16 @@
             {{ formatServerDateOnly(((row.original as unknown as Tournament)).date, locale) }}
           </template>
           <template #status-cell="{ row }">
-            {{ tournamentStatusLabel(((row.original as unknown as Tournament)).status) }}
+            <UBadge
+              :color="statusBadgeColor((row.original as unknown as Tournament).status)"
+              variant="subtle"
+            >
+              <span
+                v-if="isPulsing((row.original as unknown as Tournament).status)"
+                class="size-1.5 rounded-full bg-current animate-pulse"
+              />
+              {{ tournamentStatusLabel((row.original as unknown as Tournament).status) }}
+            </UBadge>
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1">
@@ -82,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
+import type { BadgeProps, TableColumn } from '@nuxt/ui'
 import type { Tournament } from '~/types/models'
 
 definePageMeta({ layout: 'default' })
@@ -98,6 +107,24 @@ const editingItem = ref<Tournament | null>(null)
 const confirmOpen = ref(false)
 const deleteTarget = ref<Tournament | null>(null)
 const deleting = ref(false)
+
+const STATUS_COLORS: Record<string, BadgeProps['color']> = {
+  scheduled: 'neutral',
+  registrations_opened: 'info',
+  registrations_closed: 'info',
+  in_progress: 'warning',
+  completed: 'success',
+  cancelled: 'error',
+}
+const PULSING_STATUSES = new Set(['registrations_opened', 'in_progress'])
+
+function statusBadgeColor(status: string): BadgeProps['color'] {
+  return STATUS_COLORS[status] ?? 'neutral'
+}
+
+function isPulsing(status: string): boolean {
+  return PULSING_STATUSES.has(status)
+}
 
 function tournamentStatusLabel(status: string): string {
   if (status === 'scheduled') { return t('tournament.status.scheduled') }

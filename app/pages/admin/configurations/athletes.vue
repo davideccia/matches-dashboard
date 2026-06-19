@@ -21,11 +21,36 @@
           :columns="columns"
           empty-icon="i-mdi-account"
         >
+          <template #full_name-cell="{ row }">
+            <span class="flex items-center gap-2 min-w-0">
+              <span class="truncate">{{ (row.original as unknown as Athlete).full_name }}</span>
+              <span
+                v-if="(row.original as unknown as Athlete).match_records_count != null"
+                class="inline-flex items-center gap-1 shrink-0 rounded-full border border-muted bg-elevated px-1.5 py-px text-[11px] font-medium text-muted"
+              >
+                <UIcon name="i-mdi-boxing-glove" class="size-4 opacity-70 bg-amber-400" />
+                {{ (row.original as unknown as Athlete).match_records_count }}
+              </span>
+            </span>
+          </template>
           <template #birth_date-cell="{ row }">
             {{ formatServerDateOnly(((row.original as unknown as Athlete)).birth_date, locale) }}
           </template>
           <template #gender-cell="{ row }">
-            {{ genderLabel(((row.original as unknown as Athlete)).gender) }}
+            <UBadge
+              v-if="(row.original as unknown as Athlete).gender === 'male'"
+              color="info"
+              variant="subtle"
+            >
+              {{ genderLabel((row.original as unknown as Athlete).gender) }}
+            </UBadge>
+            <UBadge
+              v-else
+              variant="subtle"
+              class="bg-pink-100 text-pink-600 dark:bg-pink-950 dark:text-pink-300"
+            >
+              {{ genderLabel((row.original as unknown as Athlete).gender) }}
+            </UBadge>
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1">

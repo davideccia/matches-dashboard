@@ -40,18 +40,16 @@
             />
           </template>
           <template #status-cell="{ row }">
-            <div class="flex items-center gap-2">
+            <UBadge
+              :color="statusBadgeColor((row.original as unknown as MatchRecord).status)"
+              variant="subtle"
+            >
               <span
-                class="inline-block size-2.5 rounded-full shrink-0"
-                :class="[
-                  row.original.status === 'scheduled' && 'bg-blue-400',
-                  row.original.status === 'in_progress' && 'bg-amber-400 animate-pulse',
-                  row.original.status === 'completed' && 'bg-green-500',
-                  row.original.status === 'cancelled' && 'bg-red-400',
-                ]"
+                v-if="isPulsing((row.original as unknown as MatchRecord).status)"
+                class="size-1.5 rounded-full bg-current animate-pulse"
               />
-              {{ matchStatusLabel(((row.original as unknown as MatchRecord)).status) }}
-            </div>
+              {{ matchStatusLabel((row.original as unknown as MatchRecord).status) }}
+            </UBadge>
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1">
@@ -100,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
+import type { BadgeProps, TableColumn } from '@nuxt/ui'
 import type { MatchRecord } from '~/types/models'
 
 definePageMeta({ layout: 'default' })
@@ -121,6 +119,22 @@ const deleting = ref(false)
 const tableParams = computed(() => ({
   tournament_id: tournamentId.value ?? undefined,
 }))
+
+const STATUS_COLORS: Record<string, BadgeProps['color']> = {
+  scheduled: 'info',
+  in_progress: 'warning',
+  completed: 'success',
+  cancelled: 'error',
+}
+const PULSING_STATUSES = new Set(['in_progress'])
+
+function statusBadgeColor(status: string): BadgeProps['color'] {
+  return STATUS_COLORS[status] ?? 'neutral'
+}
+
+function isPulsing(status: string): boolean {
+  return PULSING_STATUSES.has(status)
+}
 
 function matchStatusLabel(status: string): string {
   if (status === 'scheduled') { return t('match.status.scheduled') }
