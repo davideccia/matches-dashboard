@@ -49,17 +49,17 @@ Sanctum's global middleware protects every route by default; public pages opt ou
 
 ## Tech stack
 
-| Layer             | Technology                                                                                          |
-| ----------------- | -------------------------------------------------------------------------------------------------- |
-| Framework         | [Nuxt 4](https://nuxt.com) (`ssr: false` — static SPA output)                                       |
-| Component library | [@nuxt/ui v4](https://ui.nuxt.com) — 125+ accessible Vue components                                 |
-| Styling           | [Tailwind CSS v4](https://tailwindcss.com)                                                          |
-| Auth              | [nuxt-auth-sanctum](https://github.com/manchenkoff/nuxt-auth-sanctum) (Laravel Sanctum, token mode) |
-| Realtime          | [Laravel Echo](https://laravel.com/docs/broadcasting) + Reverb (via [pusher-js](https://pusher.com))|
-| i18n              | [@nuxtjs/i18n](https://i18n.nuxtjs.org)                                                             |
-| Form validation   | [Zod v4](https://zod.dev)                                                                           |
-| Package manager   | [pnpm](https://pnpm.io)                                                                             |
-| Backend           | Laravel API (separate repository)                                                                   |
+| Layer             | Technology                                                                                           |
+| ----------------- | ---------------------------------------------------------------------------------------------------- |
+| Framework         | [Nuxt 4](https://nuxt.com) (`ssr: false` — static SPA output)                                        |
+| Component library | [@nuxt/ui v4](https://ui.nuxt.com) — 125+ accessible Vue components                                  |
+| Styling           | [Tailwind CSS v4](https://tailwindcss.com)                                                           |
+| Auth              | [nuxt-auth-sanctum](https://github.com/manchenkoff/nuxt-auth-sanctum) (Laravel Sanctum, token mode)  |
+| Realtime          | [Laravel Echo](https://laravel.com/docs/broadcasting) + Reverb (via [pusher-js](https://pusher.com)) |
+| i18n              | [@nuxtjs/i18n](https://i18n.nuxtjs.org)                                                              |
+| Form validation   | [Zod v4](https://zod.dev)                                                                            |
+| Package manager   | [pnpm](https://pnpm.io)                                                                              |
+| Backend           | Laravel API (separate repository)                                                                    |
 
 ## Getting started
 
@@ -121,14 +121,14 @@ NUXT_PUBLIC_API_BASE=http://localhost:9090 pnpm dev
 
 ## Domain model
 
-| Entity              | Description                                                                                                   |
-| ------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Entity              | Description                                                                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | **Tournament**      | A scheduled event. Status: `scheduled` → `registrations_opened` → `registrations_closed` → `in_progress` → `completed` (or `cancelled`). |
-| **Athlete**         | A person record, identified by tax number.                                                                    |
-| **Registration**    | An athlete's entry into a tournament with a discipline and weight category, reviewed by an admin.             |
-| **Match record**    | A single bout between two athletes — tracks corners, judge scores, end method, and winner.                    |
-| **Discipline**      | A fighting style (rounds, minutes per round).                                                                 |
-| **Weight category** | A weight bracket.                                                                                             |
+| **Athlete**         | A person record, identified by tax number.                                                                                               |
+| **Registration**    | An athlete's entry into a tournament with a discipline and weight category, reviewed by an admin.                                        |
+| **Match record**    | A single bout between two athletes — tracks corners, judge scores, end method, and winner.                                               |
+| **Discipline**      | A fighting style (rounds, minutes per round).                                                                                            |
+| **Weight category** | A weight bracket.                                                                                                                        |
 
 Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GENDERS`) are mirrored as `as const` arrays in [`app/utils/constants.ts`](app/utils/constants.ts). The full schema lives in [`DB.md`](DB.md) (DBML).
 
@@ -163,17 +163,17 @@ docs/                 # In-depth developer documentation (en + it)
 
 Run `make help` to list all targets. The most common ones:
 
-| Command            | Description                                              |
-| ------------------ | ------------------------------------------------------- |
-| `make setup`       | Install dependencies and create `.env` from `.env.example` |
-| `make dev`         | Dev server on `localhost` only                          |
-| `make host`        | Dev server exposed on `0.0.0.0` (LAN / Docker)          |
-| `make build`       | Production build → `.output/public/` (static)           |
-| `make preview`     | Serve the built output locally                          |
-| `make lint-fix`    | Run ESLint with auto-fix                                 |
-| `make typecheck`   | Type-check via `nuxi`                                    |
-| `make docker-build`| Build and push a multi-arch image                       |
-| `make clean`       | Remove build artifacts and Nuxt cache                   |
+| Command             | Description                                                |
+| ------------------- | ---------------------------------------------------------- |
+| `make setup`        | Install dependencies and create `.env` from `.env.example` |
+| `make dev`          | Dev server on `localhost` only                             |
+| `make host`         | Dev server exposed on `0.0.0.0` (LAN / Docker)             |
+| `make build`        | Production build → `.output/public/` (static)              |
+| `make preview`      | Serve the built output locally                             |
+| `make lint-fix`     | Run ESLint with auto-fix                                   |
+| `make typecheck`    | Type-check via `nuxi`                                      |
+| `make docker-build` | Build and push a multi-arch image                          |
+| `make clean`        | Remove build artifacts and Nuxt cache                      |
 
 > [!TIP]
 > Run `make lint-fix` after every coding session. The repo enforces `@antfu/eslint-config` (single quotes, no semicolons, sorted imports).

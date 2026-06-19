@@ -4,13 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+The `Makefile` is the canonical entrypoint (`make help` lists all targets):
+
 ```bash
-pnpm dev              # Dev server at http://localhost:3000
-pnpm build            # Production build → .output/public/ (static, ssr: false)
-pnpm preview          # Serve the build locally
-pnpm eslint . --fix   # Lint + auto-fix (run after every code session)
-pnpm nuxi typecheck   # Type-check
+make setup            # install deps + create .env from .env.example
+make dev              # dev server on localhost only → http://localhost:3000
+make host             # dev server exposed on 0.0.0.0 (LAN / Docker)
+make build            # production build → .output/public/ (static, ssr: false)
+make preview          # serve the build locally
+make lint-fix         # ESLint + auto-fix
+make typecheck        # nuxi typecheck
+make docker-build     # buildx multi-arch image, pushed to the registry in the Makefile
+make release V=1.2.3  # bump package.json version, commit, tag (PUSH=1 to push)
 ```
+
+The underlying scripts also work directly: `pnpm dev`, `pnpm build`, `pnpm eslint . --fix`, `pnpm nuxi typecheck`.
+
+**There is no automated test suite** (no test runner or test files in the repo). Verify changes via `make typecheck`, `make lint-fix`, and manual runs.
 
 All env vars are baked into the bundle at **build time** (not read at runtime) because `ssr: false`:
 
@@ -22,65 +32,70 @@ All env vars are baked into the bundle at **build time** (not read at runtime) b
 | `NUXT_PUBLIC_REVERB_PORT`    | `8080`                  | Reverb WebSocket port  |
 | `NUXT_PUBLIC_REVERB_SCHEME`  | `http`                  | `http` or `https`      |
 
+`NUXT_PUBLIC_API_BASE` is reused as Sanctum's `baseUrl`. For Docker, pass it as a `--build-arg` (see Container below).
+
 ## Architecture
 
-**Thin SPA client.** `ssr: false` — Nuxt builds static files only (no Node server). All business logic, persistence, and auth live in a separate Laravel API.
+**Thin SPA client.** `ssr: false` — Nuxt builds static files only (no Node server). All business logic, persistence, and auth live in a separate **Laravel API** ([repo](https://codeberg.org/davideccia/matches-api-laravel)). This frontend renders UI, validates input with Zod, and talks HTTP + WebSocket.
 
 ### Two audiences, one app
 
-- **Admin** (`/admin/**`, `/login`) — authenticated via Sanctum token (stored in a cookie by `nuxt-auth-sanctum`). Protected by Sanctum's global middleware (`sanctum.globalMiddleware.enabled: true`).
-- **Public** (`/public/**`) — unauthenticated. Pages must set `definePageMeta({ sanctum: { excluded: true } })`.
+- **Admin** (`/admin/**`, `/login`) — authenticated via Sanctum token (stored in a cookie by `nuxt-auth-sanctum`). Protected by Sanctum's global middleware (`sanctum.globalMiddleware.enabled: true`), so **every route is protected by default**.
+- **Public** (`/public/**`) — unauthenticated. Pages must opt out with `definePageMeta({ sanctum: { excluded: true } })`. `/login` uses `sanctum: { guestOnly: true }`.
 
-The root `/` redirects: authenticated → `/admin`, otherwise → `/login`.
+The root `/` always redirects to `/admin` (via `localePath`); the middleware then bounces unauthenticated users to `/login`.
 
 ### Key composables
 
-- **`useApi()`** — wraps `useSanctumClient()` (from `nuxt-auth-sanctum`) to add `Accept-Language` headers. Returns `get`, `post`, `put`, `del`, `download`. All admin pages use this.
-- **`useAuth()`** — thin wrapper around `useSanctumAuth<User>()`. Exposes `user`, `isAuthenticated`, `login`, `logout`, `fetchUser`. Auth state is managed by Sanctum; the `plugins/auth.ts` plugin hooks into `sanctum:logout` to clear local state.
+- **`useApi()`** — wraps `useSanctumClient()` to add `Accept-Language`. Returns `get`, `post`, `put`, `del`, `upload`, `download`. All admin pages use this. Two things to know: `download()` **bypasses** the Sanctum client (uses `$fetch` with a blob response, reading the token manually from the `sanctum.token.cookie`); and the exported `getApiErrorMessage(e)` extracts the backend's error message and is used in every `catch` block to feed a toast.
+- **`useAuth()`** — wraps `useSanctumAuth<{ data: User }>()`, unwrapping `{ data }` to expose `user`. Exposes `isAuthenticated`, `login`, `logout`, `fetchUser`. `plugins/auth.ts` hooks `sanctum:logout` → `useUser().clear()` (which calls `refreshNuxtData()`).
 
 ### Admin CRUD pattern
 
-Every admin resource page follows the same recipe:
+Every admin resource page is the same recipe — read `DataTable.vue` + any `*FormPanel.vue` + `ApiSelectMenu.vue` once and the rest follow:
 
-1. **`DataTable`** component — generic, takes a `url` + `columns` prop. Fetches paginated Laravel responses (`{ data: T[], meta: { total, current_page, last_page, per_page } }`) via `useLazyAsyncData`. Exposes `refresh()` via `defineExpose`. Supports `searchable`, `params`, and a `#filters` slot.
-2. **`*FormPanel`** component (e.g. `AthleteFormPanel`) — a `USlideover` with a Zod-validated form. Receives an optional item for edit mode, emits `saved`/`closed`. The parent page listens to `saved` and calls `dataTable.refresh()`.
-3. **`ApiSelectMenu`** component — searchable popover that fetches options from an API endpoint. Used in forms where the user selects a related resource (athlete, discipline, etc.).
+1. **`DataTable`** — generic (`generic="T">`) paginated table; takes `url` + `columns`, fetches Laravel `{ data, meta }` via `useLazyAsyncData`, exposes `refresh()` through `defineExpose`. Debounced search (300 ms), `searchable`, `params` (deep-watched, resets to page 1), and a `#filters` slot. Page-defined slots named `<column>-cell` pass through to `UTable`.
+2. **`*FormPanel`** — a `USlideover` with a Zod-validated `UForm`. `open` is a `defineModel`; `item === null` ⇒ create, otherwise edit (a `watch(open)` does a `GET /{id}` to populate fresh state). Emits `saved`; the parent calls `dataTable.refresh()`.
+3. **`ApiSelectMenu`** — searchable popover that fetches options from an endpoint, with debounced server-side search and `IntersectionObserver`-based infinite scroll. Integrates with `UForm` via `useFormField()`.
 
-### Realtime scoreboard
+Panels live in `components/panels/` and are auto-registered **without** a path prefix (`nuxt.config.ts` → `components`), so use `<AthleteFormPanel>` not `<PanelsAthleteFormPanel>`. Wrap panels/modals in `<ClientOnly>`.
 
-`/public/tournaments/match_records` uses **notify-then-refetch** via **Laravel Echo + Reverb**:
+### Realtime scoreboard (notify-then-refetch)
 
-- `plugins/echo.client.ts` initialises a Laravel Echo instance with `broadcaster: 'reverb'` using the `NUXT_PUBLIC_REVERB_*` env vars.
-- `useEcho()` composable exposes the Echo instance.
-- `useTournamentMatchRecords(tournamentId)` subscribes to the public channel `tournaments.{id}.match_records` and listens for `.MatchRecordChanged` events. Returns `lastEvent`.
-- The page watches `lastEvent` and calls `refreshMatchRecords()` when `event.refresh` is true. Socket is torn down on tournament deselection or component unmount.
+`/public/tournaments/match_records` uses **Laravel Echo + Reverb**, never sending domain data over the socket:
+
+- `plugins/echo.client.ts` initialises Echo (`broadcaster: 'reverb'`) from the `NUXT_PUBLIC_REVERB_*` vars; `useEcho()` exposes it.
+- `useTournamentMatchRecords(tournamentId)` takes a **Ref**, subscribes to `tournaments.{id}.match_records`, listens for `.MatchRecordChanged`, and returns `lastEvent`. It always `unsubscribe()`s before re-subscribing on tournament change and on `onUnmounted`.
+- The page watches `lastEvent`; when `event.refresh` is true it calls the REST `refresh()`. REST stays the single source of truth.
+
+### Match board auto-scroll ("seek")
+
+Both `admin/.../match_records/board.vue` and the public scoreboard auto-scroll to the active bout. Each card registers its DOM node into an index-aligned `matchCardEls` array via a function ref; a `watch` on the items does `await nextTick()` (the DOM isn't ready otherwise) then `scrollIntoView` to the first `in_progress` match, falling back to the first `scheduled`. The admin board gates this with a `hasScrolledInitially` flag (scroll once, re-armed on tournament change / refresh); the public board deliberately omits the flag so it re-centers on every WebSocket-driven refresh.
 
 ### i18n
 
-Italian (`it`) is the default locale (no URL prefix). English uses `/en/` prefix. Translation keys live in `i18n/locales/it.json` and `en.json`. Both files must be kept in sync for every new string.
+Italian (`it`) is the default locale (no URL prefix); English uses `/en/`. Keys live in `i18n/locales/it.json` and `en.json` — **both files must be kept in sync for every new string**. `useApi` forwards the active locale as `Accept-Language` so the backend localises its messages.
 
-### Domain enums
+### Domain enums & models
 
-All backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GENDERS`) are typed as `as const` arrays in `app/utils/constants.ts`. Import from there instead of hardcoding strings.
+Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GENDERS`, `CLIENT_TYPES`) are typed as `as const` arrays in `app/utils/constants.ts` — import from there instead of hardcoding strings. Domain interfaces are in `app/types/models.ts`; relations (e.g. `red_corner?`, `tournament?`) are optional and present only when the request includes `?with=...` (Laravel eager loading). The authoritative DB schema is `DB.md` (DBML).
 
 ### Theming
 
-`app/app.config.ts` sets `@nuxt/ui` color tokens. Primary color can be changed at runtime by the user from the Settings page; it persists to a cookie (`ui-primary-color`) and applies via `useColorPreference`. The `COLOR_PALETTE` and `COLOR_SECONDARY_MAP` constants in `constants.ts` define valid choices.
+`app/app.config.ts` sets `@nuxt/ui` color tokens. The primary color is changeable at runtime from Settings; it persists to the `ui-primary-color` cookie and is reapplied on boot by `plugins/color-preference.client.ts`. `COLOR_PALETTE` and `COLOR_SECONDARY_MAP` in `constants.ts` define valid choices.
 
 ## Container
 
-`Dockerfile` is multi-stage: Node build → `nginx:alpine` serving `.output/public/`. The `nginx.conf` handles SPA routing (`try_files … /index.html`). Pass the API URL as a build arg:
+`Dockerfile` is multi-stage: Node 22 build → `nginx:alpine` serving `.output/public/` (with a healthcheck). `nginx.conf` handles SPA routing (`try_files … /index.html`). Pass the API URL as a build arg (build-time only):
 
 ```bash
 docker build --build-arg NUXT_PUBLIC_API_BASE=https://api.example.com -t matches-dashboard .
 ```
 
+## Further docs
+
+In-depth chapter docs live in `docs/en/` and `docs/it/` (start at `00-index.md`).
+
 ## End of session
 
-After every code session run:
-
-```bash
-pnpm eslint . --fix
-```
-
-Report any remaining non-auto-fixable errors to the user.
+After every code session run `make lint-fix` (or `pnpm eslint . --fix`) and report any remaining non-auto-fixable errors to the user.
