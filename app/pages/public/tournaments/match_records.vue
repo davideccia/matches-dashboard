@@ -1,19 +1,55 @@
 <template>
   <div class="min-h-screen bg-default flex flex-col items-center px-4 py-8">
     <div class="w-full max-w-5xl space-y-6">
-      <!-- Header -->
-      <div class="flex flex-col items-center gap-3 pt-2">
-        <LocaleSwitcher />
-        <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-          <UIcon name="i-mdi-sword-cross" class="size-6 text-primary" />
+      <!-- Sticky top area: header + tournament bar (state B) -->
+      <div class="sticky top-0 z-10 bg-default -mx-4 px-4 pt-2 pb-3 space-y-3">
+        <!-- Header -->
+        <div class="flex flex-col items-center gap-3">
+          <LocaleSwitcher />
+          <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <UIcon name="i-mdi-sword-cross" class="size-6 text-primary" />
+          </div>
+          <div class="text-center space-y-0.5">
+            <h1 class="text-2xl font-bold text-default">
+              {{ t('publicMatchRecords.title') }}
+            </h1>
+            <p class="text-sm text-muted">
+              {{ t('nav.tournaments') }}
+            </p>
+          </div>
         </div>
-        <div class="text-center space-y-0.5">
-          <h1 class="text-2xl font-bold text-default">
-            {{ t('publicMatchRecords.title') }}
-          </h1>
-          <p class="text-sm text-muted">
-            {{ t('nav.tournaments') }}
-          </p>
+
+        <!-- Tournament bar (state B only) -->
+        <div v-if="selectedTournament" class="flex items-center justify-between gap-4 rounded-2xl bg-elevated border border-default px-5 py-4">
+          <div class="flex items-center gap-3 min-w-0">
+            <UIcon name="i-mdi-trophy" class="size-5 text-warning shrink-0" />
+            <div class="min-w-0 space-y-1">
+              <p class="font-semibold text-sm truncate">
+                {{ selectedTournament.name }}
+              </p>
+              <p class="text-xs text-muted">
+                {{ formatServerDateOnly(selectedTournament.date, locale) }} · {{ selectedTournament.location_city }}
+              </p>
+              <UBadge
+                :color="selectedTournament.status === 'in_progress' ? 'warning' : 'success'"
+                variant="subtle"
+                size="md"
+                class="w-fit flex items-center gap-1"
+              >
+                <span v-if="selectedTournament.status === 'in_progress'" class="size-1.5 rounded-full bg-current animate-pulse inline-block" />
+                {{ tournamentStatusLabel(selectedTournament.status) }}
+              </UBadge>
+            </div>
+          </div>
+          <UButton
+            size="sm"
+            variant="ghost"
+            color="neutral"
+            leading-icon="i-mdi-arrow-left"
+            @click="clearTournament"
+          >
+            {{ t('publicMatchRecords.changeTournament') }}
+          </UButton>
         </div>
       </div>
 
@@ -34,8 +70,8 @@
           class="w-full"
         />
 
-        <!-- Loading skeletons -->
-        <div v-if="tournamentsLoading" class="flex flex-col gap-3">
+        <!-- Loading skeletons (initial load) -->
+        <div v-if="tournamentsLoading && tournaments.length === 0" class="flex flex-col gap-3">
           <div v-for="n in 3" :key="n" class="w-full rounded-xl border border-default p-5 space-y-2">
             <USkeleton class="h-4 w-3/4 rounded" />
             <USkeleton class="h-3 w-1/2 rounded" />
@@ -60,11 +96,32 @@
             <p class="text-sm text-muted">
               {{ tournament.location_city }}
             </p>
+            <UBadge
+              :color="tournament.status === 'in_progress' ? 'warning' : 'success'"
+              variant="subtle"
+              size="md"
+              class="mt-2 w-fit flex items-center gap-1"
+            >
+              <span v-if="tournament.status === 'in_progress'" class="size-1.5 rounded-full bg-current animate-pulse inline-block" />
+              {{ tournamentStatusLabel(tournament.status) }}
+            </UBadge>
           </div>
+
+          <!-- Loading skeletons (append) -->
+          <template v-if="tournamentsLoading">
+            <div v-for="n in 2" :key="n" class="w-full rounded-xl border border-default p-5 space-y-2">
+              <USkeleton class="h-4 w-3/4 rounded" />
+              <USkeleton class="h-3 w-1/2 rounded" />
+              <USkeleton class="h-3 w-2/3 rounded" />
+            </div>
+          </template>
+
+          <!-- Infinite scroll sentinel -->
+          <div ref="tournamentSentinel" class="h-px" />
         </div>
 
         <!-- Empty state -->
-        <div v-else class="flex flex-col items-center gap-1.5 py-8 text-muted">
+        <div v-else-if="!tournamentsLoading" class="flex flex-col items-center gap-1.5 py-8 text-muted">
           <UIcon name="i-mdi-trophy" class="size-8 opacity-30" />
           <p class="text-sm font-medium">
             {{ t('publicMatchRecords.noTournaments') }}
@@ -73,65 +130,10 @@
             {{ t('publicMatchRecords.noTournamentsHint') }}
           </p>
         </div>
-
-        <!-- Pagination -->
-        <div v-if="tournamentsTotalPages > 1" class="flex items-center justify-between gap-2">
-          <UButton
-            size="sm"
-            variant="ghost"
-            color="neutral"
-            leading-icon="i-mdi-chevron-left"
-            :disabled="tournamentsPage === 0"
-            @click="tournamentsPage--"
-          >
-            {{ t('publicMatchRecords.prev') }}
-          </UButton>
-          <span class="text-xs text-muted">
-            {{ t('publicMatchRecords.page', { current: tournamentsPage + 1, total: tournamentsTotalPages }) }}
-          </span>
-          <UButton
-            size="sm"
-            variant="ghost"
-            color="neutral"
-            trailing-icon="i-mdi-chevron-right"
-            :disabled="tournamentsPage >= tournamentsTotalPages - 1"
-            @click="tournamentsPage++"
-          >
-            {{ t('publicMatchRecords.next') }}
-          </UButton>
-        </div>
       </div>
 
       <!-- ── STATE B: MatchRecord grid ──────────────────────────────────────────── -->
       <template v-else>
-        <!-- Tournament header bar -->
-        <div class="flex items-center justify-between gap-4 rounded-2xl bg-elevated border border-default px-5 py-4">
-          <div class="flex items-center gap-3 min-w-0">
-            <UIcon name="i-mdi-trophy" class="size-5 text-warning shrink-0" />
-            <div class="min-w-0">
-              <p class="font-semibold text-sm truncate">
-                {{ selectedTournament.name }}
-              </p>
-              <p class="text-xs text-muted">
-                {{ formatServerDateOnly(selectedTournament.date, locale) }} · {{ selectedTournament.location_city }}
-              </p>
-            </div>
-            <UBadge color="error" variant="solid" size="xs" class="shrink-0 flex items-center gap-1">
-              <span class="size-1.5 rounded-full bg-current animate-pulse inline-block" />
-              {{ t('publicMatchRecords.liveIndicator') }}
-            </UBadge>
-          </div>
-          <UButton
-            size="sm"
-            variant="ghost"
-            color="neutral"
-            leading-icon="i-mdi-arrow-left"
-            @click="clearTournament"
-          >
-            {{ t('publicMatchRecords.changeTournament') }}
-          </UButton>
-        </div>
-
         <!-- Loading skeletons -->
         <div v-if="matchesLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <USkeleton v-for="n in 6" :key="n" class="h-48 rounded-xl" />
@@ -159,12 +161,24 @@
 </template>
 
 <script setup lang="ts">
-import type { MatchRecord } from '~/types/models'
+import type { MatchRecord, Tournament } from '~/types/models'
 
 definePageMeta({ layout: false, sanctum: { excluded: true } })
 
 const config = useRuntimeConfig()
 const { t, locale } = useI18n()
+
+function tournamentStatusLabel(status: string): string {
+  const map: Record<string, string> = {
+    scheduled: t('tournament.status.scheduled'),
+    registrations_opened: t('tournament.status.registrations_opened'),
+    registrations_closed: t('tournament.status.registrations_closed'),
+    in_progress: t('tournament.status.in_progress'),
+    completed: t('tournament.status.completed'),
+    cancelled: t('tournament.status.cancelled'),
+  }
+  return map[status] ?? status
+}
 
 // ── Public API helper (no auth token) ───────────────────────────────────────
 interface PageData<T> {
@@ -177,41 +191,70 @@ function apiGet<T>(path: string, params?: Record<string, unknown>): Promise<T> {
 }
 
 // ── Tournament selection ─────────────────────────────────────────────────────
-const pageSize = 10
-
-interface Tournament {
-  id: string
-  name: string
-  date: string
-  location_city: string
-}
-
-const tournamentsPage = ref(0)
 const tournamentsSearch = ref('')
 const tournamentsSearchInput = ref('')
 const selectedTournament = ref<Tournament | null>(null)
+
+const tournaments = ref<Tournament[]>([])
+const tournamentsLoading = ref(false)
+const currentPage = ref(1)
+const hasMore = ref(false)
+const PAGE_SIZE = 10
+
+async function fetchTournaments(append = false) {
+  if (tournamentsLoading.value) { return }
+  tournamentsLoading.value = true
+  try {
+    const res = await apiGet<PageData<Tournament>>('/api/public/tournaments', {
+      paginate: 1,
+      page: currentPage.value,
+      per_page: PAGE_SIZE,
+      ...(tournamentsSearch.value ? { search: tournamentsSearch.value } : {}),
+    })
+    const fetched = res.data ?? []
+    tournaments.value = append ? [...tournaments.value, ...fetched] : fetched
+    hasMore.value = currentPage.value < (res.meta?.last_page ?? 1)
+  } finally {
+    tournamentsLoading.value = false
+  }
+}
 
 let tournamentSearchTimer: ReturnType<typeof setTimeout>
 watch(tournamentsSearchInput, (val) => {
   clearTimeout(tournamentSearchTimer)
   tournamentSearchTimer = setTimeout(() => {
     tournamentsSearch.value = val
-    tournamentsPage.value = 0
   }, 300)
 })
 
-const { data: tournamentsData, status: tournamentsStatus } = useLazyAsyncData(
-  'public-tournaments',
-  () => apiGet<PageData<Tournament>>('/api/public/tournaments', {
-    ...(tournamentsSearch.value ? { search: tournamentsSearch.value } : {}),
-  }),
-  { watch: [tournamentsPage, tournamentsSearch], default: () => null },
-)
+watch(tournamentsSearch, () => {
+  currentPage.value = 1
+  tournaments.value = []
+  fetchTournaments()
+})
 
-const tournaments = computed(() => tournamentsData.value?.data ?? [])
-const tournamentsTotal = computed(() => tournamentsData.value?.meta?.total ?? 0)
-const tournamentsLoading = computed(() => tournamentsStatus.value === 'pending')
-const tournamentsTotalPages = computed(() => Math.ceil(tournamentsTotal.value / pageSize))
+watch(currentPage, (page) => {
+  if (page > 1) { fetchTournaments(true) }
+})
+
+// ── Infinite scroll ───────────────────────────────────────────────────────────
+const tournamentSentinel = useTemplateRef('tournamentSentinel')
+let tournamentObserver: IntersectionObserver | null = null
+
+onMounted(() => {
+  tournamentObserver = new IntersectionObserver((entries) => {
+    const entry = entries[0]
+    if (entry?.isIntersecting && !tournamentsLoading.value && hasMore.value) {
+      currentPage.value++
+    }
+  }, { threshold: 0.1 })
+  fetchTournaments()
+})
+
+watch(tournamentSentinel, (el) => {
+  tournamentObserver?.disconnect()
+  if (el) { tournamentObserver?.observe(el) }
+})
 
 function selectTournament(tournament: Tournament) {
   selectedTournament.value = tournament
@@ -262,5 +305,6 @@ watch(lastEvent, (event) => {
 
 onUnmounted(() => {
   clearTimeout(tournamentSearchTimer)
+  tournamentObserver?.disconnect()
 })
 </script>
