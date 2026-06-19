@@ -1,74 +1,61 @@
 # 01 — Panoramica
 
-## Il prodotto
+> Vedi anche: [02 — Stack tecnologico e concetti](02-tech-stack-concepts.md), [05 — Autenticazione](05-authentication.md), [10 — Modello di dominio](10-domain-model.md)
 
-**matches-dashboard** è il pannello di controllo basato su browser e il sito pubblico di una piattaforma per tornei di pugilato amatoriale (e sport da combattimento affini). Serve due tipi di visitatore completamente diversi da un'unica base di codice:
+Questo capitolo risponde a tre domande: cosa fa l'applicazione, chi la usa e come si incastra con il resto del sistema.
 
-- **Amministratori** — le persone che gestiscono gli eventi. Effettuano l'accesso e gestiscono i dati sottostanti: atleti, tornei, discipline, categorie di peso, iscrizioni e il punteggio in tempo reale degli incontri (≈ i singoli match).
-- **Il pubblico** — atleti che si iscrivono a un evento tramite un form e spettatori che guardano un tabellone live che si aggiorna da solo. Questi visitatori non effettuano mai l'accesso.
+## Cosa fa l'applicazione
+
+matches-dashboard gestisce **tornei di sport da combattimento amatoriali**. Un organizzatore crea un torneo, apre le iscrizioni, registra gli atleti in una *disciplina* (lo stile di combattimento) e una *categoria di peso*, costruisce la griglia degli incontri e, durante l'evento, aggiorna i punteggi assegnati dai giudici e dichiara il vincitore di ogni incontro. Nel frattempo il pubblico può seguire i risultati su un **tabellone live** che si aggiorna da solo.
+
+## Le due audience
+
+L'app serve due tipi di utenti con due insiemi di rotte (URL) completamente diversi:
+
+| Audience | Prefisso URL | Autenticazione | Scopo |
+|----------|--------------|----------------|-------|
+| **Admin** | `/admin/**`, `/login` | Token Sanctum (in un cookie) | Gestione completa di tornei e dati |
+| **Pubblico** | `/public/**` | Nessuna | Iscrizione atleti e tabellone live |
+
+La root `/` non ha contenuto proprio: reindirizza subito a `/admin` (vedi [`app/pages/index.vue`](../../app/pages/index.vue)). Da lì il middleware di autenticazione decide se mostrare l'area admin o spedire l'utente al `/login`. I dettagli sono nel [Capitolo 05](05-authentication.md).
 
 ## La divisione client / backend
 
-È il fatto architetturale più importante, e plasma tutto il resto.
-
 ```
-   Browser                          Lato server (repo separato)
- ┌─────────────────────┐           ┌──────────────────────────┐
- │  matches-dashboard  │  HTTPS    │   API Laravel            │
- │  (questo repo)      │ ────────► │   - auth (Sanctum)       │
- │  SPA Nuxt 4         │           │   - regole di business   │
- │  - rende la UI      │ ◄──────── │   - database             │
- │  - valida l'input   │   JSON    │                          │
- │  - parla HTTP + WS  │           │   Reverb (WebSocket)     │
- └─────────────────────┘  WebSocket└──────────────────────────┘
-            ▲                                   │
-            └──────── push in tempo reale ──────┘
+Browser (SPA Nuxt)  ──REST + token Sanctum──►  API Laravel  ──►  Database
+        │                                            ▲
+        └──────WebSocket (Echo / Reverb)─────────────┘
 ```
 
-Questo repository è un **client leggero** (≈ un telecomando: tanti pulsanti e schermate, ma la macchina vera è altrove). Contiene:
+Il punto chiave da interiorizzare: **questo repository non contiene logica di business né un database**. È un *thin client* (≈ un cliente "magro" che non conserva dati propri). Tutto ciò che è autorevole — utenti, tornei, regole, punteggi — vive nell'API Laravel separata. Questo frontend:
 
-- l'interfaccia visiva (pagine, form, tabelle, il tabellone),
-- la validazione dell'input (così i dati palesemente errati vengono intercettati prima dell'invio),
-- il codice che effettua le richieste HTTP e apre un WebSocket.
+1. Disegna le schermate.
+2. Valida l'input dei form prima di inviarlo (con *Zod*, vedi [Capitolo 06](06-data-flow-api.md)).
+3. Chiama l'API via HTTP per leggere e scrivere dati.
+4. Si mette in ascolto via WebSocket per sapere *quando* rileggere i dati live.
 
-Non contiene **nulla** di: database, autorità su chi può fare cosa, o regole sull'avanzamento di un torneo. Tutto ciò vive nel backend **Laravel**, un progetto separato non incluso qui.
-
-Conseguenza pratica: non puoi eseguire quest'app in modo significativo da sola. Si aspetta un'API Laravel raggiungibile a un URL configurato (default `http://localhost:8081`). Vedi il [Capitolo 04](04-build-run-configure.md).
-
-## Due tipi di utente, due spazi di rotte
-
-Nuxt costruisce le pagine a partire dai file (spiegato nel [Capitolo 03](03-project-structure.md)). Le pagine sono divise in due gruppi per URL:
-
-| Spazio | Prefisso URL | Autenticato? | Scopo |
-|--------|--------------|--------------|-------|
-| **Admin** | `/admin/**`, `/login` | Sì (token Sanctum) | Gestione completa dei tornei |
-| **Pubblico** | `/public/**` | No | Iscrizione atleti + tabellone live |
-
-L'URL radice `/` è una pagina di solo reindirizzamento: manda subito il browser a `/admin` (e se non sei autenticato, il livello di autenticazione ti rimbalza su `/login`). Vedi [`app/pages/index.vue`](../../app/pages/index.vue) e il [Capitolo 05](05-authentication.md).
+Una conseguenza tecnica importante: l'app gira con `ssr: false` (*Server-Side Rendering* disattivato). Nuxt non produce un server Node, ma un sito **statico** di soli file (HTML/JS/CSS) servito da nginx. Questo ha effetti pratici su build e configurazione spiegati nel [Capitolo 04](04-build-run-configure.md).
 
 ## Il dominio in parole semplici
 
-Non serve conoscere il pugilato per lavorare su questo codice, ma questi termini compaiono ovunque. I dettagli completi (campi, relazioni, valori ammessi) sono nel [Capitolo 09](09-domain-model.md).
+Se non hai familiarità con il mondo dei tornei di combattimento, ecco le entità minime (lo schema completo è nel [Capitolo 10](10-domain-model.md)):
 
-- **Torneo (Tournament)** — un evento programmato in una città in una data. Attraversa una sequenza fissa di stati: `scheduled → registrations_opened → registrations_closed → in_progress → completed` (oppure `cancelled`).
-- **Atleta (Athlete)** — una persona che gareggia, identificata univocamente dal codice fiscale italiano.
-- **Iscrizione (Registration)** — l'iscrizione di un atleta a un torneo, per una data disciplina e categoria di peso. Gli admin tracciano se l'atleta ha pagato, è arrivato, e il suo valore di pesata.
-- **Incontro (Match record)** — un match: un atleta dell'angolo rosso contro uno dell'angolo blu, con round, punti dei giudici, un metodo di conclusione (come è finito — KO, decisione, pari…) e un vincitore.
-- **Disciplina (Discipline)** — uno stile di combattimento (es. *light contact*, *full contact*).
-- **Categoria di peso (Weight category)** — una fascia di peso (un'etichetta più un valore numerico, es. "60 kg").
+| Entità | In parole semplici |
+|--------|--------------------|
+| *Torneo* (`Tournament`) | L'evento programmato, con un ciclo di stati: programmato → iscrizioni aperte → iscrizioni chiuse → in corso → concluso (o annullato). |
+| *Atleta* (`Athlete`) | Una persona, identificata dal codice fiscale. |
+| *Iscrizione* (`Registration`) | L'ingresso di un atleta in un torneo, con disciplina e categoria di peso. |
+| *Incontro* (`MatchRecord`) | Un singolo match tra due atleti: angolo rosso vs angolo blu, punteggi dei giudici, metodo di conclusione, vincitore. |
+| *Disciplina* (`Discipline`) | Lo stile di combattimento (numero di round, minuti per round). |
+| *Categoria di peso* (`WeightCategory`) | Una fascia di peso. |
 
-## Cosa può fare ogni tipo di utente (mappa delle funzionalità)
+I termini *angolo rosso* / *angolo blu* (`red_corner` / `blue_corner`) sono la convenzione universale negli sport da ring per indicare i due contendenti.
 
-**Admin** (dopo il login):
+## Funzionalità principali
 
-- Home della dashboard in `/admin`.
-- Sezioni di configurazione sotto `/admin/configurations/`: atleti, discipline, categorie di peso, utenti.
-- Gestione tornei sotto `/admin/tournaments/`: elenco tornei, revisione iscrizioni, elenco incontri e un "tabellone" a schermo intero.
-- Impostazioni (`/admin/settings`): colore del tema e lingua.
-
-**Pubblico** (senza login):
-
-- Una pagina di iscrizione in `/public/athletes/registration`.
-- Un tabellone live in `/public/tournaments/match_records` che si aggiorna in tempo reale mentre un admin assegna i punteggi altrove.
-
-Il prossimo capitolo introduce le tecnologie che rendono possibile tutto questo.
+- **Pannello admin** — CRUD su atleti, tornei, discipline, categorie di peso e utenti; revisione delle iscrizioni; costruzione della griglia incontri e aggiornamento dei punteggi.
+- **Form di iscrizione pubblico** — flusso non autenticato per l'iscrizione degli atleti.
+- **Tabellone live** — Echo + Reverb con pattern *notifica-poi-rilettura* ([Capitolo 09](09-realtime-scoreboard.md)).
+- **Tabellone incontri (board)** — vista a griglia degli incontri di un torneo con scroll automatico all'incontro attivo ([Capitolo 08](08-match-board-and-scroll.md)).
+- **Bilingue** — italiano (default, senza prefisso URL) e inglese sotto `/en/`.
+- **Tema a runtime** — l'admin sceglie il colore primario, che persiste in un cookie; più modalità chiara/scura ([Capitolo 11](11-i18n-theming.md)).

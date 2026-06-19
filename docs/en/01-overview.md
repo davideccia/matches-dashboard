@@ -1,74 +1,61 @@
 # 01 — Overview
 
-## The product
+> See also: [02 — Tech stack & concepts](02-tech-stack-concepts.md), [05 — Authentication](05-authentication.md), [10 — Domain model](10-domain-model.md)
 
-**matches-dashboard** is the browser-based control panel and public site for an amateur boxing (and related combat-sport) tournament platform. It serves two completely different kinds of visitor from one codebase:
+This chapter answers three questions: what the application does, who uses it, and how it fits into the rest of the system.
 
-- **Administrators** — the people who run events. They log in and manage the underlying data: athletes, tournaments, disciplines, weight categories, registrations, and the live scoring of bouts (≈ individual fights).
-- **The public** — athletes who register for an event through a form, and spectators who watch a live, auto-updating scoreboard. These visitors never log in.
+## What the application does
+
+matches-dashboard manages **amateur combat-sports tournaments**. An organiser creates a tournament, opens registrations, signs up athletes in a *discipline* (the fighting style) and a *weight category*, builds the match grid, and — during the event — updates the scores assigned by the judges and declares a winner for each bout. Meanwhile, spectators follow the results on a **live scoreboard** that refreshes itself.
+
+## The two audiences
+
+The app serves two kinds of users through two completely separate sets of routes (URLs):
+
+| Audience | URL prefix | Authentication | Purpose |
+|----------|------------|----------------|---------|
+| **Admin** | `/admin/**`, `/login` | Sanctum token (in a cookie) | Full tournament and data management |
+| **Public** | `/public/**` | None | Athlete sign-up and live scoreboard |
+
+The root `/` has no content of its own: it immediately redirects to `/admin` (see [`app/pages/index.vue`](../../app/pages/index.vue)). From there, the authentication middleware decides whether to show the admin area or send the user to `/login`. Details are in [Chapter 05](05-authentication.md).
 
 ## The client / backend split
 
-This is the single most important architectural fact, and it shapes everything else.
-
 ```
-   Browser                          Server side (separate repo)
- ┌─────────────────────┐           ┌──────────────────────────┐
- │  matches-dashboard  │  HTTPS    │   Laravel API            │
- │  (this repo)        │ ────────► │   - auth (Sanctum)       │
- │  Nuxt 4 SPA         │           │   - business rules       │
- │  - renders UI       │ ◄──────── │   - database             │
- │  - validates input  │   JSON    │                          │
- │  - talks HTTP + WS  │           │   Reverb (WebSocket)     │
- └─────────────────────┘  WebSocket└──────────────────────────┘
-            ▲                                   │
-            └───────────── live push ───────────┘
+Browser (Nuxt SPA)  ──REST + Sanctum token──►  Laravel API  ──►  Database
+        │                                            ▲
+        └──────WebSocket (Echo / Reverb)─────────────┘
 ```
 
-This repository is a **thin client** (≈ a remote control: lots of buttons and screens, but the actual machine is elsewhere). It contains:
+The key thing to internalise: **this repository holds no business logic and no database**. It is a *thin client* (≈ a lean client that keeps no data of its own). Everything authoritative — users, tournaments, rules, scores — lives in the separate Laravel API. This frontend:
 
-- the visual interface (pages, forms, tables, the scoreboard),
-- input validation (so obviously-wrong data is caught before it is sent),
-- the code that makes HTTP requests and opens a WebSocket.
+1. Draws the screens.
+2. Validates form input before sending it (with *Zod*, see [Chapter 06](06-data-flow-api.md)).
+3. Calls the API over HTTP to read and write data.
+4. Listens over WebSocket to know *when* to re-read live data.
 
-It contains **none** of: the database, the authority on who may do what, or the rules for how a tournament progresses. All of that is in the **Laravel** backend, which is a separate project not included here.
-
-A practical consequence: you cannot run this app meaningfully on its own. It expects a Laravel API reachable at a configured URL (default `http://localhost:8081`). See [Chapter 04](04-build-run-configure.md).
-
-## Two audiences, two route namespaces
-
-Nuxt builds pages from files (explained in [Chapter 03](03-project-structure.md)). The pages are split into two groups by URL:
-
-| Namespace | URL prefix | Logged in? | Purpose |
-|-----------|-----------|------------|---------|
-| **Admin** | `/admin/**`, `/login` | Yes (Sanctum token) | Full tournament management |
-| **Public** | `/public/**` | No | Athlete registration + live scoreboard |
-
-The root URL `/` is a redirect-only page: it immediately sends the browser to `/admin` (and if you are not authenticated, the auth layer bounces you on to `/login`). See [`app/pages/index.vue`](../../app/pages/index.vue) and [Chapter 05](05-authentication.md).
+One important technical consequence: the app runs with `ssr: false` (*Server-Side Rendering* disabled). Nuxt produces no Node server — it builds a **static** site of plain files (HTML/JS/CSS) served by nginx. This has practical effects on build and configuration, explained in [Chapter 04](04-build-run-configure.md).
 
 ## The domain in plain words
 
-You do not need to know boxing to work on this codebase, but these terms appear everywhere. Full detail (fields, relationships, allowed values) is in [Chapter 09](09-domain-model.md).
+If you're new to combat-sports tournaments, here are the minimal entities (the full schema is in [Chapter 10](10-domain-model.md)):
 
-- **Tournament** — a scheduled event in a city on a date. It moves through a fixed sequence of statuses: `scheduled → registrations_opened → registrations_closed → in_progress → completed` (or `cancelled`).
-- **Athlete** — a person who competes, identified uniquely by their Italian tax number (*codice fiscale*, ≈ a national ID string).
-- **Registration** — one athlete's entry into one tournament, for a given discipline and weight category. Admins track whether the athlete has paid, arrived, and their weigh-in figure.
-- **Match record** — one bout: a red-corner athlete versus a blue-corner athlete, with rounds, judges' points, an end method (how it finished — KO, decision, draw…) and a winner.
-- **Discipline** — a fighting style (e.g. *light contact*, *full contact*).
-- **Weight category** — a weight bracket (a label plus a numeric value, e.g. "60 kg").
+| Entity | In plain words |
+|--------|----------------|
+| *Tournament* (`Tournament`) | The scheduled event, with a status lifecycle: scheduled → registrations opened → registrations closed → in progress → completed (or cancelled). |
+| *Athlete* (`Athlete`) | A person, identified by their tax number. |
+| *Registration* (`Registration`) | An athlete's entry into a tournament, with a discipline and weight category. |
+| *Match* (`MatchRecord`) | A single bout between two athletes: red corner vs blue corner, judge scores, end method, winner. |
+| *Discipline* (`Discipline`) | The fighting style (number of rounds, minutes per round). |
+| *Weight category* (`WeightCategory`) | A weight bracket. |
 
-## What each audience can do (feature map)
+The terms *red corner* / *blue corner* (`red_corner` / `blue_corner`) are the universal ring-sport convention for the two contenders.
 
-**Admin** (after login):
+## Main features
 
-- Dashboard home at `/admin`.
-- Configuration sections under `/admin/configurations/`: athletes, disciplines, weight categories, users.
-- Tournament management under `/admin/tournaments/`: the tournament list, registrations review, the match-records list, and a full-screen match "board".
-- Settings (`/admin/settings`): theme colour and locale.
-
-**Public** (no login):
-
-- A registration page at `/public/athletes/registration`.
-- A live scoreboard at `/public/tournaments/match_records` that updates itself in realtime as an admin scores bouts elsewhere.
-
-The next chapter introduces the technologies that make all of this work.
+- **Admin panel** — CRUD over athletes, tournaments, disciplines, weight categories, and users; registration review; building the match grid and updating scores.
+- **Public registration form** — an unauthenticated athlete sign-up flow.
+- **Live scoreboard** — Echo + Reverb with a *notify-then-refetch* pattern ([Chapter 09](09-realtime-scoreboard.md)).
+- **Match board** — a grid view of a tournament's bouts with auto-scroll to the active match ([Chapter 08](08-match-board-and-scroll.md)).
+- **Bilingual** — Italian (default, no URL prefix) and English under `/en/`.
+- **Runtime theming** — the admin picks a primary colour that persists to a cookie; plus light/dark mode ([Chapter 11](11-i18n-theming.md)).

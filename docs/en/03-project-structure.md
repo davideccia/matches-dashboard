@@ -1,117 +1,99 @@
-# 03 — Project Structure
+# 03 — Project structure
 
-This chapter is a guided tour of the repository so you know where to look for any given concern.
+> See also: [02 — Tech stack & concepts](02-tech-stack-concepts.md), [05 — Authentication](05-authentication.md), [07 — The admin CRUD pattern](07-admin-crud-pattern.md)
 
-## Top-level layout
+This chapter is a map of the repository: where things live, and how the folder structure translates into URLs.
 
-```
-matches-dashboard-laravel/
-├── app/                  # ALL application source lives here (Nuxt 4 convention)
-├── i18n/locales/         # Translation files: it.json (default), en.json
-├── public/               # Static files served as-is (favicons, manifest)
-├── docs/                 # This documentation (en/ and it/)
-├── postman/              # Postman API collections (manual API testing)
-├── nuxt.config.ts        # Nuxt configuration — the project's control panel
-├── app.config.ts         # (inside app/) runtime-changeable UI config
-├── package.json          # Dependencies and scripts
-├── Dockerfile            # Multi-stage build → nginx image
-├── nginx.conf            # SPA routing for the container
-├── Makefile              # Convenience targets (make dev, make setup…)
-├── CLAUDE.md / README.md / DB.md   # Root documentation
-```
-
-> [!NOTE]
-> In Nuxt 4, application code lives under `app/` (this is the "srcDir" convention). Configuration files like `nuxt.config.ts` stay at the repository root.
-
-## Inside `app/`
+## The big picture
 
 ```
 app/
-├── app.vue               # Root component — the outermost wrapper for every page
-├── app.config.ts         # UI theme tokens (colours) + app version
-├── assets/               # Bundled assets (logo.png, css/main.css)
-├── components/           # Reusable components (auto-imported by filename)
-├── composables/          # Reusable logic functions (useApi, useAuth, …)
-├── layouts/              # Page shells (default.vue = the admin sidebar frame)
-├── pages/                # Routes — file path becomes URL path
-├── plugins/              # Code that runs once at app startup
-├── types/                # TypeScript interfaces (models.ts)
-└── utils/                # Plain helper functions (constants.ts, date.ts)
+├── app.config.ts        # theme tokens (@nuxt/ui): primary/secondary/neutral colours
+├── app.vue              # root component (mounts layout + page)
+├── assets/              # logo, global CSS
+├── components/          # reusable components
+│   ├── DataTable.vue          # generic paginated table
+│   ├── ApiSelectMenu.vue      # select that loads options from an endpoint
+│   ├── MatchRecordCardReadOnly.vue
+│   └── panels/                # form panels (slideovers) for CRUD
+│       ├── AthleteFormPanel.vue
+│       ├── TournamentFormPanel.vue
+│       └── …
+├── composables/         # reusable stateful logic (useXxx)
+│   ├── useApi.ts              # HTTP client to the Laravel API
+│   ├── useAuth.ts             # authentication state
+│   ├── useEcho.ts             # access to the Echo instance
+│   ├── useTournamentMatchRecords.ts  # WebSocket subscription
+│   └── useColorPreference.ts  # runtime theme colour
+├── layouts/
+│   └── default.vue            # admin shell: collapsible sidebar + page slot
+├── pages/               # file-based routing (see below)
+│   ├── index.vue              # `/` → redirect to /admin
+│   ├── login.vue              # `/login`
+│   ├── admin/                 # authenticated pages
+│   └── public/                # unauthenticated pages
+├── plugins/             # startup code
+│   ├── echo.client.ts         # initialises Laravel Echo (client only)
+│   ├── auth.ts                # hooks into Sanctum logout
+│   └── color-preference.client.ts  # applies the saved colour at startup
+├── types/
+│   └── models.ts              # domain TypeScript interfaces
+└── utils/
+    ├── constants.ts           # domain enums + colour palette
+    └── date.ts                # date formatting helpers
+
+i18n/locales/            # it.json (default) + en.json — keep in sync
+docs/                    # this documentation (it + en)
 ```
 
-Each folder has a clear job:
+## File-based routing
 
-### `pages/` — the routes (file-based routing)
-
-The folder structure *is* the URL structure. A few examples from this repo:
+In Nuxt, every `.vue` file under [`app/pages/`](../../app/pages/) becomes a route. The file path *is* the URL:
 
 | File | URL |
 |------|-----|
-| `app/pages/index.vue` | `/` (redirects to `/admin`) |
-| `app/pages/login.vue` | `/login` |
-| `app/pages/admin/index.vue` | `/admin` |
-| `app/pages/admin/settings.vue` | `/admin/settings` |
-| `app/pages/admin/configurations/athletes.vue` | `/admin/configurations/athletes` |
-| `app/pages/admin/tournaments/index.vue` | `/admin/tournaments` |
-| `app/pages/admin/tournaments/match_records/index.vue` | `/admin/tournaments/match_records` |
-| `app/pages/admin/tournaments/match_records/board.vue` | `/admin/tournaments/match_records/board` |
-| `app/pages/public/athletes/registration.vue` | `/public/athletes/registration` |
-| `app/pages/public/tournaments/match_records.vue` | `/public/tournaments/match_records` |
+| `pages/index.vue` | `/` |
+| `pages/login.vue` | `/login` |
+| `pages/admin/index.vue` | `/admin` |
+| `pages/admin/tournaments/index.vue` | `/admin/tournaments` |
+| `pages/admin/tournaments/registrations.vue` | `/admin/tournaments/registrations` |
+| `pages/admin/tournaments/match_records/index.vue` | `/admin/tournaments/match_records` |
+| `pages/admin/tournaments/match_records/board.vue` | `/admin/tournaments/match_records/board` |
+| `pages/admin/configurations/athletes.vue` | `/admin/configurations/athletes` |
+| `pages/public/athletes/registration.vue` | `/public/athletes/registration` |
+| `pages/public/tournaments/match_records.vue` | `/public/tournaments/match_records` |
 
-With i18n, English versions get an `/en/` prefix automatically (e.g. `/en/admin/settings`). Italian, the default locale, has no prefix.
+(The full route list is also in [`README.md`](../../README.md).)
 
-Each page can declare metadata via `definePageMeta({...})`. Two patterns matter here:
+With i18n enabled, the same pages are also reachable with an `/en/` prefix for English (e.g. `/en/admin/tournaments`); Italian, being the default, has no prefix. See [Chapter 11](11-i18n-theming.md).
 
-- Admin pages use `definePageMeta({ layout: 'default' })` to wrap themselves in the sidebar shell.
-- Public pages use `definePageMeta({ layout: false, sanctum: { excluded: true } })` — no sidebar, and exempt from the login requirement (see [Chapter 05](05-authentication.md)).
+### admin vs public: two worlds
 
-### `components/` — the reusable UI pieces
+The split between `pages/admin/` and `pages/public/` is not just organisational: it drives **authentication**. All routes are protected by default by Sanctum's global middleware; public pages opt out with `definePageMeta({ sanctum: { excluded: true } })`. Details in [Chapter 05](05-authentication.md).
 
-Components are auto-imported by filename, so `<DataTable />` in any template refers to `app/components/DataTable.vue` with no import line. The notable ones:
+## How the pieces compose
 
-| Component | Purpose |
-|-----------|---------|
-| `DataTable.vue` | Generic paginated, searchable table. The backbone of every admin list. See [Chapter 06](06-admin-crud-pattern.md). |
-| `*FormPanel.vue` | One per resource (`AthleteFormPanel`, `TournamentFormPanel`, `MatchRecordFormPanel`, `UserFormPanel`, `DisciplineFormPanel`, `WeightCategoryFormPanel`, `RegistrationFormPanel`). A slide-over create/edit form. |
-| `ApiSelectMenu.vue` | A searchable dropdown that loads its options from an API endpoint (with infinite scroll). |
-| `MatchRecordCardReadOnly.vue` | A single match displayed as a card (used on the public scoreboard). |
-| `MatchRecordJudgesPointsTable.vue` | Renders the per-round judges' scoring grid. |
-| `LocaleSwitcher.vue`, `ColorModeSwitcher.vue` | Language and light/dark toggles. |
+A typical admin page contains **little** logic: it orchestrates reusable components.
 
-### `composables/` — reusable logic
+```
+layouts/default.vue          ← sidebar + shell (applies to every admin page)
+   └── pages/admin/…/foo.vue ← the page: defines columns and manages state
+         ├── <DataTable>      ← generic paginated table
+         ├── <FooFormPanel>   ← slideover to create/edit
+         └── <ApiSelectMenu>  ← (inside the form) select from an endpoint
+```
 
-These are the `useXxx()` functions (see [Chapter 02](02-tech-stack-concepts.md) for what a composable is):
+This recipe — table + form panel + select — is detailed in [Chapter 07](07-admin-crud-pattern.md). The rule in [`nuxt.config.ts`](../../nuxt.config.ts) (lines 9-12)
 
-| Composable | Purpose | Chapter |
-|------------|---------|---------|
-| `useApi.ts` | HTTP wrapper (`get/post/put/del/download`) with language headers | [07](07-data-flow-api.md) |
-| `useAuth.ts` | Login/logout/current-user, wrapping Sanctum | [05](05-authentication.md) |
-| `useUser.ts` | Tiny helper exposing `user` and a `clear()` | [05](05-authentication.md) |
-| `useEcho.ts` | Returns the Laravel Echo realtime instance | [08](08-realtime-scoreboard.md) |
-| `useTournamentMatchRecords.ts` | Subscribes to live match updates for a tournament | [08](08-realtime-scoreboard.md) |
-| `useColorPreference.ts` | Reads/writes the user's theme colour | [10](10-i18n-theming.md) |
+```ts
+components: [
+  { path: '~/components/panels', pathPrefix: false },
+  '~/components',
+],
+```
 
-### `plugins/` — startup code
+tells Nuxt to auto-register the panels **without** a path prefix — that's why you write `<AthleteFormPanel>` and not `<PanelsAthleteFormPanel>`.
 
-Plugins run once when the app boots. The `.client.ts` suffix means "browser only" (relevant because this is a SPA, but it documents intent).
+## The `.client.ts` plugin convention
 
-| Plugin | What it does |
-|--------|--------------|
-| `echo.client.ts` | Creates the Laravel Echo / Reverb WebSocket connection and provides it as `$echo` |
-| `color-preference.client.ts` | Applies the saved theme colour at startup |
-| `auth.ts` | Hooks `sanctum:logout` to clear local user state |
-
-### `layouts/` — page shells
-
-`default.vue` is the admin frame: a collapsible sidebar (`UDashboardSidebar`) with the navigation menu, the app version badge, and a user dropdown with logout. Admin pages render *inside* its `<slot />`. Public pages opt out with `layout: false`.
-
-### `utils/` — plain helpers
-
-- `constants.ts` — all the domain enums as `as const` arrays (`GENDERS`, `TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `CLIENT_TYPES`), page-size options, and the theme colour palette. **Import enum values from here rather than hardcoding strings.** See [Chapter 09](09-domain-model.md).
-- `date.ts` — `moment`-based date formatting helpers (server ↔ input conversion, localised display).
-
-### `types/` — the data shapes
-
-`models.ts` declares the TypeScript `interface`s for every backend entity (`Athlete`, `Tournament`, `Registration`, `MatchRecord`, `User`, `Discipline`, `WeightCategory`) and the `PaginatedResponse<T>` envelope Laravel returns. See [Chapter 09](09-domain-model.md).
-
-Now that you know *where* things are, the next chapter covers how to actually build and run the app.
+Plugins suffixed `.client.ts` (e.g. [`echo.client.ts`](../../app/plugins/echo.client.ts), [`color-preference.client.ts`](../../app/plugins/color-preference.client.ts)) run **only in the browser**, never at build time. That makes sense for the WebSocket and for cookies, which only exist on the client.

@@ -1,79 +1,56 @@
 # 04 — Build, avvio e configurazione
 
-## Prerequisiti
+> Vedi anche: [01 — Panoramica](01-overview.md), [09 — Tabellone in tempo reale](09-realtime-scoreboard.md)
 
-- **Node.js 20+** (la build Docker usa Node 22).
-- **pnpm** — il gestore di pacchetti. Abilitalo con `corepack enable pnpm` se non lo hai.
-- **Un backend Laravel in esecuzione** raggiungibile dal browser (default `http://localhost:8081`). Senza di esso le pagine si caricano ma ogni richiesta di dati fallisce.
+Questo capitolo spiega come far girare l'app in locale, come si configura e come si impacchetta per la produzione. La sintesi dei comandi è anche in [`CLAUDE.md`](../../CLAUDE.md) e [`README.md`](../../README.md); qui aggiungiamo il *perché*.
 
-## Configurazione iniziale
-
-Usando il [`Makefile`](../../Makefile) fornito:
+## Comandi
 
 ```bash
-make setup    # copia .env.example → .env (se manca) ed esegue pnpm install
+pnpm dev              # server di sviluppo su http://localhost:3000
+pnpm build            # build di produzione → .output/public/ (statico, ssr: false)
+pnpm preview          # serve la build in locale
+pnpm eslint . --fix   # lint + auto-fix (da eseguire a fine di ogni sessione)
+pnpm nuxi typecheck   # controllo dei tipi TypeScript
 ```
 
-Oppure manualmente:
+> A fine sessione di sviluppo, [`CLAUDE.md`](../../CLAUDE.md) chiede di lanciare sempre `pnpm eslint . --fix` e di segnalare gli errori non auto-correggibili.
 
-```bash
-pnpm install
-```
+## `ssr: false`: cosa significa davvero
 
-## Comandi di tutti i giorni
+In [`nuxt.config.ts`](../../nuxt.config.ts) (riga 5) c'è `ssr: false`. Disattiva il *Server-Side Rendering*: Nuxt **non** genera un server Node che produce HTML a ogni richiesta. La build produce invece un insieme di **file statici** (HTML/JS/CSS) in `.output/public/`, serviti da un qualsiasi web server (qui nginx).
 
-Provengono dagli script di [`package.json`](../../package.json) e dal [`Makefile`](../../Makefile):
+Da qui discende la regola più importante per la configurazione:
 
-| Comando | Alias Makefile | Cosa fa |
-|---------|----------------|---------|
-| `pnpm dev` | `make dev` (`--host 127.0.0.1`) | Avvia il server di sviluppo su `http://localhost:3000` con hot reload |
-| — | `make host` (`--host 0.0.0.0`) | Idem, ma esposto sulla LAN / per Docker |
-| `pnpm build` | `make build` | Build di produzione → file statici in `.output/public/` |
-| `pnpm preview` | `make preview` | Serve localmente l'output costruito per verificarlo |
-| `pnpm eslint . --fix` | `make lint-fix` | Esegue lint con auto-fix. **Eseguilo dopo ogni sessione di codice.** |
-| `pnpm nuxi typecheck` | `make typecheck` | Controlla i tipi dell'intero progetto |
-| — | `make clean` | Rimuove `.nuxt`, `.output`, `dist` |
-| — | `make release V=1.2.3 [PUSH=1]` | Aggiorna la versione in `package.json`, commit e tag |
+> [!IMPORTANT]
+> Tutte le variabili `NUXT_PUBLIC_*` vengono **incorporate nel bundle in fase di build**, non lette a runtime. Devono essere impostate *prima* di `pnpm build` o `docker build`. Cambiarle dopo la build non ha effetto: bisogna ricostruire.
 
-> [!NOTE]
-> In questo repo non c'è una suite di test unitari/d'integrazione — non c'è un test runner in `package.json`. Qui "verifica" significa **controllo dei tipi + lint + verifica manuale nel browser**. La cartella `postman/` contiene collezioni per esercitare manualmente l'API.
+Il motivo: senza un server, non c'è nessuno che a runtime legga le variabili d'ambiente del processo; l'unico momento in cui esistono è durante la build.
 
-## Configurazione: variabili d'ambiente
+## Variabili d'ambiente
 
-Tutta la configurazione è una manciata di variabili d'ambiente `NUXT_PUBLIC_*`, dichiarate con i loro default in [`nuxt.config.ts`](../../nuxt.config.ts) sotto `runtimeConfig.public`:
+Definite in [`nuxt.config.ts`](../../nuxt.config.ts) sotto `runtimeConfig.public` (righe 32-41), con i rispettivi default:
 
 | Variabile | Default | Scopo |
 |-----------|---------|-------|
-| `NUXT_PUBLIC_API_BASE` | `http://localhost:8081` | URL base dell'API Laravel (usato anche come `baseUrl` di Sanctum) |
-| `NUXT_PUBLIC_WS_BASE` | `''` | Base WebSocket esplicita opzionale |
-| `NUXT_PUBLIC_REVERB_APP_KEY` | `''` | Chiave dell'app Laravel Reverb |
+| `NUXT_PUBLIC_API_BASE` | `http://localhost:8081` | URL base dell'API Laravel |
+| `NUXT_PUBLIC_WS_BASE` | `` (vuoto) | Base WebSocket alternativa (attualmente non usata nel codice) |
+| `NUXT_PUBLIC_REVERB_APP_KEY` | `` (vuoto) | Chiave dell'app Reverb |
 | `NUXT_PUBLIC_REVERB_HOST` | `localhost` | Host WebSocket di Reverb |
 | `NUXT_PUBLIC_REVERB_PORT` | `8080` | Porta WebSocket di Reverb |
-| `NUXT_PUBLIC_REVERB_SCHEME` | `http` | `http` o `https` (controlla il TLS del socket) |
+| `NUXT_PUBLIC_REVERB_SCHEME` | `http` | `http` oppure `https` |
 
-Per lo sviluppo locale, copia `.env.example` in `.env` (lo fa `make setup`) e modifica a piacere. Per puntare a un backend su una porta diversa per una singola esecuzione:
+`NUXT_PUBLIC_API_BASE` viene riusato anche dalla configurazione di Sanctum come `baseUrl` ([`nuxt.config.ts`](../../nuxt.config.ts) riga 71). Le variabili Reverb alimentano il plugin Echo (vedi [Capitolo 09](09-realtime-scoreboard.md)).
+
+Per puntare a un backend su una porta diversa in sviluppo:
 
 ```bash
 NUXT_PUBLIC_API_BASE=http://localhost:9090 pnpm dev
 ```
 
-### Il tranello dell'incorporamento in fase di build
+## Build di produzione e Docker
 
-> [!IMPORTANT]
-> Poiché questa è una SPA (`ssr: false`, vedi il [Capitolo 02](02-tech-stack-concepts.md)), queste variabili vengono **lette in fase di build e compilate dentro il bundle JavaScript**. *Non* vengono lette a runtime. Impostare `NUXT_PUBLIC_API_BASE` dopo la build non ha alcun effetto — devi impostarla **prima** di `pnpm build` o `docker build`. Un bundle costruito per `localhost:8081` parlerà sempre con `localhost:8081`, qualunque cosa dica l'ambiente di deploy.
-
-## Build di produzione e deploy
-
-`pnpm build` produce un **sito statico** in `.output/public/` — semplice HTML/JS/CSS, nessun server Node necessario. La via consigliata è l'immagine Docker inclusa.
-
-### Docker
-
-Il [`Dockerfile`](../../Dockerfile) è multi-stage:
-
-1. **stage di build** (`node:22-alpine`): installa le dipendenze con lockfile bloccato, copia i sorgenti, prende `NUXT_PUBLIC_API_BASE` come build arg ed esegue `pnpm run build`.
-2. **stage di runtime** (`nginx:alpine`): copia [`nginx.conf`](../../nginx.conf) e l'output statico nella root web di nginx. Espone la porta 80 con un healthcheck su `/index.html`.
-
-Costruisci ed esegui, incorporando l'URL reale dell'API:
+`pnpm build` produce un sito statico in `.output/public/` — nessun server Node necessario a runtime. Il percorso consigliato è l'immagine Docker inclusa:
 
 ```bash
 docker build \
@@ -83,17 +60,11 @@ docker build \
 docker run -p 80:80 matches-dashboard
 ```
 
-### nginx e routing SPA
+Il [`Dockerfile`](../../Dockerfile) è multi-stage: prima compila l'app con Node, poi serve l'output statico da `nginx:alpine`. L'URL dell'API si passa come *build arg* perché — come spiegato sopra — deve essere noto al momento della build.
 
-Una SPA ha un solo vero file HTML (`index.html`); tutte le rotte sono risolte dal JavaScript nel browser. Se un utente ricarica forzatamente `/admin/settings`, il web server deve comunque restituire `index.html` invece di un 404. [`nginx.conf`](../../nginx.conf) lo gestisce con:
+### Routing SPA in nginx
 
-```nginx
-location / {
-    try_files $uri $uri/ /index.html;   # fallback SPA
-}
-```
-
-Imposta anche header di cache lunghi sui file asset con hash (Nuxt aggiunge un'impronta ai nomi file, quindi possono essere messi in cache per sempre) e abilita gzip.
+Il [`nginx.conf`](../../nginx.conf) gestisce il routing della SPA con `try_files … /index.html`. Senza questa regola, un *hard refresh* su un URL profondo come `/admin/tournaments` darebbe 404: nginx cercherebbe un file `/admin/tournaments` che non esiste. Con `try_files`, qualsiasi percorso non trovato cade su `index.html`, e poi il router di Vue lato client risolve la rotta corretta.
 
 > [!IMPORTANT]
-> Sia l'API backend sia l'endpoint WebSocket Reverb devono essere raggiungibili **dal browser dell'utente**, non solo dal container. È il browser, non il server, ad aprire queste connessioni.
+> Sia l'API Laravel sia l'endpoint WebSocket di Reverb devono essere raggiungibili **dal browser** agli indirizzi configurati nelle `NUXT_PUBLIC_*`, altrimenti login e funzioni live non funzionano.

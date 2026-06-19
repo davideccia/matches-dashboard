@@ -1,68 +1,99 @@
 # 05 — Autenticazione
 
-L'autenticazione risponde a due domande: *chi è questo visitatore* e *gli è consentito stare qui*. In quest'app le risposte vivono nel backend Laravel; il compito del frontend è ottenere un token, allegarlo alle richieste e regolare le rotte.
+> Vedi anche: [06 — Flusso dati e livello API](06-data-flow-api.md), [03 — Struttura del progetto](03-project-structure.md)
 
-## Il meccanismo: token Laravel Sanctum
+L'autenticazione è interamente delegata all'API Laravel tramite **Laravel Sanctum** in modalità *token*. Il frontend non verifica password né emette token: invia le credenziali, riceve un token, lo conserva in un cookie e lo allega alle richieste successive. Tutto questo è orchestrato dal modulo `nuxt-auth-sanctum`.
 
-L'app usa **Laravel Sanctum** (≈ il sistema di login a token integrato in Laravel) tramite il modulo `nuxt-auth-sanctum`. La configurazione è in [`nuxt.config.ts`](../../nuxt.config.ts):
+## Concetti
+
+- **Sanctum** → il sistema di autenticazione di Laravel. In *token mode* (≈ un braccialetto da concerto: lo mostri all'ingresso di ogni area riservata) il client riceve un token al login e lo invia come header `Authorization: Bearer …` su ogni richiesta protetta.
+- **Middleware globale** → uno strato che intercetta *tutte* le rotte e blocca quelle che richiedono autenticazione, reindirizzando al login chi non è autenticato.
+
+## Configurazione
+
+Tutto parte da [`nuxt.config.ts`](../../nuxt.config.ts) (righe 70-86):
 
 ```ts
 sanctum: {
   baseUrl: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:8081',
-  mode: 'token',                       // basato su token (non modalità cookie/SPA)
+  mode: 'token',
   endpoints: {
-    login:  '/api/admin/auth/login',
-    user:   '/api/admin/auth/user',
+    login: '/api/admin/auth/login',
+    user: '/api/admin/auth/user',
     logout: '/api/admin/auth/logout',
   },
   redirect: { onLogout: '/login' },
   redirectIfUnauthenticated: true,
   globalMiddleware: {
-    enabled: true,                     // ogni rotta richiede autenticazione di default…
+    enabled: true,           // ← ogni rotta è protetta per default
     allow404WithoutAuth: true,
   },
 }
 ```
 
-Punti chiave:
+Il punto cruciale: `globalMiddleware.enabled: true` significa che **per default ogni pagina richiede l'autenticazione**. Le pagine pubbliche devono esplicitamente *rinunciare* alla protezione.
 
-- **Modalità token** — al login riuscito il backend restituisce un token; il modulo lo memorizza (in un cookie chiamato `sanctum.token.cookie`) e lo allega automaticamente come header `Authorization: Bearer …` nelle richieste successive.
-- **Il middleware globale è abilitato** — è il default importante. Ogni rotta è protetta *a meno che non si tiri esplicitamente fuori*. Quindi le nuove pagine sono private di default; le pagine pubbliche vanno marcate.
+## Pagine pubbliche: opt-out
 
-## Effettuare il login
-
-La pagina di login è [`app/pages/login.vue`](../../app/pages/login.vue). Essa:
-
-1. Dichiara `definePageMeta({ layout: false, sanctum: { guestOnly: true } })` — niente sidebar admin, e `guestOnly` significa che un utente *già* loggato che visita `/login` viene reindirizzato altrove.
-2. Renderizza una `UAuthForm` (un componente `@nuxt/ui`) con uno schema **Zod** che valida email + password.
-3. All'invio chiama `useAuth().login({ email, password })`, poi `navigateTo('/admin')`.
-4. In caso di errore mostra un avviso localizzato.
-
-Offre inoltre pulsanti che portano alle pagine pubbliche di iscrizione e tabellone, così i visitatori non autenticati hanno una via d'accesso.
-
-## Il composable `useAuth`
-
-[`app/composables/useAuth.ts`](../../app/composables/useAuth.ts) è un sottile wrapper su `useSanctumAuth<User>()` del modulo:
+Una pagina pubblica si dichiara tale con `definePageMeta`. Esempi reali:
 
 ```ts
-export function useAuth() {
-  const { user, isAuthenticated, login, logout: sanctumLogout, refreshIdentity } = useSanctumAuth<User>()
-  const logout = () => sanctumLogout()
-  return { user, isAuthenticated, login, logout, fetchUser: refreshIdentity }
+// app/pages/public/tournaments/match_records.vue, riga 164
+definePageMeta({ layout: false, sanctum: { excluded: true } })
+```
+
+```ts
+// app/pages/login.vue, righe 108-111
+definePageMeta({
+  layout: false,
+  sanctum: { guestOnly: true },   // solo per non autenticati
+})
+```
+
+| Meta | Effetto |
+|------|---------|
+| `sanctum: { excluded: true }` | La rotta è esclusa dal controllo di autenticazione (pagine `/public/**`). |
+| `sanctum: { guestOnly: true }` | La rotta è accessibile **solo** a chi non è autenticato (es. `/login`): un utente già loggato viene rimandato altrove. |
+| (niente meta) | Rotta protetta: senza token si finisce a `/login`. |
+
+## Il flusso di login
+
+In [`app/pages/login.vue`](../../app/pages/login.vue) (righe 143-155):
+
+```ts
+async function onSubmit(event: FormSubmitEvent<Schema>) {
+  loading.value = true
+  try {
+    clear()                                  // pulisce eventuale stato precedente
+    await useAuth().login({ email, password })
+    await navigateTo('/admin')
+  } catch {
+    errorMsg.value = t('login.error')
+  } finally {
+    loading.value = false
+  }
 }
 ```
 
-- `user` — un ref reattivo all'utente corrente (`User`, o null).
-- `isAuthenticated` — booleano reattivo.
-- `login(credentials)` — esegue la richiesta di login.
-- `logout()` — cancella il token e (da configurazione) reindirizza a `/login`.
-- `fetchUser()` — ri-recupera l'utente corrente dal backend.
+Il form è validato con Zod (`z.email()`, `z.string().min(1)`) prima ancora di chiamare l'API.
 
-La forma tipizzata `User` proviene da [`app/types/models.ts`](../../app/types/models.ts).
+## Il composable `useAuth`
 
-## Pulizia al logout
+[`app/composables/useAuth.ts`](../../app/composables/useAuth.ts) è un sottile wrapper sopra `useSanctumAuth()` del modulo:
 
-[`app/plugins/auth.ts`](../../app/plugins/auth.ts) aggancia l'evento `sanctum:logout` del modulo per ripulire i dati in cache locale:
+```ts
+export function useAuth() {
+  const { user: sanctumUser, isAuthenticated, login, logout, refreshIdentity } = useSanctumAuth<{ data: User }>()
+  const user = computed(() => sanctumUser.value?.data ?? null)  // "spacchetta" { data: … }
+  return { user, isAuthenticated, login, logout: () => logout(), fetchUser: refreshIdentity }
+}
+```
+
+L'unica vera logica aggiunta è lo *unwrap* di `{ data: User }`: l'endpoint utente di Laravel avvolge la risorsa in `data`, e qui la si appiattisce a `user`.
+
+## Logout e pulizia dello stato
+
+Il plugin [`app/plugins/auth.ts`](../../app/plugins/auth.ts) si aggancia all'evento di logout di Sanctum:
 
 ```ts
 export default defineNuxtPlugin((nuxtApp) => {
@@ -72,24 +103,19 @@ export default defineNuxtPlugin((nuxtApp) => {
 })
 ```
 
-[`useUser().clear()`](../../app/composables/useUser.ts) chiama `refreshNuxtData()`, che invalida i risultati `useAsyncData` in cache di Nuxt così che nessun dato obsoleto dell'utente precedente resti dopo il logout. L'azione di logout vera e propria è collegata al menu utente della sidebar in [`app/layouts/default.vue`](../../app/layouts/default.vue).
+`useUser().clear()` ([`useUser.ts`](../../app/composables/useUser.ts)) chiama `refreshNuxtData()`, che invalida le cache di `useAsyncData`/`useLazyAsyncData` in modo che nessun dato del vecchio utente sopravviva alla sessione.
 
-## Rotte pubbliche (non autenticate)
+## Redirect della root
 
-Poiché il middleware globale protegge tutto di default, le pagine pubbliche devono tirarsi fuori esplicitamente nel loro `definePageMeta`:
+[`app/pages/index.vue`](../../app/pages/index.vue) è essenzialmente un redirect:
 
 ```ts
-// app/pages/public/tournaments/match_records.vue
-definePageMeta({ layout: false, sanctum: { excluded: true } })
+const localePath = useLocalePath()
+await navigateTo(localePath('/admin'), { replace: true })
 ```
 
-`sanctum: { excluded: true }` esenta la pagina dall'obbligo di autenticazione. Queste pagine pubbliche inoltre **non** usano l'helper autenticato [`useApi()`](07-data-flow-api.md) — chiamano il backend direttamente con `$fetch` verso endpoint `/api/public/...`, quindi nessun token viene inviato. (Vedi la spiegazione del tabellone nel [Capitolo 08](08-realtime-scoreboard.md).)
+Va sempre verso `/admin`; è poi il middleware globale di Sanctum a deviare verso `/login` se non c'è un token valido. `localePath()` mantiene il prefisso lingua corretto (es. `/en/admin`).
 
-## La catena di reindirizzamento in pratica
+## Download autenticati
 
-1. Visiti `/` → [`index.vue`](../../app/pages/index.vue) chiama subito `navigateTo('/admin')`.
-2. `/admin` è protetto; se non c'è un token valido, il middleware globale di Sanctum (con `redirectIfUnauthenticated: true`) manda il browser a `/login`.
-3. Dopo un login riuscito, l'utente viene mandato a `/admin` e ci resta finché il token non viene cancellato.
-
-> [!NOTE]
-> Il `README.md` alla radice dice che l'auth è "JWT memorizzato in localStorage". È obsoleto. Il codice usa **token Sanctum** gestiti da `nuxt-auth-sanctum` (memorizzati nel cookie `sanctum.token.cookie`), come mostrato sopra.
+C'è un caso che bypassa il client Sanctum: il download di file binari (PDF). Vedi `download()` nel [Capitolo 06](06-data-flow-api.md): legge manualmente il token dal cookie `sanctum.token.cookie` e lo allega come header `Authorization`.

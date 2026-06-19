@@ -1,38 +1,45 @@
-# matches-dashboard — Documentazione per sviluppatori
+# matches-dashboard — Documentazione tecnica
 
-Benvenuto. Questa documentazione spiega il codice di **matches-dashboard** a uno sviluppatore che programma con disinvoltura ma potrebbe essere **nuovo a Nuxt/Vue** e **nuovo al dominio dei tornei di pugilato amatoriale**. I termini specifici di linguaggio o framework ricevono una breve spiegazione tra parentesi `(≈ analogia in parole semplici)` alla prima comparsa, e ogni termine spiegato è raccolto nel [Glossario](11-glossary.md).
+Questa documentazione spiega il codice di **matches-dashboard** a uno sviluppatore competente che però potrebbe essere **nuovo a Nuxt/Vue** e al **dominio dei tornei di sport da combattimento amatoriali**. Alla prima comparsa, ogni termine specifico di un linguaggio o framework riceve una breve spiegazione tra parentesi nella forma `(≈ analogia in parole semplici)`; tutti questi termini sono raccolti nel [Glossario](12-glossary.md).
 
 ## Cos'è questo progetto, in una riga
 
-Una **dashboard web** (l'interfaccia utente lato browser) per gestire tornei di pugilato amatoriale: un'area admin per gli organizzatori che gestiscono atleti, tornei e punteggi degli incontri in tempo reale, più pagine pubbliche per l'iscrizione degli atleti e per il pubblico che segue un tabellone live.
+Una **dashboard web** (interfaccia utente che gira nel browser) per organizzare tornei di sport da combattimento amatoriali: un'area amministrativa per gli organizzatori (atleti, tornei, iscrizioni, punteggi degli incontri) e alcune pagine pubbliche per l'iscrizione degli atleti e per il pubblico che segue un tabellone live.
 
-È un **client leggero** (≈ una sala di accoglienza che non conserva dati propri): tutti i dati reali e le regole vivono in un backend **Laravel** (un framework web PHP) separato. Questo repository è *solo* l'interfaccia utente.
+È un **client leggero**: tutta la persistenza dei dati, le regole di business e l'autenticazione vivono in un'**API Laravel** (un framework web in PHP) separata. Questo repository contiene *solo* l'interfaccia utente — disegna le schermate, valida l'input e parla HTTP + WebSocket con il backend.
 
-> [!IMPORTANT]
-> Il `README.md` alla radice descrive un backend Spring Boot con STOMP/JWT. Quella descrizione è **obsoleta**. Il codice di questo repository punta a un backend **Laravel**, si autentica con token **Laravel Sanctum** e riceve aggiornamenti in tempo reale tramite **Laravel Reverb** (un server WebSocket compatibile con il protocollo Echo/Pusher). Questa documentazione riflette il *codice così com'è realmente*. Vedi il [Capitolo 05](05-authentication.md) e il [Capitolo 08](08-realtime-scoreboard.md).
+## Come leggere questa documentazione
 
-## Come leggerla
+Parti da qui, poi prosegui in ordine. Ogni capitolo è autonomo ma poggia sui precedenti.
 
-Parti da qui, poi leggi in ordine. Ogni capitolo è autonomo ma poggia sui precedenti.
-
-| # | Capitolo | Cosa imparerai |
-|---|----------|----------------|
+| #  | Capitolo | Cosa imparerai |
+|----|----------|----------------|
+| 00 | [Indice](00-index.md) | Questo file |
 | 01 | [Panoramica](01-overview.md) | Cosa fa l'app, chi la usa, la divisione client/backend, il dominio in parole semplici |
-| 02 | [Stack tecnologico e concetti](02-tech-stack-concepts.md) | Nuxt, Vue, SPA e le librerie chiave — ognuna spiegata per chi è alle prime armi |
-| 03 | [Struttura del progetto](03-project-structure.md) | Visita guidata della cartella `app/` e funzionamento del routing basato sui file |
-| 04 | [Build, avvio e configurazione](04-build-run-configure.md) | Comandi, variabili d'ambiente, configurazione in fase di build, Docker/nginx |
-| 05 | [Autenticazione](05-authentication.md) | Login con token Sanctum, rotte admin vs pubbliche, come viene regolato l'accesso |
-| 06 | [Il pattern CRUD admin](06-admin-crud-pattern.md) | La ricetta DataTable + pannello form + menu di selezione seguita da ogni pagina admin |
-| 07 | [Flusso dati e livello API](07-data-flow-api.md) | Come si muovono i dati: `useApi`, risposte paginate, form validati con Zod |
-| 08 | [Tabellone in tempo reale](08-realtime-scoreboard.md) | Il tabellone live: Echo + Reverb, il pattern notifica-poi-rilettura |
-| 09 | [Modello di dominio](09-domain-model.md) | Tornei, atleti, iscrizioni, incontri e gli enum che li legano insieme |
-| 10 | [i18n e temi](10-i18n-theming.md) | Lingue italiano/inglese, colore del tema a runtime, modalità chiara/scura |
-| 11 | [Glossario](11-glossary.md) | Tutti i termini spiegati, in ordine alfabetico |
+| 02 | [Stack tecnologico e concetti](02-tech-stack-concepts.md) | Nuxt, Vue, SPA, `ssr: false` e le librerie chiave — ognuna spiegata da zero |
+| 03 | [Struttura del progetto](03-project-structure.md) | Visita guidata di `app/` e funzionamento del routing basato sui file |
+| 04 | [Build, avvio e configurazione](04-build-run-configure.md) | Comandi, variabili d'ambiente, configurazione a build-time, Docker/nginx |
+| 05 | [Autenticazione](05-authentication.md) | Login con token Sanctum, rotte admin vs pubbliche, redirect della root |
+| 06 | [Flusso dati e livello API](06-data-flow-api.md) | Come si muovono i dati: `useApi`, risposte paginate, `useLazyAsyncData`, download |
+| 07 | [Il pattern CRUD admin](07-admin-crud-pattern.md) | La ricetta `DataTable` + pannello form + `ApiSelectMenu` di ogni pagina admin |
+| 08 | [Tabellone incontri e auto-scroll](08-match-board-and-scroll.md) | La griglia degli incontri e il meccanismo di **scroll automatico (seek)** all'incontro attivo |
+| 09 | [Tabellone in tempo reale](09-realtime-scoreboard.md) | Echo + Reverb e il pattern *notifica-poi-rilettura* |
+| 10 | [Modello di dominio](10-domain-model.md) | Tornei, atleti, iscrizioni, incontri e gli enum che li legano |
+| 11 | [i18n e temi](11-i18n-theming.md) | Lingue italiano/inglese, colore del tema a runtime, modalità chiara/scura |
+| 12 | [Glossario](12-glossary.md) | Tutti i termini spiegati, in ordine alfabetico |
+
+## Convenzioni di notazione
+
+- `Codice` → identificatori, nomi di file, comandi.
+- *corsivo* → concetti di dominio.
+- → / ⇆ → direzione del flusso dati (unidirezionale / bidirezionale).
+- Gloss in linea alla prima comparsa di un termine: `termine (≈ analogia in parole semplici)`.
+- Tutti i percorsi sono **relativi alla radice del repository**.
 
 ## Riferimenti già presenti nel repository
 
-Questa documentazione rimanda — invece di duplicarli — ai file già presenti alla radice del repository:
+Questa documentazione rimanda — invece di duplicarli — ai file già presenti alla radice:
 
-- [`CLAUDE.md`](../../CLAUDE.md) — note di architettura e comandi sintetici (il riepilogo di alto livello più accurato).
-- [`DB.md`](../../DB.md) — lo schema del database del backend in DBML. Il frontend rispecchia queste forme; vedi il [Capitolo 09](09-domain-model.md).
-- [`README.md`](../../README.md) — utile per comandi e rotte, ma le sue sezioni su *backend/tempo reale/autenticazione* sono obsolete (vedi la nota sopra).
+- [`CLAUDE.md`](../../CLAUDE.md) — note di architettura e comandi sintetici.
+- [`README.md`](../../README.md) — panoramica, comandi, rotte e deployment. È allineato al backend Laravel attuale.
+- [`DB.md`](../../DB.md) — schema del database del backend in DBML. Il frontend rispecchia queste forme; vedi il [Capitolo 10](10-domain-model.md).

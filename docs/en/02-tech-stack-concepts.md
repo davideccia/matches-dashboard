@@ -1,63 +1,71 @@
-# 02 — Tech Stack & Concepts
+# 02 — Tech stack & concepts
 
-This chapter explains the technologies the project is built on, aimed at a developer who has not used them before. Versions are read from [`package.json`](../../package.json).
+> See also: [03 — Project structure](03-project-structure.md), [06 — Data flow & the API layer](06-data-flow-api.md), [12 — Glossary](12-glossary.md)
 
-## The foundational concepts
+This chapter introduces the project's technologies from scratch. If you already know Vue/Nuxt, skip to the final table; otherwise read through, because the concepts here recur throughout the documentation.
 
-### Vue 3 — the component framework
+## The core concepts
 
-**Vue** (`vue@^3.5`) is a JavaScript framework for building user interfaces out of **components** (≈ reusable custom HTML elements that bundle markup, styling and behaviour together). A Vue component lives in a `.vue` file with three sections:
+### SPA (Single-Page Application)
+
+An *SPA* (≈ an app that lives in a single HTML page) loads the browser once and then rewrites the page content with JavaScript as the user navigates, without reloading from scratch. Navigating between `/admin/tournaments` and `/admin/settings` needs no new round-trip to the server: only what JavaScript draws changes.
+
+### Vue 3
+
+*Vue* is a framework for building component-based interfaces. A **component** (≈ a reusable UI brick with its own HTML, logic, and style) is a `.vue` file split into three parts:
 
 ```vue
-<template> <!-- the HTML-like markup --> </template>
-<script setup lang="ts"> /* the TypeScript logic */ </script>
-<style> /* optional, scoped CSS */ </style>
+<template> <!-- the HTML --> </template>
+<script setup lang="ts"> /* the logic, in TypeScript */ </script>
+<style> /* optional style */ </style>
 ```
 
-Two Vue ideas you will see constantly:
+Vue concepts you'll meet constantly:
 
-- **Reactivity** — `ref(0)` and `reactive({...})` create values that, when changed, automatically re-render any part of the UI that uses them. `ref` wraps a single value (read/write it via `.value` in script); `reactive` wraps an object. A `computed(() => …)` is a value derived from others that recalculates on demand.
-- **`<script setup>`** — a compile-time shorthand where everything you declare in the script block is automatically available in the template. No explicit "export" wiring needed.
+- `ref(x)` → a **reactive box** (≈ an observable variable): when its `.value` changes, the UI that uses it re-renders. In a `<template>` you write it without `.value`.
+- `computed(() => …)` → a **derived** value that recomputes itself when its dependencies change.
+- `watch(source, callback)` → runs a function **when** a reactive source changes. It's at the heart of many mechanisms here (debounced search, auto-scroll, WebSocket subscription).
+- `v-model` → *two-way binding* (⇆): links a form input to a variable, in both directions.
+- `defineProps` / `defineEmits` → how a component receives data from its parent (props) and reports events back (emit).
 
-`v-model` is **two-way binding** (≈ keep this input box and this variable in sync, both directions). `v-for`, `v-if` are loop and conditional directives in the template.
+### Nuxt 4
 
-### Nuxt 4 — the application framework on top of Vue
+*Nuxt* is a meta-framework built on top of Vue. Among other things, it adds:
 
-**Nuxt** (`nuxt@^4.4`) is a framework built on Vue that adds project structure and conventions so you write less wiring. Its superpowers here:
+- **File-based routing**: the folder structure under `app/pages/` automatically becomes the URL structure (see [Chapter 03](03-project-structure.md)).
+- **Auto-imports**: components, `composables`, and helpers don't need manual imports — Nuxt makes them globally available. That's why the code uses `useApi()` or `<DataTable>` with no `import` at the top.
+- **Composables**: `useXxx()` functions that encapsulate reusable logic with reactive state (≈ React hooks). Ours live in [`app/composables/`](../../app/composables/).
+- **Plugins**: code that runs at app startup to configure something (here: Echo, auth, colour preference). They live in [`app/plugins/`](../../app/plugins/).
 
-- **File-based routing** — a file at `app/pages/admin/settings.vue` automatically becomes the URL `/admin/settings`. No router config to maintain. (Detail in [Chapter 03](03-project-structure.md).)
-- **Auto-imports** — Vue functions (`ref`, `computed`, `watch`), your own composables (`useApi`, `useAuth`), and components are available *without* `import` statements. If you see `useApi()` used with no import at the top of a file, this is why.
-- **Composables** — a Nuxt/Vue convention: a function named `useSomething()` that packages reusable stateful logic (≈ a mini-service you call from a component). This codebase has several; see [Chapter 07](07-data-flow-api.md).
-- **Modules** — plugins that extend Nuxt. Configured in [`nuxt.config.ts`](../../nuxt.config.ts): `@nuxt/ui`, `@nuxtjs/i18n`, `@nuxt/eslint`, `nuxt-auth-sanctum`.
-
-### SPA mode (`ssr: false`) — what kind of Nuxt app this is
-
-Nuxt can render pages on a server (SSR) or build a pure browser app. This project sets `ssr: false` in [`nuxt.config.ts`](../../nuxt.config.ts), making it a **SPA** — a *Single-Page Application* (≈ one HTML shell that the browser fills in with JavaScript; navigation happens client-side without full page reloads).
-
-Two important consequences flow directly from `ssr: false`:
-
-1. **No Node.js server at runtime.** `pnpm build` produces *static files* (HTML/JS/CSS) that any plain web server (here, nginx) can serve. There is no server-side code from this repo running in production.
-2. **Environment variables are baked in at build time.** Because nothing from this repo runs on a server to read env vars at request time, values like the API URL are *compiled into the JavaScript bundle* when you build. Changing the backend URL means rebuilding. This is covered in [Chapter 04](04-build-run-configure.md) and is a common source of confusion.
+In this project Nuxt is configured with `ssr: false` ([`nuxt.config.ts`](../../nuxt.config.ts) line 5): no server-side rendering, static output. The consequences are in [Chapter 04](04-build-run-configure.md).
 
 ## The key libraries
 
-| Library | Version | Role | Glossed |
-|---------|---------|------|---------|
-| `@nuxt/ui` | `^4.8` | The component library | A ready-made set of 125+ styled, accessible UI components (`UButton`, `UTable`, `UForm`, `USlideover`…). Anything starting with `U` in a template comes from here. |
-| `tailwindcss` | `^4.3` | Styling | **Utility-first CSS** (≈ tiny single-purpose class names like `flex gap-4 rounded-xl` composed directly in markup, instead of writing separate stylesheets). |
-| `nuxt-auth-sanctum` | `^3.1` | Authentication | Wires the app to **Laravel Sanctum** (≈ Laravel's token-based login system). Provides `useSanctumClient()` and `useSanctumAuth()`. See [Chapter 05](05-authentication.md). |
-| `laravel-echo` + `pusher-js` | `^2.3` / `^8.5` | Realtime | **Echo** is a client for subscribing to server-pushed events; **pusher-js** is the underlying WebSocket protocol it speaks. Connects to **Laravel Reverb**. See [Chapter 08](08-realtime-scoreboard.md). |
-| `@nuxtjs/i18n` | `^10.4` | Internationalisation | Translations and locale-prefixed URLs (Italian default, `/en/` for English). See [Chapter 10](10-i18n-theming.md). |
-| `zod` | `^4.4` | Validation | **Schema validation** (≈ declare the shape and rules a piece of data must satisfy; reject it if it doesn't). Used for every form. See [Chapter 07](07-data-flow-api.md). |
-| `moment` | `^2.30` | Dates | Date formatting/parsing, wrapped in [`app/utils/date.ts`](../../app/utils/date.ts). |
-| `vue-router` | `^5.0` | Routing | The underlying router Nuxt drives via file-based routing. You rarely touch it directly. |
-| `@internationalized/date`, `reka-ui` | — | Transitive | Pulled in by `@nuxt/ui` for date handling and headless component primitives. |
+| Library | What it does here | Explanation |
+|---------|-------------------|-------------|
+| **@nuxt/ui v4** | All the UI components (`UButton`, `UTable`, `USlideover`, `UForm`…) | A library of 125+ accessible Vue components built on *Tailwind CSS*. The project's components start with `U`. |
+| **Tailwind CSS v4** | Styling | *Utility-first* CSS: styling is written with classes like `flex`, `gap-2`, `text-muted` directly in the HTML, instead of separate stylesheets. |
+| **nuxt-auth-sanctum** | Login and route protection | Integrates *Laravel Sanctum* token auth. Provides `useSanctumClient()` and `useSanctumAuth()`. See [Chapter 05](05-authentication.md). |
+| **Zod v4** | Form validation | You define a *schema* of the expected data and Zod validates input, returning per-field errors. See [Chapter 06](06-data-flow-api.md). |
+| **Laravel Echo + pusher-js** | Realtime | A WebSocket client that subscribes to "channels" and listens for events. Here it talks to *Laravel Reverb*. See [Chapter 09](09-realtime-scoreboard.md). |
+| **@nuxtjs/i18n** | Internationalisation | Manages the two languages (it/en) and the `/en/` prefix. See [Chapter 11](11-i18n-theming.md). |
+| **moment** | Dates | Formats ISO dates for localised display. See [`app/utils/date.ts`](../../app/utils/date.ts). |
+| **pnpm** | Package manager | A faster, disk-thrifty alternative to `npm`. |
+| **TypeScript** | Language | JavaScript with types. Domain models are typed in [`app/types/models.ts`](../../app/types/models.ts). |
 
-## Tooling
+## An example that ties it together
 
-- **pnpm** — the package manager (≈ npm, but faster and disk-efficient via a shared store). Commands are `pnpm <script>`.
-- **TypeScript** (`typescript@^6`) — JavaScript with static types. The whole app is typed; domain types live in [`app/types/models.ts`](../../app/types/models.ts).
-- **ESLint** with `@antfu/eslint-config` — the linter and code-style enforcer. House style: **single quotes, no semicolons, sorted imports**. Run `pnpm eslint . --fix` after editing (see [`CLAUDE.md`](../../CLAUDE.md)).
-- **Vite** — the build tool and dev server bundler that Nuxt uses under the hood.
+This snippet (simplified from the real pattern) shows how the concepts collaborate:
 
-With the vocabulary in place, the next chapter walks the actual directory layout.
+```ts
+// inside <script setup> of an admin page
+const api = useApi()                       // auto-imported composable
+const search = ref('')                     // reactive box
+const { data } = useLazyAsyncData('x', () => // Nuxt's declarative fetch
+  api.get('/api/admin/athletes', { search: search.value }),
+  { watch: [search] },                     // re-reads when `search` changes
+)
+const items = computed(() => data.value?.data ?? []) // derived value
+```
+
+No `import`: `useApi`, `ref`, `computed`, and `useLazyAsyncData` are all auto-imported by Nuxt.

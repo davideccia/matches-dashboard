@@ -170,16 +170,6 @@
                       type="time"
                       class="w-full"
                     />
-                    <UButton
-                      v-if="state.minutes_per_round"
-                      type="button"
-                      icon="i-mdi-close"
-                      variant="ghost"
-                      color="neutral"
-                      size="sm"
-                      :aria-label="t('common.cancel')"
-                      @click="state.minutes_per_round = undefined"
-                    />
                   </div>
                 </UFormField>
               </div>
