@@ -93,8 +93,8 @@
     },
     "cover": "Cover",
     "pdf": {
-      "board": "Detailed",
-      "list": "Simple list"
+      "board": "Match list (detailed)",
+      "list": "Matches list (simple)"
     }
   },
   "match": {

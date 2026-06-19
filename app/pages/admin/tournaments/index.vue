@@ -117,17 +117,17 @@ const columns = computed(() => [
   { id: 'actions', header: '' },
 ] as TableColumn<Record<string, unknown>>[])
 
-async function downloadPdfBoard(item: Tournament) {
+async function downloadSimplePdf(item: Tournament) {
   try {
-    await api.download(`/api/admin/tournaments/${item.id}/matches/pdf/board`, `tournament-${item.id}-matches.pdf`)
+    await api.download(`/api/admin/tournaments/${item.id}/match_records/pdf/?type=simple`, `tournament-${item.id}-matches-list.pdf`)
   } catch (e) {
     toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
   }
 }
 
-async function downloadPdfList(item: Tournament) {
+async function downloadDetailedPdf(item: Tournament) {
   try {
-    await api.download(`/api/admin/tournaments/${item.id}/matches/pdf/list`, `tournament-${item.id}-matches-list.pdf`)
+    await api.download(`/api/admin/tournaments/${item.id}/match_records/pdf/?type=detailed`, `tournament-${item.id}-matches.pdf`)
   } catch (e) {
     toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
   }
@@ -136,8 +136,8 @@ async function downloadPdfList(item: Tournament) {
 function getPdfMenuItems(item: Tournament) {
   return [
     [
-      { label: t('tournament.pdf.board'), icon: 'i-mdi-view-list', onSelect: () => downloadPdfBoard(item) },
-      { label: t('tournament.pdf.list'), icon: 'i-mdi-format-list-bulleted', onSelect: () => downloadPdfList(item) },
+      { label: t('tournament.pdf.list'), icon: 'i-mdi-format-list-bulleted', onSelect: () => downloadSimplePdf(item) },
+      { label: t('tournament.pdf.board'), icon: 'i-mdi-view-list', onSelect: () => downloadDetailedPdf(item) },
     ],
   ]
 }

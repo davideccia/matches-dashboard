@@ -93,8 +93,8 @@
     },
     "cover": "Copertina",
     "pdf": {
-      "board": "Dettagliata",
-      "list": "Lista"
+      "board": "Lista incontri (dettagliata)",
+      "list": "Lista incontri (semplice)"
     }
   },
   "match": {
