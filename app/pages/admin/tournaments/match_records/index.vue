@@ -40,6 +40,17 @@
               :aria-label="t('common.cancel')"
               @click="tournamentId = null"
             />
+            <div class="h-6 w-px bg-accented" />
+            <UButton
+              icon="i-mdi-cog-play"
+              color="primary"
+              variant="soft"
+              :loading="generating"
+              :disabled="!tournamentId"
+              @click="confirmGenerateOpen = true"
+            >
+              {{ t('match.generate') }}
+            </UButton>
           </template>
           <template #status-cell="{ row }">
             <UBadge
@@ -96,6 +107,24 @@
         </div>
       </template>
     </UModal>
+
+    <UModal v-model:open="confirmGenerateOpen" :title="t('common.confirm')">
+      <template #body>
+        <p class="text-sm text-muted">
+          {{ t('match.generateConfirm') }}
+        </p>
+      </template>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <UButton variant="ghost" color="neutral" @click="confirmGenerateOpen = false">
+            {{ t('common.cancel') }}
+          </UButton>
+          <UButton color="primary" :loading="generating" @click="generateMatches">
+            {{ t('common.confirm') }}
+          </UButton>
+        </div>
+      </template>
+    </UModal>
   </ClientOnly>
 </template>
 
@@ -114,6 +143,8 @@ const tableRef = useTemplateRef('tableRef')
 const tournamentId = ref<string | null>(null)
 const matchmakingIssues = ref<MatchmakingIssue[]>([])
 const orphanLoading = ref(false)
+const confirmGenerateOpen = ref(false)
+const generating = ref(false)
 
 async function refreshMatchmakingIssues() {
   if (!tournamentId.value) { return }
@@ -175,6 +206,21 @@ const columns = computed(() => [
   { accessorKey: 'status', header: t('match.status.label') },
   { id: 'actions', header: '' },
 ] as TableColumn<Record<string, unknown>>[])
+
+async function generateMatches() {
+  if (!tournamentId.value) { return }
+  generating.value = true
+  try {
+    await api.post(`/api/admin/tournaments/${tournamentId.value}/match_records/generate`)
+    confirmGenerateOpen.value = false
+    toast.add({ title: t('match.generated'), color: 'success' })
+    await Promise.all([tableRef.value?.refresh(), refreshMatchmakingIssues()])
+  } catch (e) {
+    toast.add({ title: getApiErrorMessage(e), color: 'error' })
+  } finally {
+    generating.value = false
+  }
+}
 
 function openCreate() {
   editingItem.value = null

@@ -3,14 +3,6 @@
     <div class="bg-elevated rounded-xl p-2 flex flex-col gap-2">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-1">
         <div class="flex flex-wrap items-center gap-2">
-          <UInput
-            v-if="searchable"
-            v-model="searchInput"
-            icon="i-mdi-magnify"
-            :placeholder="searchPlaceholder ?? t('common.search')"
-            class="w-full sm:w-64"
-          />
-          <slot name="filters" />
           <UButton
             icon="i-mdi-refresh"
             variant="ghost"
@@ -19,6 +11,14 @@
             :aria-label="t('common.refresh')"
             @click="refresh()"
           />
+          <UInput
+            v-if="searchable"
+            v-model="searchInput"
+            icon="i-mdi-magnify"
+            :placeholder="searchPlaceholder ?? t('common.search')"
+            class="w-full sm:w-64"
+          />
+          <slot name="filters" />
         </div>
         <UBadge v-if="showTotal && total > 0" variant="soft" color="neutral" size="md">
           {{ total }}

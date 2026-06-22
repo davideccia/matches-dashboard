@@ -23,16 +23,13 @@
         <div class="shrink-0 border-b border-muted px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div class="flex flex-wrap items-center gap-2">
             <UButton
-              icon="i-mdi-cog-play"
-              color="primary"
-              variant="soft"
-              :loading="generating"
-              :disabled="!tournamentId"
-              @click="confirmGenerateOpen = true"
-            >
-              {{ t('match.generate') }}
-            </UButton>
-            <USeparator orientation="vertical" class="h-6" />
+              icon="i-mdi-refresh"
+              variant="ghost"
+              color="neutral"
+              :loading="status === 'pending'"
+              :aria-label="t('common.refresh')"
+              @click="refreshBoard"
+            />
             <UInput
               v-model="searchInput"
               icon="i-mdi-magnify"
@@ -54,14 +51,17 @@
               :aria-label="t('common.cancel')"
               @click="tournamentId = null"
             />
+            <div class="h-6 w-px bg-accented" />
             <UButton
-              icon="i-mdi-refresh"
-              variant="ghost"
-              color="neutral"
-              :loading="status === 'pending'"
-              :aria-label="t('common.refresh')"
-              @click="refreshBoard"
-            />
+              icon="i-mdi-cog-play"
+              color="primary"
+              variant="soft"
+              :loading="generating"
+              :disabled="!tournamentId"
+              @click="confirmGenerateOpen = true"
+            >
+              {{ t('match.generate') }}
+            </UButton>
           </div>
           <UBadge v-if="tournamentId && total > 0" variant="soft" color="neutral" size="md">
             {{ total }}
