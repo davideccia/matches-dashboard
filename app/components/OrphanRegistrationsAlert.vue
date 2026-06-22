@@ -94,7 +94,7 @@ const search = ref('')
 
 const filteredItems = computed(() => {
   const q = search.value.trim().toLowerCase()
-  if (!q) return props.items
+  if (!q) { return props.items }
   return props.items.filter(item =>
     item.athlete_name.toLowerCase().includes(q)
     || item.discipline_label.toLowerCase().includes(q)

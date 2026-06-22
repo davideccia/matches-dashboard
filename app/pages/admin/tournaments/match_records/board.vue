@@ -111,10 +111,22 @@
                 >
                   <MatchRecordCardReadOnly :match="match" :show-judges-points="false" />
                   <div class="absolute inset-0 rounded-[inherit] flex items-center justify-center gap-3 bg-default/75 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto">
-                    <UButton icon="i-mdi-pencil" color="primary" variant="solid" size="sm" @click.stop="openEdit(match)">
+                    <UButton
+                      icon="i-mdi-pencil"
+                      color="primary"
+                      variant="solid"
+                      size="sm"
+                      @click.stop="openEdit(match)"
+                    >
                       {{ t('common.edit') }}
                     </UButton>
-                    <UButton icon="i-mdi-delete" color="error" variant="solid" size="sm" @click.stop="confirmDelete(match)">
+                    <UButton
+                      icon="i-mdi-delete"
+                      color="error"
+                      variant="solid"
+                      size="sm"
+                      @click.stop="confirmDelete(match)"
+                    >
                       {{ t('common.delete') }}
                     </UButton>
                   </div>
