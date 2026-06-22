@@ -153,46 +153,11 @@
                 </div>
               </div>
             </div>
-
-            <div class="h-px bg-border" />
-
-            <!-- Actions -->
-            <UButton
-              icon="i-mdi-cog-play"
-              color="primary"
-              variant="soft"
-              size="sm"
-              class="self-start"
-              :loading="generatingId === item.tournament_id"
-              @click="openGenerateConfirm(item.tournament_id)"
-            >
-              {{ t('match.generate') }}
-            </UButton>
           </div>
         </div>
       </div>
     </template>
   </UDashboardPanel>
-
-  <ClientOnly>
-    <UModal v-model:open="confirmGenerateOpen" :title="t('common.confirm')">
-      <template #body>
-        <p class="text-sm text-muted">
-          {{ t('match.generateConfirm') }}
-        </p>
-      </template>
-      <template #footer>
-        <div class="flex justify-end gap-2">
-          <UButton variant="ghost" color="neutral" @click="cancelGenerate">
-            {{ t('common.cancel') }}
-          </UButton>
-          <UButton color="primary" :loading="!!generatingId" @click="generateMatches">
-            {{ t('common.confirm') }}
-          </UButton>
-        </div>
-      </template>
-    </UModal>
-  </ClientOnly>
 </template>
 
 <script setup lang="ts">
@@ -203,12 +168,7 @@ import { formatServerDateOnly } from '~/utils/date'
 definePageMeta({ layout: 'default' })
 
 const { t, locale } = useI18n()
-const api = useApi()
-const { get } = api
-const toast = useToast()
-
-const confirmGenerateOpen = ref(false)
-const generatingId = ref<string | null>(null)
+const { get } = useApi()
 
 interface DashboardItem {
   tournament_id: string
@@ -264,31 +224,6 @@ const { data, pending, refresh } = useLazyAsyncData('dashboard', () => {
 onUnmounted(() => controller?.abort())
 
 const items = computed(() => data.value?.data ?? [])
-
-function openGenerateConfirm(id: string) {
-  generatingId.value = id
-  confirmGenerateOpen.value = true
-}
-
-function cancelGenerate() {
-  confirmGenerateOpen.value = false
-  generatingId.value = null
-}
-
-async function generateMatches() {
-  if (!generatingId.value) { return }
-  const id = generatingId.value
-  try {
-    await api.post(`/api/admin/tournaments/${id}/match_records/generate`)
-    confirmGenerateOpen.value = false
-    toast.add({ title: t('match.generated'), color: 'success' })
-    refresh()
-  } catch (e) {
-    toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
-  } finally {
-    generatingId.value = null
-  }
-}
 
 const STATUS_COLORS: Record<TournamentStatus, BadgeProps['color']> = {
   scheduled: 'neutral',
