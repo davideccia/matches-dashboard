@@ -181,7 +181,9 @@
       "okDescription": "All registered athletes have at least one match assigned.",
       "warningTitle": "registration without a match | registrations without a match",
       "viewDetails": "View details",
-      "modalTitle": "Unmatched registrations"
+      "modalTitle": "Unmatched registrations",
+      "searchPlaceholder": "Search athlete, discipline…",
+      "noResults": "No results"
     },
     "generate": "Generate matches",
     "generateConfirm": "Are you sure? Existing matches will be deleted and everything will be recalculated.",

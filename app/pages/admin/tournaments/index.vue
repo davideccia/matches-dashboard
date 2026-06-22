@@ -15,7 +15,6 @@
 
     <template #body>
       <div class="flex flex-col gap-5 p-6">
-        <OrphanRegistrationsAlert :items="[]" skeleton />
         <DataTable
           ref="tableRef"
           url="/api/admin/tournaments"

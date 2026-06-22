@@ -181,10 +181,12 @@
       "okDescription": "Tutti gli atleti iscritti hanno almeno un incontro assegnato.",
       "warningTitle": "iscrizione senza match | iscrizioni senza match",
       "viewDetails": "Visualizza dettagli",
-      "modalTitle": "Iscrizioni senza match"
+      "modalTitle": "Iscrizioni senza match",
+      "searchPlaceholder": "Cerca atleta, disciplina…",
+      "noResults": "Nessun risultato"
     },
-    "generate": "Genera incontri",
-    "generateConfirm": "Confermi? I match esistenti verranno cancellati e sarà tutto ricalcolato.",
+    "generate": "Generazione automatica",
+    "generateConfirm": "Confermi la generazione automatica degli incontri? E' consigliata una revisione manuale dopo l'avvenuta generazione",
     "generated": "Incontri generati con successo"
   },
   "athlete": {

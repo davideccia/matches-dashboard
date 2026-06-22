@@ -107,10 +107,17 @@
                   v-for="(match, index) in items"
                   :key="match.id"
                   :ref="(el) => { if (el) matchCardEls[index] = el as HTMLElement }"
-                  class="cursor-pointer"
-                  @click="openEdit(match)"
+                  class="relative group"
                 >
                   <MatchRecordCardReadOnly :match="match" :show-judges-points="false" />
+                  <div class="absolute inset-0 rounded-[inherit] flex items-center justify-center gap-3 bg-default/75 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto">
+                    <UButton icon="i-mdi-pencil" color="primary" variant="solid" size="sm" @click.stop="openEdit(match)">
+                      {{ t('common.edit') }}
+                    </UButton>
+                    <UButton icon="i-mdi-delete" color="error" variant="solid" size="sm" @click.stop="confirmDelete(match)">
+                      {{ t('common.delete') }}
+                    </UButton>
+                  </div>
                 </div>
               </div>
             </div>
@@ -122,6 +129,24 @@
 
   <ClientOnly>
     <MatchRecordFormPanel v-model="panelOpen" :item="editingItem" :initial-tab="initialTab" @saved="refreshBoard" />
+
+    <UModal v-model:open="confirmDeleteOpen" :title="t('common.confirm')">
+      <template #body>
+        <p class="text-sm text-muted">
+          {{ t('match.deleteConfirm') }}
+        </p>
+      </template>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <UButton variant="ghost" color="neutral" @click="confirmDeleteOpen = false">
+            {{ t('common.cancel') }}
+          </UButton>
+          <UButton color="error" :loading="deleting" @click="deleteMatch">
+            {{ t('common.delete') }}
+          </UButton>
+        </div>
+      </template>
+    </UModal>
 
     <UModal v-model:open="confirmGenerateOpen" :title="t('common.confirm')">
       <template #body>
@@ -162,6 +187,9 @@ const editingItem = ref<MatchRecord | null>(null)
 const initialTab = ref<'details' | 'outcome'>('details')
 const confirmGenerateOpen = ref(false)
 const generating = ref(false)
+const confirmDeleteOpen = ref(false)
+const deleteTarget = ref<MatchRecord | null>(null)
+const deleting = ref(false)
 const matchCardEls = ref<HTMLElement[]>([])
 let hasScrolledInitially = false
 
@@ -251,6 +279,27 @@ async function generateMatches() {
     toast.add({ title: getApiErrorMessage(e), color: 'error' })
   } finally {
     generating.value = false
+  }
+}
+
+function confirmDelete(item: MatchRecord) {
+  deleteTarget.value = item
+  confirmDeleteOpen.value = true
+}
+
+async function deleteMatch() {
+  if (!deleteTarget.value) { return }
+  deleting.value = true
+  try {
+    await api.del(`/api/admin/match_records/${deleteTarget.value.id}`)
+    confirmDeleteOpen.value = false
+    deleteTarget.value = null
+    toast.add({ title: t('match.deleted'), color: 'success' })
+    refreshBoard()
+  } catch (e) {
+    toast.add({ title: getApiErrorMessage(e), color: 'error' })
+  } finally {
+    deleting.value = false
   }
 }
 
