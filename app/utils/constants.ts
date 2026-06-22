@@ -30,6 +30,9 @@ export const END_METHODS = [
 ] as const
 export type EndMethod = typeof END_METHODS[number]
 
+export const EXPERIENCE_TIERS = ['beginner', 'intermediate', 'advanced'] as const
+export type ExperienceTier = typeof EXPERIENCE_TIERS[number]
+
 export const CLIENT_TYPES = ['desktop', 'mobile'] as const
 export type ClientType = typeof CLIENT_TYPES[number]
 

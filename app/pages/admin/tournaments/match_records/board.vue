@@ -15,9 +15,24 @@
 
     <template #body>
       <div class="flex flex-col h-full overflow-hidden">
+        <div class="shrink-0 p-6 pb-0">
+          <OrphanRegistrationsAlert :items="matchmakingIssues" :skeleton="!tournamentId || orphanLoading" />
+          <USeparator class="mt-6" />
+        </div>
         <!-- Search / filter bar — always visible -->
         <div class="shrink-0 border-b border-muted px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div class="flex flex-wrap items-center gap-2">
+            <UButton
+              icon="i-mdi-cog-play"
+              color="primary"
+              variant="soft"
+              :loading="generating"
+              :disabled="!tournamentId"
+              @click="confirmGenerateOpen = true"
+            >
+              {{ t('match.generate') }}
+            </UButton>
+            <USeparator orientation="vertical" class="h-6" />
             <UInput
               v-model="searchInput"
               icon="i-mdi-magnify"
@@ -107,23 +122,46 @@
 
   <ClientOnly>
     <MatchRecordFormPanel v-model="panelOpen" :item="editingItem" :initial-tab="initialTab" @saved="refreshBoard" />
+
+    <UModal v-model:open="confirmGenerateOpen" :title="t('common.confirm')">
+      <template #body>
+        <p class="text-sm text-muted">
+          {{ t('match.generateConfirm') }}
+        </p>
+      </template>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <UButton variant="ghost" color="neutral" @click="confirmGenerateOpen = false">
+            {{ t('common.cancel') }}
+          </UButton>
+          <UButton color="primary" :loading="generating" @click="generateMatches">
+            {{ t('common.confirm') }}
+          </UButton>
+        </div>
+      </template>
+    </UModal>
   </ClientOnly>
 </template>
 
 <script setup lang="ts">
-import type { MatchRecord } from '~/types/models'
+import type { MatchmakingIssue, MatchRecord } from '~/types/models'
 
 definePageMeta({ layout: 'default' })
 
 const { t } = useI18n()
 const api = useApi()
+const toast = useToast()
 
 const searchInput = ref('')
 const search = ref('')
 const tournamentId = ref<string | null>(null)
+const matchmakingIssues = ref<MatchmakingIssue[]>([])
+const orphanLoading = ref(false)
 const panelOpen = ref(false)
 const editingItem = ref<MatchRecord | null>(null)
 const initialTab = ref<'details' | 'outcome'>('details')
+const confirmGenerateOpen = ref(false)
+const generating = ref(false)
 const matchCardEls = ref<HTMLElement[]>([])
 let hasScrolledInitially = false
 
@@ -140,13 +178,27 @@ interface MatchRecordesResponse {
   meta: { total: number, current_page: number, last_page: number, per_page: number }
 }
 
+async function refreshMatchmakingIssues() {
+  if (!tournamentId.value) { return }
+  orphanLoading.value = true
+  try {
+    const tournament = await api.get<{ data: { matchmaking_issues: MatchmakingIssue[] | null } }>(`/api/admin/tournaments/${tournamentId.value}`)
+    matchmakingIssues.value = tournament.data.matchmaking_issues ?? []
+  } finally {
+    orphanLoading.value = false
+  }
+}
+
 watch(tournamentId, (val) => {
   if (!val) {
     searchInput.value = ''
     search.value = ''
+    matchmakingIssues.value = []
   }
   hasScrolledInitially = false
   matchCardEls.value = []
+  if (!val) { return }
+  refreshMatchmakingIssues()
 })
 
 const { data, refresh, status } = useLazyAsyncData(
@@ -184,6 +236,22 @@ function refreshBoard() {
   hasScrolledInitially = false
   matchCardEls.value = []
   refresh()
+  refreshMatchmakingIssues()
+}
+
+async function generateMatches() {
+  if (!tournamentId.value) { return }
+  generating.value = true
+  try {
+    await api.post(`/api/admin/tournaments/${tournamentId.value}/match_records/generate`)
+    confirmGenerateOpen.value = false
+    toast.add({ title: t('match.generated'), color: 'success' })
+    refreshBoard()
+  } catch (e) {
+    toast.add({ title: getApiErrorMessage(e), color: 'error' })
+  } finally {
+    generating.value = false
+  }
 }
 
 function openCreate() {

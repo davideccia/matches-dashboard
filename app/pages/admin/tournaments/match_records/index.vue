@@ -15,6 +15,8 @@
 
     <template #body>
       <div class="flex flex-col gap-5 p-6">
+        <OrphanRegistrationsAlert :items="matchmakingIssues" :skeleton="!tournamentId || orphanLoading" />
+        <USeparator />
         <DataTable
           ref="tableRef"
           url="/api/admin/match_records?with=tournament,redCorner,blueCorner,weightCategory,discipline"
@@ -75,7 +77,7 @@
   </UDashboardPanel>
 
   <ClientOnly>
-    <MatchRecordFormPanel v-model="panelOpen" :item="editingItem" @saved="() => tableRef?.refresh()" />
+    <MatchRecordFormPanel v-model="panelOpen" :item="editingItem" @saved="() => { tableRef?.refresh(); refreshMatchmakingIssues() }" />
 
     <UModal v-model:open="confirmOpen" :title="t('common.confirm')">
       <template #body>
@@ -99,7 +101,7 @@
 
 <script setup lang="ts">
 import type { BadgeProps, TableColumn } from '@nuxt/ui'
-import type { MatchRecord } from '~/types/models'
+import type { MatchmakingIssue, MatchRecord } from '~/types/models'
 
 definePageMeta({ layout: 'default' })
 
@@ -110,6 +112,25 @@ const toast = useToast()
 const tableRef = useTemplateRef('tableRef')
 
 const tournamentId = ref<string | null>(null)
+const matchmakingIssues = ref<MatchmakingIssue[]>([])
+const orphanLoading = ref(false)
+
+async function refreshMatchmakingIssues() {
+  if (!tournamentId.value) { return }
+  orphanLoading.value = true
+  try {
+    const tournament = await api.get<{ data: { matchmaking_issues: MatchmakingIssue[] | null } }>(`/api/admin/tournaments/${tournamentId.value}`)
+    matchmakingIssues.value = tournament.data.matchmaking_issues ?? []
+  } finally {
+    orphanLoading.value = false
+  }
+}
+
+watch(tournamentId, (id) => {
+  matchmakingIssues.value = []
+  if (!id) { return }
+  refreshMatchmakingIssues()
+})
 const panelOpen = ref(false)
 const editingItem = ref<MatchRecord | null>(null)
 const confirmOpen = ref(false)
@@ -177,7 +198,7 @@ async function deleteItem() {
     await api.del(`/api/admin/match_records/${deleteTarget.value.id}`)
     confirmOpen.value = false
     deleteTarget.value = null
-    await tableRef.value?.refresh()
+    await Promise.all([tableRef.value?.refresh(), refreshMatchmakingIssues()])
     toast.add({ title: t('match.deleted'), color: 'success' })
   } catch (e) {
     toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })

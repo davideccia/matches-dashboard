@@ -1,4 +1,4 @@
-import type { EndMethod, Gender, MatchStatus, TournamentStatus } from '~/utils/constants'
+import type { EndMethod, ExperienceTier, Gender, MatchStatus, TournamentStatus } from '~/utils/constants'
 
 // ─── Models ──────────────────────────────────────────────────────────────────
 
@@ -39,6 +39,18 @@ export interface Athlete {
   registrations?: Registration[]
 }
 
+export interface MatchmakingIssue {
+  registration_id: number
+  athlete_id: number
+  athlete_name: string
+  discipline_id: number
+  discipline_label: string
+  weight_category_id: number
+  weight_category_label: string
+  experience_tier: ExperienceTier
+  match_count: number
+}
+
 export interface Tournament {
   id: string
   name: string
@@ -47,6 +59,7 @@ export interface Tournament {
   location_city: string
   date: string // "YYYY-MM-DD"
   status: TournamentStatus
+  matchmaking_issues: MatchmakingIssue[] | null
   created_at: string
   updated_at: string
   // relazioni opzionali

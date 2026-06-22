@@ -169,7 +169,23 @@
       "female": "Femminile",
       "hybrid": "Nessuno"
     },
-    "cornerPreview": "Anteprima incontro"
+    "cornerPreview": "Anteprima incontro",
+    "experienceTier": {
+      "label": "Livello",
+      "beginner": "Principiante (-5)",
+      "intermediate": "Intermedio (5|15)",
+      "advanced": "Avanzato (+15)"
+    },
+    "matchmakingIssues": {
+      "okTitle": "Nessuna iscrizione senza match",
+      "okDescription": "Tutti gli atleti iscritti hanno almeno un incontro assegnato.",
+      "warningTitle": "iscrizione senza match | iscrizioni senza match",
+      "viewDetails": "Visualizza dettagli",
+      "modalTitle": "Iscrizioni senza match"
+    },
+    "generate": "Genera incontri",
+    "generateConfirm": "Confermi? I match esistenti verranno cancellati e sarà tutto ricalcolato.",
+    "generated": "Incontri generati con successo"
   },
   "athlete": {
     "title": "Atleta",

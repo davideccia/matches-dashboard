@@ -169,7 +169,23 @@
       "female": "Female",
       "hybrid": "None"
     },
-    "cornerPreview": "Match preview"
+    "cornerPreview": "Match preview",
+    "experienceTier": {
+      "label": "Level",
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "matchmakingIssues": {
+      "okTitle": "No unmatched registrations",
+      "okDescription": "All registered athletes have at least one match assigned.",
+      "warningTitle": "registration without a match | registrations without a match",
+      "viewDetails": "View details",
+      "modalTitle": "Unmatched registrations"
+    },
+    "generate": "Generate matches",
+    "generateConfirm": "Are you sure? Existing matches will be deleted and everything will be recalculated.",
+    "generated": "Matches generated successfully"
   },
   "athlete": {
     "title": "Athlete",
