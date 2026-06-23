@@ -9,12 +9,14 @@
             <UIcon name="i-mdi-trophy" class="size-3.5 shrink-0 text-warning" />
             <span class="truncate">{{ match.tournament?.name ?? '—' }}</span>
           </div>
-          <!-- Always rendered — dash when both missing -->
+          <!-- Always rendered — dash when all missing -->
           <div class="mt-0.5 sm:mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted min-h-4">
             <template v-if="match.weight_category?.label || match.discipline?.label">
               <span>{{ match.weight_category?.label ?? '—' }}</span>
               <span class="opacity-40">·</span>
               <span>{{ match.discipline?.label ?? '—' }}</span>
+              <span class="opacity-40">·</span>
+              <span>{{ match.rounds }}×{{ match.minutes_per_round ?? '—' }}</span>
             </template>
             <span v-else class="opacity-40">—</span>
           </div>
