@@ -213,6 +213,8 @@
                           <template #label="{ item: slotItem }">
                             <span class="flex items-center gap-2 min-w-0 w-full">
                               <span class="truncate flex-1">{{ slotItem.full_name }}</span>
+                              <UBadge v-if="slotItem.is_adult" color="success" variant="subtle" size="sm">{{ t('athlete.adult') }}</UBadge>
+                              <UBadge v-else color="warning" variant="subtle" size="sm">{{ t('athlete.minor') }}</UBadge>
                               <span
                                 v-if="slotItem.match_records_count != null"
                                 class="inline-flex items-center gap-1 shrink-0 rounded-full border border-muted bg-elevated px-1.5 py-px text-[11px] font-medium text-muted"
@@ -262,6 +264,8 @@
                           <template #label="{ item: slotItem }">
                             <span class="flex items-center gap-2 min-w-0 w-full">
                               <span class="truncate flex-1">{{ slotItem.full_name }}</span>
+                              <UBadge v-if="slotItem.is_adult" color="success" variant="subtle" size="xs">{{ t('athlete.adult') }}</UBadge>
+                              <UBadge v-else color="warning" variant="subtle" size="xs">{{ t('athlete.minor') }}</UBadge>
                               <span
                                 v-if="slotItem.match_records_count != null"
                                 class="inline-flex items-center gap-1 shrink-0 rounded-full border border-muted bg-elevated px-1.5 py-px text-[11px] font-medium text-muted"

@@ -35,7 +35,15 @@
             </span>
           </template>
           <template #birth_date-cell="{ row }">
-            {{ formatServerDateOnly(((row.original as unknown as Athlete)).birth_date, locale) }}
+            <span class="flex items-center gap-2">
+              {{ formatServerDateOnly((row.original as unknown as Athlete).birth_date, locale) }}
+              <UBadge v-if="(row.original as unknown as Athlete).is_adult" color="success" variant="subtle">
+                {{ t('athlete.adult') }}
+              </UBadge>
+              <UBadge v-else color="warning" variant="subtle">
+                {{ t('athlete.minor') }}
+              </UBadge>
+            </span>
           </template>
           <template #gender-cell="{ row }">
             <UBadge

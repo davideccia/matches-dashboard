@@ -25,6 +25,7 @@ export interface Athlete {
   last_name: string
   full_name: string
   birth_date: string // "YYYY-MM-DD"
+  is_adult: boolean
   gender: Gender
   tax_number: string | null
   team_name: string | null

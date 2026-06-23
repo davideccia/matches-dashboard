@@ -207,6 +207,8 @@
     "created": "Athlete created",
     "updated": "Athlete updated",
     "deleted": "Athlete deleted",
+    "adult": "+18",
+    "minor": "-18",
     "gender": {
       "label": "Gender",
       "male": "Male",
