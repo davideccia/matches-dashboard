@@ -64,7 +64,8 @@
     "yes": "Yes",
     "no": "No",
     "download": "Download",
-    "close": "Close"
+    "close": "Close",
+    "selected": "selected"
   },
   "tournament": {
     "title": "Tournament",

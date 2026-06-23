@@ -18,16 +18,34 @@
             :placeholder="searchPlaceholder ?? t('common.search')"
             class="w-full sm:w-64"
           />
+          <template v-if="bulkActions?.length">
+            <UDivider orientation="vertical" class="h-5" />
+            <USelect
+              v-model="selectedAction"
+              :items="bulkActionItems"
+              :placeholder="t('common.actions')"
+              size="sm"
+              class="w-44"
+              @update:model-value="onActionSelect"
+            />
+          </template>
           <slot name="filters" />
         </div>
-        <UBadge v-if="showTotal && total > 0" variant="soft" color="neutral" size="md">
-          {{ total }}
-        </UBadge>
+        <div class="flex items-center gap-2">
+          <UBadge v-if="showTotal && total > 0" variant="soft" color="neutral" size="md">
+            {{ total }}
+          </UBadge>
+          <UBadge variant="soft" color="primary" size="md">
+            {{ selectedIds.length }} {{ t('common.selected') }}
+          </UBadge>
+        </div>
       </div>
 
       <div class="ring-2 ring-accented rounded-xl overflow-hidden">
         <div class="overflow-x-auto">
           <UTable
+            ref="tableRef"
+            v-model:row-selection="rowSelection"
             :data="items"
             :columns="alignedColumns"
             :loading="loading"
@@ -67,13 +85,40 @@
       </div>
     </div>
   </div>
+
+  <UModal v-model:open="confirmBulkOpen" :title="t('common.confirm')">
+    <template #body>
+      <p class="text-sm text-muted">
+        {{ pendingBulkAction?.label }}: {{ selectedIds.length }} {{ t('common.selected') }}
+      </p>
+    </template>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="ghost" color="neutral" @click="confirmBulkOpen = false">
+          {{ t('common.cancel') }}
+        </UButton>
+        <UButton color="error" :loading="bulkExecuting" @click="executeBulkAction">
+          {{ t('common.confirm') }}
+        </UButton>
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup lang="ts" generic="T extends Record<string, unknown>">
 import type { TableColumn } from '@nuxt/ui'
+import { h, resolveComponent } from 'vue'
+import { getApiErrorMessage } from '~/composables/useApi'
 import { PAGE_SIZES } from '~/utils/constants'
 
 type QueryParams = Record<string, string | number | boolean | undefined>
+
+interface BulkAction {
+  endpoint: string
+  icon: string
+  label: string
+  ids_key: string
+}
 
 const props = withDefaults(defineProps<{
   url: string
@@ -85,6 +130,7 @@ const props = withDefaults(defineProps<{
   searchable?: boolean
   showTotal?: boolean
   searchPlaceholder?: string
+  bulkActions?: BulkAction[]
 }>(), {
   pageSize: 10,
   emptyIcon: 'i-mdi-database',
@@ -94,9 +140,27 @@ const props = withDefaults(defineProps<{
 
 const { t } = useI18n()
 const api = useApi()
+const toast = useToast()
 
 const instanceId = getCurrentInstance()?.uid ?? Math.random()
 const page = ref(1)
+const tableRef = useTemplateRef<any>('tableRef')
+const rowSelection = ref<Record<string, boolean>>({})
+
+const UCheckbox = resolveComponent('UCheckbox')
+const selectColumn: TableColumn<T> = {
+  id: 'select',
+  header: ({ table }: { table: { getIsSomePageRowsSelected: () => boolean, getIsAllPageRowsSelected: () => boolean, toggleAllPageRowsSelected: (v: boolean) => void } }) => h(UCheckbox, {
+    'modelValue': table.getIsSomePageRowsSelected() ? 'indeterminate' : table.getIsAllPageRowsSelected(),
+    'onUpdate:modelValue': (v: boolean) => table.toggleAllPageRowsSelected(!!v),
+    'aria-label': 'Select all',
+  }),
+  cell: ({ row }: { row: { getIsSelected: () => boolean, toggleSelected: (v: boolean) => void } }) => h(UCheckbox, {
+    'modelValue': row.getIsSelected(),
+    'onUpdate:modelValue': (v: boolean) => row.toggleSelected(!!v),
+    'aria-label': 'Select row',
+  }),
+}
 const pageSizeOptions = [...PAGE_SIZES]
 const selectedPageSize = ref<typeof PAGE_SIZES[number]>(props.pageSize as typeof PAGE_SIZES[number])
 
@@ -147,16 +211,60 @@ watch(() => props.params, () => {
 
 const items = computed(() => data.value?.data ?? [])
 const total = computed(() => data.value?.meta?.total ?? 0)
-const alignedColumns = computed(() =>
-  props.columns.map(col => ({
+const alignedColumns = computed(() => [
+  selectColumn,
+  ...props.columns.map(col => ({
     ...col,
     meta: col.meta ?? { class: { th: 'text-left', td: 'text-left' } },
   })),
-)
+])
 const loading = computed(() => status.value === 'pending' || status.value === 'idle')
+
+watch(items, () => { rowSelection.value = {} })
+
+const selectedIds = computed(() =>
+  (tableRef.value as any)?.tableApi?.getFilteredSelectedRowModel().rows.map((r: { original: { id: string | number } }) => r.original.id) ?? [],
+)
+
+const bulkActionItems = computed(() =>
+  (props.bulkActions ?? []).map((action, idx) => ({
+    label: action.label,
+    value: idx,
+    icon: action.icon,
+  })),
+)
+
+const selectedAction = ref<number | undefined>(undefined)
+const confirmBulkOpen = ref(false)
+const bulkExecuting = ref(false)
+const pendingBulkAction = ref<BulkAction | null>(null)
+
+function onActionSelect(idx: number) {
+  selectedAction.value = undefined
+  pendingBulkAction.value = props.bulkActions?.[idx] ?? null
+  if (pendingBulkAction.value) { confirmBulkOpen.value = true }
+}
+
+async function executeBulkAction() {
+  if (!pendingBulkAction.value) { return }
+  bulkExecuting.value = true
+  try {
+    await api.post(pendingBulkAction.value.endpoint, {
+      [pendingBulkAction.value.ids_key]: selectedIds.value,
+    })
+    confirmBulkOpen.value = false
+    rowSelection.value = {}
+    refresh()
+  } catch (e) {
+    toast.add({ title: getApiErrorMessage(e), color: 'error' })
+  } finally {
+    bulkExecuting.value = false
+  }
+}
 
 defineExpose({
   refresh,
+  get selectedIds() { return selectedIds.value },
   get total() { return total.value },
   get pending() { return loading.value },
 })

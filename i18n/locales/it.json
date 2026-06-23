@@ -64,7 +64,8 @@
     "yes": "Sì",
     "no": "No",
     "download": "Scarica",
-    "close": "Chiudi"
+    "close": "Chiudi",
+    "selected": "selezionati"
   },
   "tournament": {
     "title": "Torneo",
