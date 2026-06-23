@@ -20,6 +20,7 @@
           url="/api/admin/users"
           :columns="columns"
           empty-icon="i-mdi-account-group"
+          :bulk-actions="[{ endpoint: '/api/admin/users/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
           <template #created_at-cell="{ row }">
             {{ formatServerDate(((row.original as unknown as User)).created_at, locale) }}

@@ -20,6 +20,7 @@
           url="/api/admin/weight_categories"
           :columns="columns"
           empty-icon="i-mdi-scale-balance"
+          :bulk-actions="[{ endpoint: '/api/admin/weight_categories/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1">

@@ -21,6 +21,7 @@
           :columns="columns"
           :params="tableParams"
           empty-icon="i-mdi-clipboard-list-outline"
+          :bulk-actions="[{ endpoint: '/api/admin/registrations/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
           <template #filters>
             <ApiSelectMenu

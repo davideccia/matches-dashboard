@@ -20,6 +20,7 @@
           url="/api/admin/disciplines"
           :columns="columns"
           empty-icon="i-mdi-sword-cross"
+          :bulk-actions="[{ endpoint: '/api/admin/disciplines/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1">

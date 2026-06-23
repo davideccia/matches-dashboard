@@ -26,8 +26,8 @@ export function useApi() {
   const put = <T>(path: string, body?: Record<string, unknown>, params?: QueryParams) =>
     client<T>(path, { method: 'PUT', body, params, headers: lang() })
 
-  const del = <T>(path: string, params?: QueryParams) =>
-    client<T>(path, { method: 'DELETE', params, headers: lang() })
+  const del = <T>(path: string, params?: QueryParams, body?: Record<string, unknown>) =>
+    client<T>(path, { method: 'DELETE', params, body, headers: lang() })
 
   const download = async (path: string, filename = 'document.pdf') => {
     const { public: { apiBase } } = useRuntimeConfig()

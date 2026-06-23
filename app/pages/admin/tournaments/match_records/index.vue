@@ -23,6 +23,7 @@
           :columns="columns"
           :params="tableParams"
           empty-icon="i-mdi-sword-cross"
+          :bulk-actions="[{ endpoint: '/api/admin/match_records/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
           <template #filters>
             <ApiSelectMenu

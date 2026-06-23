@@ -20,6 +20,7 @@
           url="/api/admin/athletes"
           :columns="columns"
           empty-icon="i-mdi-account"
+          :bulk-actions="[{ endpoint: '/api/admin/athletes/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
           <template #full_name-cell="{ row }">
             <span class="flex items-center gap-2 min-w-0">

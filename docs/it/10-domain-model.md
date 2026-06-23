@@ -37,7 +37,7 @@ Sui modelli vedrai campi come `tournament?: Tournament` o `red_corner?: Athlete`
 
 L'entità più ricca ([`models.ts`](../../app/types/models.ts) righe 87-116):
 
-- **Angoli**: `red_corner_id` / `blue_corner_id` (gli atleti), più `red_corner_team` / `blue_corner_team` per il nome della squadra.
+- **Angoli**: `red_corner_id` / `blue_corner_id` (gli atleti), più `red_corner_team` / `blue_corner_team` per il nome della Team.
 - **Esito**: `winner_id`, `end_round`, `end_method`, `status`.
 - **Punteggi dei giudici**: `judges_points` è un array di righe `JudgesPointsRow`, una per round, con i punti di tre giudici per ciascun angolo (`judge1_red`, `judge1_blue`, …).
 - **Ordinamento e orario**: `sort` (posizione nella griglia) e `scheduled_time` (`"HH:MM:SS"`).

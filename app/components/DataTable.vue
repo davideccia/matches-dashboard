@@ -11,6 +11,19 @@
             :aria-label="t('common.refresh')"
             @click="refresh()"
           />
+          <template v-if="bulkActions?.length">
+            <UDropdownMenu :items="bulkActionItems">
+              <UButton
+                :label="t('common.actions')"
+                trailing-icon="i-mdi-chevron-down"
+                variant="outline"
+                color="neutral"
+                size="sm"
+                :disabled="selectedIds.length === 0"
+              />
+            </UDropdownMenu>
+            <UDivider orientation="vertical" class="h-5" />
+          </template>
           <UInput
             v-if="searchable"
             v-model="searchInput"
@@ -18,17 +31,6 @@
             :placeholder="searchPlaceholder ?? t('common.search')"
             class="w-full sm:w-64"
           />
-          <template v-if="bulkActions?.length">
-            <UDivider orientation="vertical" class="h-5" />
-            <USelect
-              v-model="selectedAction"
-              :items="bulkActionItems"
-              :placeholder="t('common.actions')"
-              size="sm"
-              class="w-44"
-              @update:model-value="onActionSelect"
-            />
-          </template>
           <slot name="filters" />
         </div>
         <div class="flex items-center gap-2">
@@ -106,7 +108,7 @@
 </template>
 
 <script setup lang="ts" generic="T extends Record<string, unknown>">
-import type { TableColumn } from '@nuxt/ui'
+import type { DropdownMenuItem, TableColumn } from '@nuxt/ui'
 import { h, resolveComponent } from 'vue'
 import { getApiErrorMessage } from '~/composables/useApi'
 import { PAGE_SIZES } from '~/utils/constants'
@@ -118,6 +120,8 @@ interface BulkAction {
   icon: string
   label: string
   ids_key: string
+  method?: 'POST' | 'DELETE'
+  color?: string
 }
 
 const props = withDefaults(defineProps<{
@@ -226,32 +230,32 @@ const selectedIds = computed(() =>
   (tableRef.value as any)?.tableApi?.getFilteredSelectedRowModel().rows.map((r: { original: { id: string | number } }) => r.original.id) ?? [],
 )
 
-const bulkActionItems = computed(() =>
-  (props.bulkActions ?? []).map((action, idx) => ({
-    label: action.label,
-    value: idx,
-    icon: action.icon,
-  })),
-)
-
-const selectedAction = ref<number | undefined>(undefined)
 const confirmBulkOpen = ref(false)
 const bulkExecuting = ref(false)
 const pendingBulkAction = ref<BulkAction | null>(null)
 
-function onActionSelect(idx: number) {
-  selectedAction.value = undefined
-  pendingBulkAction.value = props.bulkActions?.[idx] ?? null
-  if (pendingBulkAction.value) { confirmBulkOpen.value = true }
-}
+const bulkActionItems = computed<DropdownMenuItem[][]>(() =>
+  [(props.bulkActions ?? []).map(action => ({
+    label: action.label,
+    icon: action.icon,
+    color: action.color as DropdownMenuItem['color'],
+    onSelect: () => {
+      pendingBulkAction.value = action
+      confirmBulkOpen.value = true
+    },
+  }))],
+)
 
 async function executeBulkAction() {
   if (!pendingBulkAction.value) { return }
   bulkExecuting.value = true
   try {
-    await api.post(pendingBulkAction.value.endpoint, {
-      [pendingBulkAction.value.ids_key]: selectedIds.value,
-    })
+    const payload = { [pendingBulkAction.value.ids_key]: selectedIds.value }
+    if ((pendingBulkAction.value.method ?? 'POST') === 'DELETE') {
+      await api.del(pendingBulkAction.value.endpoint, undefined, payload)
+    } else {
+      await api.post(pendingBulkAction.value.endpoint, payload)
+    }
     confirmBulkOpen.value = false
     rowSelection.value = {}
     refresh()
