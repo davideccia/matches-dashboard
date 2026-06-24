@@ -200,25 +200,8 @@ let controller: AbortController | null = null
 const { data, pending, refresh } = useLazyAsyncData('dashboard', () => {
   controller?.abort()
   controller = new AbortController()
-  const { signal } = controller
 
-  return new Promise<{ data: DashboardItem[] } | null>((resolve, reject) => {
-    const id = setTimeout(async () => {
-      if (signal.aborted) {
-        resolve(null)
-        return
-      }
-      try {
-        resolve(await get<{ data: DashboardItem[] }>('/api/admin/dashboard'))
-      } catch (e) {
-        reject(e)
-      }
-    }, 3000)
-    signal.addEventListener('abort', () => {
-      clearTimeout(id)
-      resolve(null)
-    })
-  })
+  return get<{ data: DashboardItem[] }>('/api/admin/dashboard')
 })
 
 onUnmounted(() => controller?.abort())
