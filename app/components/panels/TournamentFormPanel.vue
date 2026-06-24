@@ -15,22 +15,6 @@
         class="space-y-6 p-6"
         @submit="onSubmit"
       >
-        <UCard>
-          <template #header>
-            <span class="text-sm font-medium">{{ t('tournament.cover') }}</span>
-          </template>
-
-          <div class="space-y-4">
-            <MediaAttachmentPreview
-              v-if="coverMedia"
-              :items="[coverMedia]"
-              compact
-            />
-
-            <TemporaryFileUpload ref="coverUploadRef" accept="image/*" />
-          </div>
-        </UCard>
-
         <UFormField name="name" :label="t('tournament.name')" required>
           <UInput v-model="state.name" class="w-full" />
         </UFormField>
@@ -70,7 +54,7 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { MediaAttachment, Tournament } from '~/types/models'
+import type { Tournament } from '~/types/models'
 import * as z from 'zod'
 import { TOURNAMENT_STATUSES, type TournamentStatus } from '~/utils/constants'
 
@@ -107,9 +91,6 @@ const schema = z.object({
   status: z.enum(TOURNAMENT_STATUSES),
 })
 
-const coverUploadRef = ref<{ getValue: () => string | string[] | null } | null>(null)
-const coverMedia = ref<MediaAttachment | null>(null)
-
 const state = reactive({
   name: '',
   location_name: '',
@@ -126,14 +107,13 @@ watch(open, async (val) => {
   if (isEdit.value) {
     fetching.value = true
     try {
-      const { data: tournament } = await api.get<{ data: Tournament }>(`/api/admin/tournaments/${props.item!.id}?with=coverMedia`)
+      const { data: tournament } = await api.get<{ data: Tournament }>(`/api/admin/tournaments/${props.item!.id}`)
       state.name = tournament.name
       state.location_name = tournament.location_name
       state.location_address = tournament.location_address
       state.location_city = tournament.location_city
       state.date = tournament.date.slice(0, 10)
       state.status = tournament.status
-      coverMedia.value = tournament.cover_media ?? null
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
       open.value = false
@@ -147,7 +127,6 @@ watch(open, async (val) => {
     state.location_city = ''
     state.date = ''
     state.status = 'scheduled'
-    coverMedia.value = null
   }
 })
 
@@ -157,7 +136,6 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   loading.value = true
   try {
     const body = {
-      cover: coverUploadRef.value?.getValue() as string | null ?? null,
       name: event.data.name,
       location_name: event.data.location_name,
       location_address: event.data.location_address,
@@ -168,10 +146,10 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
 
     let saved: Tournament
     if (isEdit.value) {
-      const { data } = await api.put<{ data: Tournament }>(`/api/admin/tournaments/${props.item!.id}?with=coverMedia`, body)
+      const { data } = await api.put<{ data: Tournament }>(`/api/admin/tournaments/${props.item!.id}`, body)
       saved = data
     } else {
-      const { data } = await api.post<{ data: Tournament }>('/api/admin/tournaments?with=coverMedia', body)
+      const { data } = await api.post<{ data: Tournament }>('/api/admin/tournaments', body)
       saved = data
     }
 
@@ -181,7 +159,6 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     state.location_city = saved.location_city
     state.date = saved.date.slice(0, 10)
     state.status = saved.status
-    coverMedia.value = saved.cover_media ?? null
 
     emit('saved')
     toast.add({

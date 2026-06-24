@@ -66,7 +66,6 @@ export interface Tournament {
   // relazioni opzionali
   registrations?: Registration[]
   match_records?: MatchRecord[]
-  cover_media?: MediaAttachment | null
 }
 
 export interface Registration {
