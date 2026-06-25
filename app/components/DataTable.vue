@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col gap-4">
-    <div class="bg-elevated rounded-xl p-2 flex flex-col gap-2">
+    <div class="border-2 border-accented rounded-xl p-4 flex flex-col gap-2">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-1">
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2 p-2">
           <UButton
             icon="i-mdi-refresh"
             variant="ghost"
@@ -34,11 +34,12 @@
           <slot name="filters" />
         </div>
         <div class="flex items-center gap-2">
-          <UBadge v-if="showTotal && total > 0" variant="soft" color="neutral" size="md">
-            {{ total }}
-          </UBadge>
           <UBadge variant="soft" color="primary" size="md">
             {{ selectedIds.length }} {{ t('common.selected') }}
+          </UBadge>
+          <USeparator orientation="vertical" class="h-5" />
+          <UBadge v-if="showTotal" variant="outline" color="neutral" size="md">
+            Tot. {{ total }}
           </UBadge>
         </div>
       </div>
