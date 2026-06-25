@@ -2,7 +2,6 @@
 /// <reference types="node" />
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  ssr: false,
   devtools: { enabled: true },
   modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/eslint', 'nuxt-auth-sanctum'],
 

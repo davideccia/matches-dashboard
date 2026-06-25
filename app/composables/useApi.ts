@@ -30,6 +30,7 @@ export function useApi() {
     client<T>(path, { method: 'DELETE', params, body, headers: lang() })
 
   const download = async (path: string, filename = 'document.pdf') => {
+    if (!import.meta.client) { return }
     const { public: { apiBase } } = useRuntimeConfig()
     const token = useCookie('sanctum.token.cookie')
     const blob = await $fetch<Blob>(path, {

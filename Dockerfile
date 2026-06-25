@@ -6,13 +6,16 @@ WORKDIR /app
 COPY pnpm-lock.yaml package.json ./
 RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY . .
-ARG NUXT_PUBLIC_API_BASE=http://localhost:8081
-ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
 RUN pnpm run build
 
-FROM nginx:alpine AS runtime
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/.output/public /usr/share/nginx/html
-EXPOSE 80
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget -qO- http://localhost/index.html || exit 1
+FROM base AS runtime
+RUN addgroup -g 1001 -S www-data && adduser -S www-data -u 1001 -G www-data
+WORKDIR /app
+COPY --from=build --chown=www-data:www-data /app/.output /app/.output
+USER www-data
+ENV NODE_ENV=production
+ENV PORT=3000
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:3000/ || exit 1
+CMD ["node", ".output/server/index.mjs"]
