@@ -31,7 +31,9 @@ export interface Athlete {
   team_name: string | null
   default_weight_category_id: string | null
   default_discipline_id: string | null
-  match_records_count?: number
+  generic_match_records_count?: number | null
+  registered_match_records_count?: number | null
+  match_records_count?: number | null
   created_at: string
   updated_at: string
   // relazioni opzionali (se caricate con with())

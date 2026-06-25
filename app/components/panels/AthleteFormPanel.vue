@@ -79,6 +79,44 @@
           </div>
         </UFormField>
 
+        <UFormField name="generic_match_records_count" :label="t('athlete.genericMatchRecordsCount')">
+          <div class="flex items-center gap-2">
+            <UInput
+              :model-value="state.generic_match_records_count !== null ? String(state.generic_match_records_count) : ''"
+              type="number"
+              min="0"
+              class="w-full"
+              @update:model-value="(v: string) => state.generic_match_records_count = v === '' ? null : Number(v)"
+            />
+            <UButton
+              v-if="state.generic_match_records_count !== null"
+              type="button"
+              icon="i-mdi-close"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              :aria-label="t('common.cancel')"
+              @click="state.generic_match_records_count = null"
+            />
+          </div>
+        </UFormField>
+
+        <UFormField name="registered_match_records_count" :label="t('athlete.registeredMatchRecordsCount')" :description="t('athlete.registeredMatchRecordsCountHint')">
+          <UInput
+            :model-value="state.registered_match_records_count !== null ? String(state.registered_match_records_count) : '—'"
+            disabled
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField name="match_records_count" :label="t('athlete.matchRecordsCount')" :description="t('athlete.matchRecordsCountHint')">
+          <UInput
+            :model-value="state.match_records_count !== null ? String(state.match_records_count) : '—'"
+            disabled
+            class="w-full"
+          />
+        </UFormField>
+
         <div class="flex justify-end gap-2 pt-2">
           <UButton variant="ghost" color="neutral" type="button" @click="open = false">
             {{ t('common.cancel') }}
@@ -127,6 +165,7 @@ const schema = z.object({
   team_name: z.string().optional(),
   default_weight_category_id: z.string().nullish(),
   default_discipline_id: z.string().nullish(),
+  generic_match_records_count: z.coerce.number().int().min(0).nullable().optional(),
 })
 
 const state = reactive({
@@ -138,6 +177,9 @@ const state = reactive({
   team_name: '',
   default_weight_category_id: null as string | null,
   default_discipline_id: null as string | null,
+  generic_match_records_count: null as number | null,
+  registered_match_records_count: null as number | null,
+  match_records_count: null as number | null,
 })
 
 const fetching = ref(false)
@@ -156,6 +198,9 @@ watch(open, async (val) => {
       state.team_name = item.team_name ?? ''
       state.default_weight_category_id = item.default_weight_category_id ?? null
       state.default_discipline_id = item.default_discipline_id ?? null
+      state.generic_match_records_count = item.generic_match_records_count ?? null
+      state.registered_match_records_count = item.registered_match_records_count ?? null
+      state.match_records_count = item.match_records_count ?? null
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
       open.value = false
@@ -171,6 +216,9 @@ watch(open, async (val) => {
     state.team_name = ''
     state.default_weight_category_id = null
     state.default_discipline_id = null
+    state.generic_match_records_count = null
+    state.registered_match_records_count = null
+    state.match_records_count = null
   }
 })
 
@@ -188,6 +236,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       team_name: event.data.team_name || null,
       default_weight_category_id: event.data.default_weight_category_id || null,
       default_discipline_id: event.data.default_discipline_id || null,
+      generic_match_records_count: event.data.generic_match_records_count ?? null,
     }
 
     let saved: Athlete
@@ -207,6 +256,9 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     state.team_name = saved.team_name ?? ''
     state.default_weight_category_id = saved.default_weight_category_id ?? null
     state.default_discipline_id = saved.default_discipline_id ?? null
+    state.generic_match_records_count = saved.generic_match_records_count ?? null
+    state.registered_match_records_count = saved.registered_match_records_count ?? null
+    state.match_records_count = saved.match_records_count ?? null
 
     emit('saved')
     toast.add({
