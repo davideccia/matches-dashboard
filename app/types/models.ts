@@ -44,6 +44,7 @@ export interface MatchmakingIssue {
   registration_id: number
   athlete_id: number
   athlete_name: string
+  is_adult: boolean
   discipline_id: number
   discipline_label: string
   weight_category_id: number

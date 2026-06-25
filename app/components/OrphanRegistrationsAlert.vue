@@ -61,7 +61,7 @@
                 :key="item.registration_id"
                 class="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md bg-warning/5 px-3 py-2 text-sm"
               >
-                <span class="font-medium text-highlighted">{{ item.athlete_name }}</span>
+                <span class="font-medium text-highlighted">{{ item.athlete_name }} ({{ item.is_adult ? '+18' : '-18' }})</span>
                 <span class="text-muted opacity-50">·</span>
                 <span class="text-default">{{ item.discipline_label }}</span>
                 <span class="text-muted opacity-50">·</span>
