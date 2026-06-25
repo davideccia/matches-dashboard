@@ -53,6 +53,16 @@
               {{ t('match.generate') }}
             </UButton>
           </template>
+          <template #red_corner-cell="{ row }">
+            <span class="border-b-2 border-red-500">
+              {{ (row.original as unknown as MatchRecord).red_corner?.full_name }}
+            </span>
+          </template>
+          <template #blue_corner-cell="{ row }">
+            <span class="border-b-2 border-blue-500">
+              {{ (row.original as unknown as MatchRecord).blue_corner?.full_name }}
+            </span>
+          </template>
           <template #status-cell="{ row }">
             <UBadge
               :color="statusBadgeColor((row.original as unknown as MatchRecord).status)"
@@ -199,12 +209,12 @@ function matchStatusLabel(status: string): string {
 
 const columns = computed(() => [
   { accessorKey: 'sort', header: t('match.sort'), meta: { class: { th: 'text-right', td: 'text-right' } } },
-  { accessorKey: 'tournament.name', header: t('match.tournament') },
-  { accessorKey: 'red_corner.full_name', header: t('match.redCorner') },
-  { accessorKey: 'blue_corner.full_name', header: t('match.blueCorner') },
-  { accessorKey: 'weight_category.label', header: t('match.weightCategory') },
-  { accessorKey: 'discipline.label', header: t('match.disciplineLabel') },
-  { accessorKey: 'status', header: t('match.status.label') },
+  { accessorKey: 'tournament.name', header: t('match.tournament'), meta: { class: { th: 'text-center', td: 'text-center' } } },
+  { id: 'red_corner', accessorKey: 'red_corner.full_name', header: t('match.redCorner'), meta: { class: { th: 'text-center', td: 'text-center' } } },
+  { id: 'blue_corner', accessorKey: 'blue_corner.full_name', header: t('match.blueCorner'), meta: { class: { th: 'text-center', td: 'text-center' } } },
+  { accessorKey: 'weight_category.label', header: t('match.weightCategory'), meta: { class: { th: 'text-center', td: 'text-center' } } },
+  { accessorKey: 'discipline.label', header: t('match.disciplineLabel'), meta: { class: { th: 'text-center', td: 'text-center' } } },
+  { accessorKey: 'status', header: t('match.status.label'), meta: { class: { th: 'text-center', td: 'text-center' } } },
   { id: 'actions', header: '' },
 ] as TableColumn<Record<string, unknown>>[])
 
