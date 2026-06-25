@@ -1,17 +1,23 @@
 {
   "version": 1,
   "skills": {
+    "cypress-author": {
+      "source": "cypress-io/ai-toolkit",
+      "sourceType": "github",
+      "skillPath": "skills/cypress-author/SKILL.md",
+      "computedHash": "f537b3a2e715270c7600b062bbd35d7035bdcdd0b7ec1134949f391b9d83e103"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
       "skillPath": "skills/frontend-design/SKILL.md",
-      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+      "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
     },
     "nuxt-ui": {
       "source": "nuxt/ui",
       "sourceType": "github",
       "skillPath": "skills/nuxt-ui/SKILL.md",
-      "computedHash": "2d58c6092b7028db223a819d5a37badc860a4036ca134a3e457ce7b056562f72"
+      "computedHash": "de41e63eeda35c2bfdd3ed783d3e04361dc85bff28ad71f9c4dbdc01bb8f4e57"
     }
   }
 }
