@@ -9,14 +9,23 @@
             <UIcon name="i-mdi-trophy" class="size-3.5 shrink-0 text-warning" />
             <span class="truncate">{{ match.tournament?.name ?? '—' }}</span>
           </div>
-          <!-- Always rendered — dash when all missing -->
+
+          <!-- Scheduled time + order — always rendered -->
           <div class="mt-0.5 sm:mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted min-h-4">
+            <span class="flex items-center gap-1">
+              <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">{{ match.sort }}</UBadge>
+            </span>
+            <span v-if="match.scheduled_time" class="flex items-center gap-1">
+              <UIcon name="i-mdi-clock-outline" class="size-3.5" />
+              <span>{{ match.scheduled_time ?? '—' }}</span>
+            </span>
+            <USeparator orientation="vertical" class="h-3.5 w-2" />
             <template v-if="match.weight_category?.label || match.discipline?.label">
               <span>{{ match.weight_category?.label ?? '—' }}</span>
               <span class="opacity-40">·</span>
               <span>{{ match.discipline?.label ?? '—' }}</span>
               <span class="opacity-40">·</span>
-              <span>{{ match.rounds }}×{{ match.minutes_per_round ?? '—' }}</span>
+              <span>{{ match.rounds }} × {{ match.minutes_per_round }}</span>
             </template>
             <span v-else class="opacity-40">—</span>
           </div>
@@ -35,18 +44,6 @@
           />
           {{ matchStatusLabel(match.status) }}
         </UBadge>
-      </div>
-
-      <!-- Scheduled time + order — always rendered -->
-      <div class="mt-1.5 sm:mt-2.5 flex items-center gap-3 sm:gap-4 text-xs text-muted">
-        <span class="flex items-center gap-1">
-          <UIcon name="i-mdi-clock-outline" class="size-3.5" />
-          <span>{{ match.scheduled_time ?? '—' }}</span>
-        </span>
-        <span class="flex items-center gap-1">
-          <UIcon name="i-mdi-pound" class="size-3.5" />
-          {{ match.sort }}
-        </span>
       </div>
     </template>
 
