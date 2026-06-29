@@ -618,10 +618,11 @@ watch(open, async (val) => {
       state.status = item.status ?? 'scheduled'
       state.winner_id = item.winner_id ?? null
       state.end_method = item.end_method ?? null
+      state.judges_points = (item.judges_points as JudgesPointsRow[] | null) ?? []
       state.rounds = item.rounds ?? null
       state.minutes_per_round = item.minutes_per_round ?? undefined
       state.end_round = item.end_round ?? undefined
-      state.judges_points = (item.judges_points as JudgesPointsRow[] | null) ?? []
+      syncJudgesPointsRows()
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
       open.value = false
@@ -684,7 +685,8 @@ watch(() => state.blue_corner_id, (val) => {
 })
 
 // ── Sync judges_points rows when rounds changes ───────────────────────────────
-watch(() => state.rounds, (val) => {
+function syncJudgesPointsRows() {
+  const val = state.rounds
   if (!val || val <= 0) { return }
   const n = Math.min(val, 10)
   const current = state.judges_points
@@ -700,6 +702,11 @@ watch(() => state.rounds, (val) => {
       judge3_blue: null,
     }
   })
+}
+
+watch(() => state.rounds, () => {
+  if (initializing.value) { return }
+  syncJudgesPointsRows()
 })
 
 // ── Winner helpers ────────────────────────────────────────────────────────────
