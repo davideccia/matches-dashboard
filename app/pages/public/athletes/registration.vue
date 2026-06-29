@@ -525,7 +525,7 @@ async function onStep1Next() {
     athleteState.last_name = res.data.last_name
     athleteState.birth_date = res.data.birth_date?.substring(0, 10) ?? ''
     athleteState.gender = res.data.gender
-    athleteState.tax_number = res.data.tax_number ?? ''
+    athleteState.tax_number = res.data.tax_number ?? taxNumberInput.value.trim().toUpperCase()
     athleteState.team_name = res.data.team_name ?? ''
   } catch {
     existingAthlete.value = null
