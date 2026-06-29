@@ -345,7 +345,7 @@
     "stepSummary": "Riepilogo",
     "taxNumberLabel": "Codice fiscale",
     "taxNumberPlaceholder": "Inserisci il tuo codice fiscale",
-    "athleteFound": "Atleta trovato. Puoi aggiornare i dati prima di procedere.",
+    "athleteFound": "Atleta trovato",
     "athleteReadonlyHint": "Se i tuoi dati non sono corretti, contatta l'amministrazione prima di procedere.",
     "athleteNotFound": "Prima registrazione: compila i tuoi dati",
     "selectTournament": "Seleziona un torneo",

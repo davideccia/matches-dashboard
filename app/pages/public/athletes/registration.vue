@@ -74,10 +74,11 @@
 
           <UAlert
             v-if="!isNewAthlete"
-            color="success"
+            color="info"
             variant="soft"
-            icon="i-mdi-check-circle"
-            :description="t('register.athleteFound')"
+            icon="i-mdi-information-outline"
+            :title="t('register.athleteFound')"
+            :description="t('register.athleteReadonlyHint')"
           />
           <UAlert
             v-else
@@ -88,44 +89,43 @@
           />
 
           <UForm :schema="athleteSchema" :state="athleteState" class="space-y-4" @submit="onStep2Submit">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <UFormField name="first_name" :label="t('athlete.firstName')" required>
-                <UInput v-model="athleteState.first_name" size="lg" class="w-full" />
-              </UFormField>
-              <UFormField name="last_name" :label="t('athlete.lastName')" required>
-                <UInput v-model="athleteState.last_name" size="lg" class="w-full" />
-              </UFormField>
-            </div>
+            <UFormField name="first_name" :label="t('athlete.firstName')" required>
+              <UInput v-model="athleteState.first_name" size="lg" class="w-full" :disabled="!isNewAthlete" />
+            </UFormField>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <UFormField name="birth_date" :label="t('athlete.birthDate')" required>
-                <UInput
-                  v-model="athleteState.birth_date"
-                  type="date"
-                  size="lg"
-                  class="w-full"
-                />
-              </UFormField>
-              <UFormField name="gender" :label="t('athlete.gender.label')" required>
-                <USelect
-                  v-model="athleteState.gender"
-                  :items="genderOptions"
-                  size="lg"
-                  class="w-full"
-                />
-              </UFormField>
-            </div>
+            <UFormField name="last_name" :label="t('athlete.lastName')" required>
+              <UInput v-model="athleteState.last_name" size="lg" class="w-full" :disabled="!isNewAthlete" />
+            </UFormField>
 
-            <UFormField name="tax_number" :label="t('athlete.taxNumber')" required>
+            <UFormField name="birth_date" :label="t('athlete.birthDate')" required>
               <UInput
-                v-model="athleteState.tax_number"
+                v-model="athleteState.birth_date"
+                type="date"
                 size="lg"
-                class="w-full font-mono uppercase tracking-widest"
+                class="w-full"
+                :disabled="!isNewAthlete"
+              />
+            </UFormField>
+
+            <UFormField name="gender" :label="t('athlete.gender.label')" required>
+              <UInput
+                v-if="!isNewAthlete"
+                :model-value="genderOptions.find(o => o.value === athleteState.gender)?.label"
+                size="lg"
+                class="w-full"
+                disabled
+              />
+              <USelect
+                v-else
+                v-model="athleteState.gender"
+                :items="genderOptions"
+                size="lg"
+                class="w-full"
               />
             </UFormField>
 
             <UFormField name="team_name" :label="t('athlete.teamName')" required>
-              <UInput v-model="athleteState.team_name" size="lg" class="w-full" />
+              <UInput v-model="athleteState.team_name" size="lg" class="w-full" :disabled="!isNewAthlete" />
             </UFormField>
 
             <div class="flex gap-3 pt-2">
