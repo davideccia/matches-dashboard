@@ -10,18 +10,16 @@
             <span class="truncate">{{ match.tournament?.name ?? '—' }}</span>
           </div>
 
-          <!-- Order -->
-          <div class="mt-0.5 sm:mt-1">
-            <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">{{ match.sort }}</UBadge>
-          </div>
-
-          <!-- Scheduled time + weight / discipline / rounds -->
-          <div class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted min-h-4">
+          <!-- Scheduled time + order — always rendered -->
+          <div class="mt-0.5 sm:mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted min-h-4">
+            <span class="flex items-center gap-1">
+              <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">{{ match.sort }}</UBadge>
+            </span>
             <span v-if="match.scheduled_time" class="flex items-center gap-1">
               <UIcon name="i-mdi-clock-outline" class="size-3.5" />
               <span>{{ match.scheduled_time ?? '—' }}</span>
             </span>
-            <USeparator v-if="match.scheduled_time" orientation="vertical" class="h-3.5 w-2" />
+            <USeparator orientation="vertical" class="h-3.5 w-2" />
             <template v-if="match.weight_category?.label || match.discipline?.label">
               <span>{{ match.weight_category?.label ?? '—' }}</span>
               <span class="opacity-40">·</span>
