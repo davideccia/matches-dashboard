@@ -2,62 +2,52 @@
   <UCard variant="outline" class="w-full flex flex-col ring-2 sm:ring-4">
     <!-- ── HEADER: context + status ─────────────────────────── -->
     <template #header>
-      <div class="flex items-center justify-between gap-2 sm:gap-4">
-        <!-- Left: tournament / weight / discipline -->
-        <div class="min-w-0 flex-1">
-          <div class="flex items-center gap-1">
-            <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">{{ match.sort }}</UBadge>
-            <UIcon
-              v-if="match.status === 'completed'"
-              name="i-mdi-check-circle"
-              class="size-4 text-success"
-            />
-            <UIcon
-              v-else-if="match.status === 'cancelled'"
-              name="i-mdi-cancel"
-              class="size-4 text-error"
-            />
-          </div>
-        </div>
-
-        <!-- Right: tournament name -->
-        <div class="flex items-center gap-1 shrink-0 min-w-0 max-w-[40%]">
-          <UIcon name="i-mdi-trophy" class="size-3.5 shrink-0 text-warning" />
-          <span class="text-xs text-muted truncate">{{ match.tournament?.name ?? '—' }}</span>
-        </div>
+      <div class="flex items-center flex-wrap gap-1">
+        <UIcon
+          :name="statusIcon[match.status]"
+          :class="statusIconClass[match.status]"
+          class="size-4 shrink-0"
+        />
+        <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">{{ match.sort }}</UBadge>
+        <UBadge
+          v-if="match.tournament?.name"
+          icon="i-mdi-trophy"
+          color="warning"
+          variant="subtle"
+          size="md"
+        >
+          {{ match.tournament.name }}
+        </UBadge>
+        <USeparator orientation="vertical" class="h-4" />
+        <UBadge
+          v-if="match.discipline?.label"
+          icon="i-mdi-boxing-glove"
+          color="primary"
+          variant="subtle"
+          size="md"
+        >
+          {{ match.discipline.label }}
+        </UBadge>
+        <UBadge
+          v-if="match.weight_category?.label"
+          icon="i-mdi-scale-balance"
+          color="primary"
+          variant="subtle"
+          size="md"
+        >
+          {{ match.weight_category.label }}
+        </UBadge>
+        <UBadge
+          v-if="match.rounds && match.minutes_per_round"
+          icon="i-mdi-timer-outline"
+          color="neutral"
+          variant="subtle"
+          size="md"
+        >
+          {{ match.rounds }} × {{ match.minutes_per_round }}
+        </UBadge>
       </div>
     </template>
-
-    <!-- ── META: discipline / weight / rounds ───────────────────── -->
-    <div class="flex flex-wrap justify-center items-center gap-1 pb-2">
-      <UBadge
-        v-if="match.discipline?.label"
-        icon="i-mdi-boxing-glove"
-        color="primary"
-        variant="subtle"
-        size="md"
-      >
-        {{ match.discipline.label }}  {{ match.weight_category?.label }}
-      </UBadge>
-      <UBadge
-        v-if="match.weight_category?.label"
-        icon="i-mdi-scale-balance"
-        color="primary"
-        variant="subtle"
-        size="md"
-      >
-        {{ match.weight_category.label }}
-      </UBadge>
-      <UBadge
-        v-if="match.rounds && match.minutes_per_round"
-        icon="i-mdi-timer-outline"
-        color="neutral"
-        variant="subtle"
-        size="md"
-      >
-        {{ match.rounds }} × {{ match.minutes_per_round }}
-      </UBadge>
-    </div>
 
     <!-- ── BODY: athletes VS layout ─────────────────────────── -->
     <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 gap-y-2 sm:gap-x-4 sm:gap-y-3">
@@ -185,6 +175,7 @@
 
 <script setup lang="ts">
 import type { MatchRecord } from '~/types/models'
+import type { MatchStatus } from '~/utils/constants'
 
 const props = defineProps<{
   match: MatchRecord
@@ -196,6 +187,20 @@ const showJudgesPoints = computed(() => props.showJudgesPoints ?? true)
 const { t } = useI18n()
 
 const judgesPointsOpen = ref(false)
+
+const statusIcon: Record<MatchStatus, string> = {
+  scheduled: 'i-mdi-clock-outline',
+  in_progress: 'i-mdi-play-circle',
+  completed: 'i-mdi-check-circle',
+  cancelled: 'i-mdi-cancel',
+}
+
+const statusIconClass: Record<MatchStatus, string> = {
+  scheduled: 'text-muted',
+  in_progress: 'text-warning',
+  completed: 'text-success',
+  cancelled: 'text-error',
+}
 
 function matchStatusLabel(status: string): string {
   if (status === 'scheduled') { return t('match.status.scheduled') }
