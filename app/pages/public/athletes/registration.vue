@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-default flex flex-col items-center px-4 py-8">
-    <div class="w-full max-w-lg space-y-6">
+    <div class="w-full max-w-xl xl:max-w-2xl space-y-6">
       <!-- Header -->
       <div class="flex flex-col items-center gap-3 pt-2">
         <LocaleSwitcher />

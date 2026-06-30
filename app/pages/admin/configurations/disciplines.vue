@@ -14,7 +14,7 @@
     </template>
 
     <template #body>
-      <div class="flex flex-col gap-5 p-6">
+      <div class="flex flex-col gap-5 p-6 max-w-screen-2xl mx-auto w-full">
         <DataTable
           ref="tableRef"
           url="/api/admin/disciplines"

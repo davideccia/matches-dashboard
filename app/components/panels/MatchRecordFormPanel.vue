@@ -2,7 +2,7 @@
   <USlideover
     v-model:open="open"
     :title="isEdit ? t('match.editTitle') : t('match.createTitle')"
-    :ui="{ content: 'sm:max-w-none sm:w-[50vw]' }"
+    :ui="{ content: 'sm:max-w-none sm:w-[50vw] xl:w-[40vw] 2xl:w-[30vw]' }"
   >
     <template #body>
       <div v-if="fetching" class="flex items-center justify-center p-12">

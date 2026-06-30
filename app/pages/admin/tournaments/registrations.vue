@@ -14,7 +14,7 @@
     </template>
 
     <template #body>
-      <div class="flex flex-col gap-5 p-6">
+      <div class="flex flex-col gap-5 p-6 max-w-screen-2xl mx-auto">
         <DataTable
           ref="tableRef"
           url="/api/admin/registrations?with=weightCategory,athlete,tournament,discipline"
@@ -29,7 +29,7 @@
               endpoint="/api/admin/tournaments"
               label-key="name"
               :placeholder="t('registration.selectTournament')"
-              class="w-full sm:w-56"
+              class="w-full sm:w-56 xl:w-64"
             />
             <UButton
               v-if="tournamentId"

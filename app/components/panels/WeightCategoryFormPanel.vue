@@ -1,5 +1,5 @@
 <template>
-  <USlideover v-model:open="open" :title="isEdit ? t('weightCategory.editTitle') : t('weightCategory.createTitle')" :ui="{ content: 'w-2/5 max-w-none' }">
+  <USlideover v-model:open="open" :title="isEdit ? t('weightCategory.editTitle') : t('weightCategory.createTitle')" :ui="{ content: 'w-2/5 max-w-2xl' }">
     <template #body>
       <div v-if="fetching" class="flex items-center justify-center p-12">
         <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />

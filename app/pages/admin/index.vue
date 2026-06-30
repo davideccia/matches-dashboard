@@ -20,7 +20,7 @@
     <template #body>
       <div class="p-6">
         <!-- Loading skeleton -->
-        <div v-if="pending" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div v-if="pending" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           <div
             v-for="i in 3"
             :key="i"
@@ -74,7 +74,7 @@
         </div>
 
         <!-- Tournament cards -->
-        <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           <div
             v-for="item in items"
             :key="item.tournament_id"

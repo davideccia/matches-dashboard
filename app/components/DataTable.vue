@@ -29,7 +29,7 @@
             v-model="searchInput"
             icon="i-mdi-magnify"
             :placeholder="searchPlaceholder ?? t('common.search')"
-            class="w-full sm:w-64"
+            class="w-full sm:w-64 xl:w-80"
           />
           <slot name="filters" />
         </div>

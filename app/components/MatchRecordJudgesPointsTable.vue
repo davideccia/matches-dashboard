@@ -6,11 +6,11 @@
     </p>
 
     <div class="border border-default rounded-lg overflow-hidden">
-      <table class="w-full text-xs">
+      <table class="w-full text-xs xl:text-sm">
         <thead>
           <!-- Corner group headers -->
           <tr class="bg-elevated border-b border-default">
-            <th class="px-2 py-2 text-left font-medium text-muted w-10" rowspan="2">
+            <th class="px-2 py-2 text-left font-medium text-muted w-10 xl:w-12" rowspan="2">
               {{ t('match.roundLabel') }}
             </th>
             <th colspan="3" class="px-2 py-1.5 text-center font-semibold text-red-500 border-l border-default">
@@ -25,7 +25,7 @@
                 {{ t('match.blueCorner') }}
               </span>
             </th>
-            <th v-if="showManualControls" rowspan="2" class="w-8 border-l border-default/30" />
+            <th v-if="showManualControls" rowspan="2" class="w-8 xl:w-10 border-l border-default/30" />
           </tr>
           <!-- Judge sub-headers -->
           <tr class="bg-elevated/60 border-b border-default">

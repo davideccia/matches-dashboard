@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-default flex flex-col items-center px-4 py-8">
-    <div class="w-full max-w-5xl space-y-6">
+    <div class="w-full max-w-5xl 2xl:max-w-screen-2xl mx-auto space-y-6">
       <!-- Sticky top area: header + tournament bar (state B) -->
       <div class="sticky top-0 z-10 bg-default -mx-4 px-4 pt-2 pb-3 space-y-3">
         <!-- Header -->
@@ -135,7 +135,7 @@
       <!-- ── STATE B: MatchRecord grid ──────────────────────────────────────────── -->
       <template v-else>
         <!-- Loading skeletons -->
-        <div v-if="matchesLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div v-if="matchesLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           <USkeleton v-for="n in 6" :key="n" class="h-48 rounded-xl" />
         </div>
 
@@ -146,7 +146,7 @@
         </div>
 
         <!-- MatchRecord cards -->
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           <div
             v-for="(match, index) in matches"
             :key="match.id"
