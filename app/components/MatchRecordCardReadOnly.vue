@@ -2,50 +2,62 @@
   <UCard variant="outline" class="w-full flex flex-col ring-2 sm:ring-4">
     <!-- ── HEADER: context + status ─────────────────────────── -->
     <template #header>
-      <div class="flex items-start justify-between gap-2 sm:gap-4">
+      <div class="flex items-center justify-between gap-2 sm:gap-4">
         <!-- Left: tournament / weight / discipline -->
         <div class="min-w-0 flex-1">
-          <div class="flex items-center gap-1.5 font-medium text-highlighted truncate">
-            <UIcon name="i-mdi-trophy" class="size-3.5 shrink-0 text-warning" />
-            <span class="truncate">{{ match.tournament?.name ?? '—' }}</span>
-          </div>
-
-          <!-- Scheduled time + order — always rendered -->
-          <div class="mt-0.5 sm:mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted min-h-4">
-            <span class="flex items-center gap-1">
-              <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">{{ match.sort }}</UBadge>
-            </span>
-            <span v-if="match.scheduled_time" class="flex items-center gap-1">
-              <UIcon name="i-mdi-clock-outline" class="size-3.5" />
-              <span>{{ match.scheduled_time ?? '—' }}</span>
-            </span>
-            <USeparator orientation="vertical" class="h-3.5 w-2" />
-            <template v-if="match.weight_category?.label || match.discipline?.label">
-              <span>{{ match.weight_category?.label ?? '—' }}</span>
-              <span class="opacity-40">·</span>
-              <span>{{ match.discipline?.label ?? '—' }}</span>
-              <span class="opacity-40">·</span>
-              <span>{{ match.rounds }} × {{ match.minutes_per_round }}</span>
-            </template>
-            <span v-else class="opacity-40">—</span>
+          <div class="flex items-center gap-1">
+            <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">{{ match.sort }}</UBadge>
+            <UIcon
+              v-if="match.status === 'completed'"
+              name="i-mdi-check-circle"
+              class="size-4 text-success"
+            />
+            <UIcon
+              v-else-if="match.status === 'cancelled'"
+              name="i-mdi-cancel"
+              class="size-4 text-error"
+            />
           </div>
         </div>
 
-        <!-- Right: status badge -->
-        <UBadge
-          :color="statusColor[match.status]"
-          :variant="statusVariant[match.status]"
-          size="sm"
-          class="shrink-0"
-        >
-          <span
-            v-if="match.status === 'in_progress'"
-            class="mr-1.5 size-1.5 rounded-full bg-current animate-pulse inline-block"
-          />
-          {{ matchStatusLabel(match.status) }}
-        </UBadge>
+        <!-- Right: tournament name -->
+        <div class="flex items-center gap-1 shrink-0 min-w-0 max-w-[40%]">
+          <UIcon name="i-mdi-trophy" class="size-3.5 shrink-0 text-warning" />
+          <span class="text-xs text-muted truncate">{{ match.tournament?.name ?? '—' }}</span>
+        </div>
       </div>
     </template>
+
+    <!-- ── META: discipline / weight / rounds ───────────────────── -->
+    <div class="flex flex-wrap justify-center items-center gap-1 pb-2">
+      <UBadge
+        v-if="match.discipline?.label"
+        icon="i-mdi-boxing-glove"
+        color="primary"
+        variant="subtle"
+        size="md"
+      >
+        {{ match.discipline.label }}  {{ match.weight_category?.label }}
+      </UBadge>
+      <UBadge
+        v-if="match.weight_category?.label"
+        icon="i-mdi-scale-balance"
+        color="primary"
+        variant="subtle"
+        size="md"
+      >
+        {{ match.weight_category.label }}
+      </UBadge>
+      <UBadge
+        v-if="match.rounds && match.minutes_per_round"
+        icon="i-mdi-timer-outline"
+        color="neutral"
+        variant="subtle"
+        size="md"
+      >
+        {{ match.rounds }} × {{ match.minutes_per_round }}
+      </UBadge>
+    </div>
 
     <!-- ── BODY: athletes VS layout ─────────────────────────── -->
     <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 gap-y-2 sm:gap-x-4 sm:gap-y-3">
@@ -61,7 +73,7 @@
           </span>
           <UIcon
             v-if="isRedWinner"
-            name="i-mdi-trophy"
+            name="i-mdi-medal"
             class="size-3 sm:size-3.5 text-warning shrink-0"
           />
         </div>
@@ -69,9 +81,7 @@
       </div>
 
       <!-- VS -->
-      <div class="flex flex-col items-center">
-        <span class="text-xs font-bold tracking-widest uppercase text-muted select-none">vs</span>
-      </div>
+      <span class="text-xs font-bold tracking-widest uppercase text-muted select-none">vs</span>
 
       <!-- Blue corner -->
       <div
@@ -81,7 +91,7 @@
         <div class="flex items-center gap-1.5">
           <UIcon
             v-if="isBlueWinner"
-            name="i-mdi-trophy"
+            name="i-mdi-medal"
             class="size-3 sm:size-3.5 text-warning shrink-0"
           />
           <span class="font-semibold text-highlighted text-xs sm:text-sm leading-tight truncate">
@@ -96,10 +106,14 @@
       <!-- Winner -->
       <div
         v-if="hasWinner"
-        class="col-span-3 flex items-center justify-center gap-1.5 rounded-lg bg-success/10 px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-medium text-success"
+        class="col-span-3 flex items-center justify-center gap-1.5 rounded-lg px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-medium"
+        :class="isRedWinner ? 'bg-red-500/10 text-red-500' : 'bg-blue-500/10 text-blue-500'"
       >
-        <UIcon name="i-mdi-medal-outline" class="size-3.5" />
-        {{ match.winner?.full_name ?? t('match.winner') }}
+        {{ match.end_method ? endMethodLabel(match.end_method) : t('match.winner') }}
+        <template v-if="match.end_round">
+          <span class="opacity-40">·</span>
+          <span>Round {{ match.end_round }}</span>
+        </template>
       </div>
 
       <!-- Draw / no contest -->
@@ -114,13 +128,22 @@
       <!-- Cancelled -->
       <div
         v-else-if="match.status === 'cancelled'"
-        class="col-span-3 flex items-center justify-center gap-1.5 rounded-lg bg-error/10 px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-medium text-error"
+        class="col-span-3 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-red-400 px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-medium text-red-400"
       >
         <UIcon name="i-mdi-cancel" class="size-3.5" />
         {{ t(`match.status.cancelled`) }}
       </div>
 
-      <!-- Pending (SCHEDULED / IN_PROGRESS) -->
+      <!-- In progress -->
+      <div
+        v-else-if="match.status === 'in_progress'"
+        class="col-span-3 flex items-center justify-center gap-1.5 rounded-lg border border-warning px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-medium text-warning"
+      >
+        <span class="size-1.5 rounded-full bg-warning animate-pulse inline-block" />
+        {{ matchStatusLabel(match.status) }}
+      </div>
+
+      <!-- Scheduled -->
       <div
         v-else
         class="col-span-3 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-default px-2 py-1 sm:px-3 sm:py-1.5 text-xs text-muted"
@@ -130,37 +153,21 @@
       </div>
     </div>
 
-    <!-- ── FOOTER: end method + judge points — always rendered ── -->
-    <template #footer>
+    <!-- ── FOOTER: end method + judge points — only when showJudgesPoints ── -->
+    <template v-if="showJudgesPoints" #footer>
       <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-        <template v-if="match.end_method || hasJudgePoints">
-          <!-- End method -->
-          <span
-            v-if="match.end_method"
-            class="flex items-center gap-1 text-xs text-muted"
-          >
-            <UIcon name="i-mdi-flag" class="size-3.5" />
-            <span class="font-medium text-default">
-              {{ endMethodLabel(match.end_method) }}
-            </span>
-          </span>
-
-          <!-- Judge points button -->
-          <UButton
-            v-if="hasJudgePoints && showJudgesPoints"
-            type="button"
-            variant="outline"
-            color="neutral"
-            size="xs"
-            icon="i-mdi-clipboard-list-outline"
-            @click="judgesPointsOpen = true"
-          >
-            {{ t('match.judgesPointsTable') }}
-          </UButton>
-        </template>
-
-        <!-- Empty state -->
-        <span v-else class="text-xs text-muted opacity-40">—</span>
+        <UButton
+          v-if="hasJudgePoints"
+          type="button"
+          variant="outline"
+          color="neutral"
+          size="xs"
+          icon="i-mdi-clipboard-list-outline"
+          @click="judgesPointsOpen = true"
+        >
+          {{ t('match.judgesPointsTable') }}
+        </UButton>
+        <span v-if="!hasJudgePoints" class="text-xs text-muted opacity-40">—</span>
       </div>
     </template>
   </UCard>
@@ -178,7 +185,6 @@
 
 <script setup lang="ts">
 import type { MatchRecord } from '~/types/models'
-import type { MatchStatus } from '~/utils/constants'
 
 const props = defineProps<{
   match: MatchRecord
@@ -208,20 +214,6 @@ function endMethodLabel(method: string): string {
   if (method === 'draw') { return t('match.endMethod.draw') }
   if (method === 'no_contest') { return t('match.endMethod.no_contest') }
   return method
-}
-
-const statusColor: Record<MatchStatus, 'info' | 'warning' | 'success' | 'error'> = {
-  scheduled: 'info',
-  in_progress: 'warning',
-  completed: 'success',
-  cancelled: 'error',
-}
-
-const statusVariant: Record<MatchStatus, 'outline' | 'solid' | 'subtle'> = {
-  scheduled: 'outline',
-  in_progress: 'solid',
-  completed: 'solid',
-  cancelled: 'subtle',
 }
 
 const hasWinner = computed(() => !!props.match.winner_id)

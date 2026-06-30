@@ -1,16 +1,16 @@
 <template>
-  <div class="min-h-screen bg-default flex flex-col items-center px-4 py-8">
-    <div class="w-full max-w-5xl space-y-6">
+  <div class="min-h-screen bg-default flex flex-col items-center px-4 py-4 sm:py-8">
+    <div class="w-full space-y-4 sm:space-y-6">
       <!-- Sticky top area: header + tournament bar (state B) -->
-      <div class="sticky top-0 z-10 bg-default -mx-4 px-4 pt-2 pb-3 space-y-3">
-        <!-- Header -->
-        <div class="flex flex-col items-center gap-3">
+      <div class="sticky top-0 z-10 bg-default -mx-4 px-4 pt-2 pb-3 space-y-2 sm:space-y-3">
+        <!-- Header: full on mobile (state A) / hidden on mobile (state B) -->
+        <div class="flex flex-col items-center gap-2 sm:gap-3" :class="{ 'hidden sm:flex': selectedTournament }">
           <LocaleSwitcher />
-          <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <UIcon name="i-mdi-sword-cross" class="size-6 text-primary" />
+          <div class="size-10 sm:size-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <UIcon name="i-mdi-sword-cross" class="size-5 sm:size-6 text-primary" />
           </div>
           <div class="text-center space-y-0.5">
-            <h1 class="text-2xl font-bold text-default">
+            <h1 class="text-xl sm:text-2xl font-bold text-default">
               {{ t('publicMatchRecords.title') }}
             </h1>
             <p class="text-sm text-muted">
@@ -19,15 +19,26 @@
           </div>
         </div>
 
+        <!-- Mobile compact title row (state B only) -->
+        <div v-if="selectedTournament" class="flex sm:hidden items-center justify-between py-1">
+          <div class="flex items-center gap-1.5">
+            <div class="size-7 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <UIcon name="i-mdi-sword-cross" class="size-4 text-primary" />
+            </div>
+            <span class="text-sm font-bold text-default">{{ t('publicMatchRecords.title') }}</span>
+          </div>
+          <LocaleSwitcher />
+        </div>
+
         <!-- Tournament bar (state B only) -->
-        <div v-if="selectedTournament" class="flex items-center justify-between gap-4 rounded-2xl bg-elevated border border-default px-5 py-4">
-          <div class="flex items-center gap-3 min-w-0">
-            <UIcon name="i-mdi-trophy" class="size-5 text-warning shrink-0" />
-            <div class="min-w-0 space-y-1">
+        <div v-if="selectedTournament" class="flex items-center justify-between gap-2 sm:gap-4 rounded-2xl bg-elevated border border-default px-3 sm:px-5 py-3 sm:py-4">
+          <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+            <UIcon name="i-mdi-trophy" class="size-4 sm:size-5 text-warning shrink-0" />
+            <div class="min-w-0 space-y-0.5 sm:space-y-1">
               <p class="font-semibold text-sm truncate">
                 {{ selectedTournament.name }}
               </p>
-              <p class="text-xs text-muted">
+              <p class="text-xs text-muted truncate">
                 {{ formatServerDateOnly(selectedTournament.date, locale) }} · {{ selectedTournament.location_city }}
               </p>
               <UBadge
@@ -46,9 +57,10 @@
             variant="ghost"
             color="neutral"
             leading-icon="i-mdi-arrow-left"
+            class="shrink-0"
             @click="clearTournament"
           >
-            {{ t('publicMatchRecords.changeTournament') }}
+            <span class="hidden sm:inline">{{ t('publicMatchRecords.changeTournament') }}</span>
           </UButton>
         </div>
       </div>
@@ -135,7 +147,7 @@
       <!-- ── STATE B: MatchRecord grid ──────────────────────────────────────────── -->
       <template v-else>
         <!-- Loading skeletons -->
-        <div v-if="matchesLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div v-if="matchesLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           <USkeleton v-for="n in 6" :key="n" class="h-48 rounded-xl" />
         </div>
 
@@ -146,7 +158,7 @@
         </div>
 
         <!-- MatchRecord cards -->
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           <div
             v-for="(match, index) in matches"
             :key="match.id"
