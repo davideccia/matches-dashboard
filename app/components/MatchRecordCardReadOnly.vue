@@ -11,12 +11,12 @@
           </div>
 
           <!-- Order -->
-          <div class="mt-0.5 sm:mt-1 w-full flex justify-center">
+          <div class="mt-0.5 sm:mt-1">
             <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">{{ match.sort }}</UBadge>
           </div>
 
           <!-- Scheduled time + weight / discipline / rounds -->
-          <div class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted min-h-4">
+          <div class="mt-0.5 w-full flex flex-wrap justify-center items-center gap-x-2 gap-y-0.5 text-xs text-muted min-h-4">
             <span v-if="match.scheduled_time" class="flex items-center gap-1">
               <UIcon name="i-mdi-clock-outline" class="size-3.5" />
               <span>{{ match.scheduled_time ?? '—' }}</span>
