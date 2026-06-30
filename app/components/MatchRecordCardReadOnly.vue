@@ -1,5 +1,5 @@
 <template>
-  <UCard variant="outline" class="w-full flex flex-col ring-2 sm:ring-4 xl:ring-3">
+  <UCard variant="outline" class="w-full flex flex-col ring-2 sm:ring-4">
     <!-- ── HEADER: context + status ─────────────────────────── -->
     <template #header>
       <div class="flex items-start justify-between gap-2 sm:gap-4">
@@ -55,17 +55,17 @@
         :class="isRedWinner ? 'opacity-100' : hasWinner ? 'opacity-50' : ''"
       >
         <div class="flex items-center gap-1.5">
-          <span class="size-2 sm:size-2.5 xl:size-3 rounded-full bg-red-500 shrink-0" />
+          <span class="size-2 sm:size-2.5 rounded-full bg-red-500 shrink-0" />
           <span class="font-semibold text-highlighted text-xs sm:text-sm leading-tight truncate">
             {{ match.red_corner?.full_name ?? '—' }}
           </span>
           <UIcon
             v-if="isRedWinner"
             name="i-mdi-trophy"
-            class="size-3 sm:size-3.5 xl:size-4 text-warning shrink-0"
+            class="size-3 sm:size-3.5 text-warning shrink-0"
           />
         </div>
-        <span class="pl-3.5 text-[0.625rem] sm:text-xs xl:text-sm text-muted truncate">{{ match.red_corner_team || '—' }}</span>
+        <span class="pl-3.5 text-[0.625rem] sm:text-xs text-muted truncate">{{ match.red_corner_team || '—' }}</span>
       </div>
 
       <!-- VS -->
@@ -82,14 +82,14 @@
           <UIcon
             v-if="isBlueWinner"
             name="i-mdi-trophy"
-            class="size-3 sm:size-3.5 xl:size-4 text-warning shrink-0"
+            class="size-3 sm:size-3.5 text-warning shrink-0"
           />
           <span class="font-semibold text-highlighted text-xs sm:text-sm leading-tight truncate">
             {{ match.blue_corner?.full_name ?? '—' }}
           </span>
-          <span class="size-2 sm:size-2.5 xl:size-3 rounded-full bg-blue-500 shrink-0" />
+          <span class="size-2 sm:size-2.5 rounded-full bg-blue-500 shrink-0" />
         </div>
-        <span class="pr-3.5 text-[0.625rem] sm:text-xs xl:text-sm text-muted truncate">{{ match.blue_corner_team || '—' }}</span>
+        <span class="pr-3.5 text-[0.625rem] sm:text-xs text-muted truncate">{{ match.blue_corner_team || '—' }}</span>
       </div>
 
       <!-- Result banner — always rendered, one of four states -->

@@ -14,7 +14,7 @@
     </template>
 
     <template #body>
-      <div class="flex flex-col gap-5 p-6 max-w-screen-2xl mx-auto">
+      <div class="flex flex-col gap-5 p-6">
         <OrphanRegistrationsAlert :items="matchmakingIssues" :skeleton="!tournamentId || orphanLoading" />
         <USeparator />
         <DataTable
@@ -31,7 +31,7 @@
               endpoint="/api/admin/tournaments"
               label-key="name"
               :placeholder="t('match.selectTournament')"
-              class="w-full sm:w-56 xl:w-64"
+              class="w-full sm:w-56"
             />
             <UButton
               v-if="tournamentId"

@@ -2,7 +2,7 @@
   <USlideover
     v-model:open="open"
     :title="isEdit ? t('tournament.editTitle') : t('tournament.createTitle')"
-    :ui="{ content: 'w-2/5 max-w-2xl' }"
+    :ui="{ content: 'w-2/5 max-w-none' }"
   >
     <template #body>
       <div v-if="fetching" class="flex items-center justify-center p-12">

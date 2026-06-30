@@ -2,24 +2,12 @@
 @import '@nuxt/ui';
 
 :root {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 @media (min-width: 640px) {
   :root {
-    font-size: 16px;
-  }
-}
-
-@media (min-width: 1280px) {
-  :root {
-    font-size: 15px;
-  }
-}
-
-@media (min-width: 1536px) {
-  :root {
-    font-size: 14px;
+    font-size: 19px;
   }
 }
 

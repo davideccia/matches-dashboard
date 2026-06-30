@@ -22,11 +22,11 @@
     </div>
 
     <div
-      class="flex flex-col lg:flex-row w-full max-w-370 grow lg:grow-0 overflow-hidden rounded-t-10 lg:rounded-10 lg:min-h-187.5 2xl:min-h-auto lg:mx-6"
+      class="flex flex-col lg:flex-row w-full max-w-370 grow lg:grow-0 overflow-hidden rounded-t-10 lg:rounded-10 lg:min-h-187.5 lg:mx-6"
     >
       <!-- Left panel -->
       <div
-        class="hidden lg:flex lg:w-1/2 xl:w-3/5 2xl:w-2/3 bg-default rounded-3xl m-10 items-center justify-center relative overflow-hidden border-2 border-accented"
+        class="hidden lg:flex lg:w-1/2 bg-default rounded-3xl m-10 items-center justify-center relative overflow-hidden border-2 border-accented"
       >
         <div class="absolute inset-0">
           <div
@@ -48,7 +48,7 @@
 
       <!-- Right panel: form -->
       <div
-        class="flex flex-col w-full lg:w-1/2 xl:w-2/5 2xl:w-1/3 bg-default px-10 pt-8 pb-6 lg:px-25 xl:px-20 2xl:px-16 lg:pt-25 lg:pb-10 overflow-y-auto"
+        class="flex flex-col w-full lg:w-1/2 bg-default px-10 pt-8 pb-6 lg:px-25 lg:pt-25 lg:pb-10 overflow-y-auto"
       >
         <!-- Success state -->
         <div

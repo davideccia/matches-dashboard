@@ -34,14 +34,14 @@
               v-model="searchInput"
               icon="i-mdi-magnify"
               :placeholder="t('common.search')"
-              class="w-full sm:w-64 xl:w-80"
+              class="w-full sm:w-64"
             />
             <ApiSelectMenu
               v-model="tournamentId"
               endpoint="/api/admin/tournaments"
               label-key="name"
               :placeholder="t('match.selectTournament')"
-              class="w-full sm:w-56 xl:w-64"
+              class="w-full sm:w-56"
             />
             <UButton
               v-if="tournamentId"
@@ -83,7 +83,7 @@
             <!-- Loading skeletons -->
             <div
               v-else-if="status === 'pending'"
-              class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4"
+              class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
             >
               <USkeleton v-for="n in 10" :key="n" class="h-48 rounded-xl" />
             </div>
@@ -102,7 +102,7 @@
               v-else
               class="bg-elevated rounded-xl p-2"
             >
-              <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-2">
+              <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
                 <div
                   v-for="(match, index) in items"
                   :key="match.id"
