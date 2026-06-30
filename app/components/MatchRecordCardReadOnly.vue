@@ -11,7 +11,7 @@
           </div>
 
           <!-- Order -->
-          <div class="mt-0.5 sm:mt-1 w-full flex justify-center">
+          <div class="mt-0.5 sm:mt-1">
             <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">{{ match.sort }}</UBadge>
           </div>
 
