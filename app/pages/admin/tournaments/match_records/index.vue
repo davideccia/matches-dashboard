@@ -26,6 +26,17 @@
           :bulk-actions="[{ endpoint: '/api/admin/match_records/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
           <template #filters>
+            <UButton
+              icon="i-mdi-cog-play"
+              color="primary"
+              variant="soft"
+              :loading="generating"
+              :disabled="!tournamentId"
+              @click="confirmGenerateOpen = true"
+            >
+              {{ t('match.generate') }}
+            </UButton>
+            <USeparator orientation="vertical" class="h-5" />
             <ApiSelectMenu
               v-model="tournamentId"
               endpoint="/api/admin/tournaments"
@@ -41,17 +52,6 @@
               :aria-label="t('common.cancel')"
               @click="tournamentId = null"
             />
-            <div class="h-6 w-px bg-accented" />
-            <UButton
-              icon="i-mdi-cog-play"
-              color="primary"
-              variant="soft"
-              :loading="generating"
-              :disabled="!tournamentId"
-              @click="confirmGenerateOpen = true"
-            >
-              {{ t('match.generate') }}
-            </UButton>
           </template>
           <template #red_corner-cell="{ row }">
             <span class="border-b-2 border-red-500">

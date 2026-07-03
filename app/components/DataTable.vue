@@ -1,16 +1,8 @@
 <template>
   <div class="flex flex-col gap-4">
     <div class="border-2 border-accented rounded-xl p-4 flex flex-col gap-2">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-1">
-        <div class="flex flex-wrap items-center gap-2 p-2">
-          <UButton
-            icon="i-mdi-refresh"
-            variant="ghost"
-            color="neutral"
-            :loading="loading"
-            :aria-label="t('common.refresh')"
-            @click="refresh()"
-          />
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-1 p-2">
+        <div class="flex flex-wrap items-center gap-2">
           <template v-if="bulkActions?.length">
             <UDropdownMenu :items="bulkActionItems">
               <UButton
@@ -22,8 +14,21 @@
                 :disabled="selectedIds.length === 0"
               />
             </UDropdownMenu>
-            <UDivider orientation="vertical" class="h-5" />
+            <USeparator orientation="vertical" class="h-5" />
+            <UBadge variant="soft" color="primary" size="md">
+              {{ selectedIds.length }} {{ t('common.selected') }}
+            </UBadge>
           </template>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <UButton
+            icon="i-mdi-refresh"
+            variant="ghost"
+            color="neutral"
+            :loading="loading"
+            :aria-label="t('common.refresh')"
+            @click="refresh()"
+          />
           <UInput
             v-if="searchable"
             v-model="searchInput"
@@ -31,16 +36,12 @@
             :placeholder="searchPlaceholder ?? t('common.search')"
             class="w-full sm:w-64"
           />
-          <slot name="filters" />
         </div>
-        <div class="flex items-center gap-2">
-          <UBadge variant="soft" color="primary" size="md">
-            {{ selectedIds.length }} {{ t('common.selected') }}
-          </UBadge>
-          <USeparator orientation="vertical" class="h-5" />
-          <UBadge v-if="showTotal" variant="outline" color="neutral" size="md">
-            Tot. {{ total }}
-          </UBadge>
+      </div>
+
+      <div v-if="$slots.filters" class="flex flex-col gap-2 rounded-lg bg-elevated/50 border border-accented px-3 py-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <slot name="filters" />
         </div>
       </div>
 
@@ -69,7 +70,12 @@
         </div>
       </div>
 
-      <div class="flex min-h-10 items-center justify-between px-1">
+      <div class="flex min-h-10 flex-wrap items-center justify-between gap-2 px-1">
+        <div class="flex items-center gap-2">
+          <UBadge v-if="showTotal" variant="outline" color="neutral" size="md">
+            Tot. {{ total }}
+          </UBadge>
+        </div>
         <div class="flex items-center gap-2 text-sm text-muted">
           <span>{{ t('common.rowsPerPage') }}</span>
           <USelect
@@ -78,13 +84,14 @@
             size="sm"
             class="w-20"
           />
+          <USeparator v-if="total > selectedPageSize" orientation="vertical" class="h-5" />
+          <UPagination
+            v-if="total > selectedPageSize"
+            v-model:page="page"
+            :total="total"
+            :items-per-page="selectedPageSize"
+          />
         </div>
-        <UPagination
-          v-if="total > selectedPageSize"
-          v-model:page="page"
-          :total="total"
-          :items-per-page="selectedPageSize"
-        />
       </div>
     </div>
   </div>
