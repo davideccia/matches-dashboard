@@ -19,9 +19,34 @@
           ref="tableRef"
           url="/api/admin/athletes"
           :columns="columns"
+          :params="tableParams"
           empty-icon="i-mdi-account"
           :bulk-actions="[{ endpoint: '/api/admin/athletes/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
+          <template #filters>
+            <UButton
+              :color="isAdult === null ? 'neutral' : isAdult ? 'success' : 'error'"
+              :variant="isAdult === null ? 'outline' : 'subtle'"
+              size="sm"
+              @click="isAdult = isAdult === null ? true : isAdult ? false : null"
+            >
+              {{ t('athlete.filterIsAdult') }}
+            </UButton>
+            <UInput
+              v-model="minMatchRecordsCount"
+              type="number"
+              :min="0"
+              :placeholder="t('athlete.filterMinMatchRecordsCount')"
+              class="w-36"
+            />
+            <UInput
+              v-model="maxMatchRecordsCount"
+              type="number"
+              :min="0"
+              :placeholder="t('athlete.filterMaxMatchRecordsCount')"
+              class="w-36"
+            />
+          </template>
           <template #full_name-cell="{ row }">
             <span class="flex items-center gap-2 min-w-0">
               <span class="truncate">{{ (row.original as unknown as Athlete).full_name }}</span>
@@ -37,11 +62,8 @@
           <template #birth_date-cell="{ row }">
             <span class="flex items-center gap-2">
               {{ formatServerDateOnly((row.original as unknown as Athlete).birth_date, locale) }}
-              <UBadge v-if="(row.original as unknown as Athlete).is_adult" color="success" variant="subtle">
-                {{ t('athlete.adult') }}
-              </UBadge>
-              <UBadge v-else color="warning" variant="subtle">
-                {{ t('athlete.minor') }}
+              <UBadge :color="(row.original as unknown as Athlete).is_adult ? 'success' : 'warning'" variant="subtle">
+                {{ (row.original as unknown as Athlete).age }}
               </UBadge>
             </span>
           </template>
@@ -124,6 +146,16 @@ const editingItem = ref<Athlete | null>(null)
 const confirmOpen = ref(false)
 const deleteTarget = ref<Athlete | null>(null)
 const deleting = ref(false)
+
+const isAdult = ref<boolean | null>(null)
+const minMatchRecordsCount = ref<number | undefined>(undefined)
+const maxMatchRecordsCount = ref<number | undefined>(undefined)
+
+const tableParams = computed(() => ({
+  is_adult: isAdult.value === null ? undefined : isAdult.value ? 1 : 0,
+  min_match_records_count: minMatchRecordsCount.value ?? undefined,
+  max_match_records_count: maxMatchRecordsCount.value ?? undefined,
+}))
 
 function genderLabel(gender: string): string {
   if (gender === 'male') { return t('athlete.gender.male') }

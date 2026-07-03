@@ -35,50 +35,6 @@
           <UInput v-model="state.team_name" class="w-full" />
         </UFormField>
 
-        <UFormField name="default_weight_category_id" :label="t('athlete.defaultWeightCategory')">
-          <div class="flex items-center gap-2">
-            <ApiSelectMenu
-              v-model="state.default_weight_category_id"
-              endpoint="/api/admin/weight_categories"
-              label-key="label"
-              :placeholder="t('athlete.noCategory')"
-              class="w-full"
-            />
-            <UButton
-              v-if="state.default_weight_category_id !== null"
-              type="button"
-              icon="i-mdi-close"
-              variant="ghost"
-              color="neutral"
-              size="sm"
-              :aria-label="t('common.cancel')"
-              @click="state.default_weight_category_id = null"
-            />
-          </div>
-        </UFormField>
-
-        <UFormField name="default_discipline_id" :label="t('athlete.defaultDiscipline')">
-          <div class="flex items-center gap-2">
-            <ApiSelectMenu
-              v-model="state.default_discipline_id"
-              endpoint="/api/admin/disciplines"
-              label-key="label"
-              :placeholder="t('athlete.noCategory')"
-              class="w-full"
-            />
-            <UButton
-              v-if="state.default_discipline_id !== null"
-              type="button"
-              icon="i-mdi-close"
-              variant="ghost"
-              color="neutral"
-              size="sm"
-              :aria-label="t('common.cancel')"
-              @click="state.default_discipline_id = null"
-            />
-          </div>
-        </UFormField>
-
         <UFormField name="generic_match_records_count" :label="t('athlete.genericMatchRecordsCount')">
           <div class="flex items-center gap-2">
             <UInput
@@ -163,8 +119,6 @@ const schema = z.object({
   gender: z.enum(GENDERS),
   tax_number: z.string().min(1),
   team_name: z.string().optional(),
-  default_weight_category_id: z.string().nullish(),
-  default_discipline_id: z.string().nullish(),
   generic_match_records_count: z.coerce.number().int().min(0).nullable().optional(),
 })
 
@@ -175,8 +129,6 @@ const state = reactive({
   gender: 'male' as Gender,
   tax_number: '',
   team_name: '',
-  default_weight_category_id: null as string | null,
-  default_discipline_id: null as string | null,
   generic_match_records_count: null as number | null,
   registered_match_records_count: null as number | null,
   match_records_count: null as number | null,
@@ -196,8 +148,6 @@ watch(open, async (val) => {
       state.gender = item.gender ?? 'male'
       state.tax_number = item.tax_number ?? ''
       state.team_name = item.team_name ?? ''
-      state.default_weight_category_id = item.default_weight_category_id ?? null
-      state.default_discipline_id = item.default_discipline_id ?? null
       state.generic_match_records_count = item.generic_match_records_count ?? null
       state.registered_match_records_count = item.registered_match_records_count ?? null
       state.match_records_count = item.match_records_count ?? null
@@ -214,8 +164,6 @@ watch(open, async (val) => {
     state.gender = 'male'
     state.tax_number = ''
     state.team_name = ''
-    state.default_weight_category_id = null
-    state.default_discipline_id = null
     state.generic_match_records_count = null
     state.registered_match_records_count = null
     state.match_records_count = null
@@ -234,8 +182,6 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       gender: event.data.gender,
       tax_number: event.data.tax_number,
       team_name: event.data.team_name || null,
-      default_weight_category_id: event.data.default_weight_category_id || null,
-      default_discipline_id: event.data.default_discipline_id || null,
       generic_match_records_count: event.data.generic_match_records_count ?? null,
     }
 
@@ -254,8 +200,6 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     state.gender = saved.gender ?? 'male'
     state.tax_number = saved.tax_number ?? ''
     state.team_name = saved.team_name ?? ''
-    state.default_weight_category_id = saved.default_weight_category_id ?? null
-    state.default_discipline_id = saved.default_discipline_id ?? null
     state.generic_match_records_count = saved.generic_match_records_count ?? null
     state.registered_match_records_count = saved.registered_match_records_count ?? null
     state.match_records_count = saved.match_records_count ?? null

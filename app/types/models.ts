@@ -26,19 +26,16 @@ export interface Athlete {
   full_name: string
   birth_date: string // "YYYY-MM-DD"
   is_adult: boolean
+  age: number
   gender: Gender
   tax_number: string | null
   team_name: string | null
-  default_weight_category_id: string | null
-  default_discipline_id: string | null
   generic_match_records_count?: number | null
   registered_match_records_count?: number | null
   match_records_count?: number | null
   created_at: string
   updated_at: string
   // relazioni opzionali (se caricate con with())
-  default_weight_category?: WeightCategory
-  default_discipline?: Discipline
   registrations?: Registration[]
 }
 
