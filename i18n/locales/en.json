@@ -228,14 +228,6 @@
     "password": "Password",
     "submit": "Sign in",
     "error": "Invalid credentials. Please try again.",
-    "registerCard": {
-      "title": "New athlete?",
-      "description": "Register for a tournament by filling out the public form.",
-      "cta": "New athlete? Register for the next event now"
-    },
-    "tournamentsView": {
-      "cta": "Looking for tournaments? Click here"
-    },
     "forgotPassword": "Forgot your password?"
   },
   "forgotPassword": {
@@ -384,5 +376,15 @@
     "upload": "Upload file",
     "uploading": "Uploading...",
     "remove": "Remove"
+  },
+  "landing": {
+    "adminGroupTitle": "Administration",
+    "publicGroupTitle": "Public access",
+    "adminTitle": "Administration panel",
+    "adminDescription": "",
+    "registerTitle": "Public Registration",
+    "registerDescription": "Register for a tournament by filling out the public form",
+    "tournamentsTitle": "Tournaments",
+    "tournamentsDescription": "View live matches and results"
   }
 }

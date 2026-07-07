@@ -228,14 +228,6 @@
     "password": "Password",
     "submit": "Accedi",
     "error": "Credenziali non valide. Riprova.",
-    "registerCard": {
-      "title": "Nuovo atleta?",
-      "description": "Iscriviti a un torneo compilando il modulo pubblico.",
-      "cta": "Sei un atleta? Registrati al prossimo evento!"
-    },
-    "tournamentsView": {
-      "cta": "Cerchi i tornei? Clicca qui"
-    },
     "forgotPassword": "Password dimenticata?"
   },
   "forgotPassword": {
@@ -384,5 +376,15 @@
     "upload": "Carica file",
     "uploading": "Caricamento...",
     "remove": "Rimuovi"
+  },
+  "landing": {
+    "adminGroupTitle": "Amministrazione",
+    "publicGroupTitle": "Accesso al pubblico",
+    "adminTitle": "Pannello di gestione",
+    "adminDescription": "",
+    "registerTitle": "Registrazione Pubblica",
+    "registerDescription": "Iscriviti a un torneo compilando il modulo pubblico",
+    "tournamentsTitle": "Tornei",
+    "tournamentsDescription": "Consulta gli incontri e i risultati in diretta"
   }
 }

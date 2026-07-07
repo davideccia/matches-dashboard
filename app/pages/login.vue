@@ -72,24 +72,8 @@
               :label="t('login.forgotPassword')"
               icon="i-mdi-lock-reset"
               block
-              variant="ghost"
+              variant="outline"
               @click="() => { navigateTo('/forgot-password') }"
-            />
-            <USeparator class="mb-4" />
-            <UButton
-              :label="t('login.registerCard.cta')"
-              icon="i-mdi-account-plus"
-              block
-              variant="outline"
-              @click="() => { navigateTo('/public/athletes/registration') }"
-            />
-            <USeparator class="mb-4" />
-            <UButton
-              :label="t('login.tournamentsView.cta')"
-              icon="i-mdi-sword-cross"
-              block
-              variant="outline"
-              @click="() => { navigateTo('/public/tournaments/match_records') }"
             />
           </template>
         </UAuthForm>
