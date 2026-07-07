@@ -523,7 +523,7 @@ async function onStep1Next() {
     isNewAthlete.value = false
     athleteState.first_name = res.data.first_name
     athleteState.last_name = res.data.last_name
-    athleteState.birth_date = res.data.birth_date?.substring(0, 10) ?? ''
+    athleteState.birth_date = serverDateOnlyToInput(res.data.birth_date)
     athleteState.gender = res.data.gender
     athleteState.tax_number = res.data.tax_number ?? taxNumberInput.value.trim().toUpperCase()
     athleteState.team_name = res.data.team_name ?? ''

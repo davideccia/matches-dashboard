@@ -144,7 +144,7 @@ watch(open, async (val) => {
       const { data: item } = await api.get<{ data: Athlete }>(`/api/admin/athletes/${props.item!.id}`)
       state.first_name = item.first_name
       state.last_name = item.last_name
-      state.birth_date = item.birth_date?.slice(0, 10) ?? ''
+      state.birth_date = serverDateOnlyToInput(item.birth_date)
       state.gender = item.gender ?? 'male'
       state.tax_number = item.tax_number ?? ''
       state.team_name = item.team_name ?? ''
@@ -196,7 +196,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
 
     state.first_name = saved.first_name
     state.last_name = saved.last_name
-    state.birth_date = saved.birth_date?.slice(0, 10) ?? ''
+    state.birth_date = serverDateOnlyToInput(saved.birth_date)
     state.gender = saved.gender ?? 'male'
     state.tax_number = saved.tax_number ?? ''
     state.team_name = saved.team_name ?? ''

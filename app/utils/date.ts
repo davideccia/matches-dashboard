@@ -1,15 +1,24 @@
-import moment from 'moment'
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+
+dayjs.extend(customParseFormat)
 
 /** ISO datetime → HTML datetime-local value (`YYYY-MM-DDTHH:mm:ss`). */
 export function serverDateToInput(value: string | null | undefined): string {
   if (!value) { return '' }
-  return moment(value).format('YYYY-MM-DDTHH:mm:ss')
+  return dayjs(value).format('YYYY-MM-DDTHH:mm:ss')
+}
+
+/** ISO date/datetime string → HTML date input value (`YYYY-MM-DD`). */
+export function serverDateOnlyToInput(value: string | null | undefined): string {
+  if (!value) { return '' }
+  return dayjs(value).format('YYYY-MM-DD')
 }
 
 /** HTML datetime-local value → ISO datetime string (`YYYY-MM-DDTHH:mm:ss`). */
 export function inputDateToServer(value: string | null | undefined): string | null {
   if (!value) { return null }
-  return moment(value, ['YYYY-MM-DDTHH:mm:ss', 'YYYY-MM-DDTHH:mm']).format('YYYY-MM-DDTHH:mm:ss')
+  return dayjs(value, ['YYYY-MM-DDTHH:mm:ss', 'YYYY-MM-DDTHH:mm']).format('YYYY-MM-DDTHH:mm:ss')
 }
 
 /**
@@ -19,7 +28,7 @@ export function inputDateToServer(value: string | null | undefined): string | nu
 export function formatServerDate(value: string | null | undefined, locale: string): string {
   if (!value) { return '' }
   const fmt = locale === 'it' ? 'DD/MM/YYYY (HH:mm:ss)' : 'YYYY-MM-DD (HH:mm:ss)'
-  return moment(value).format(fmt)
+  return dayjs(value).format(fmt)
 }
 
 /**
@@ -29,5 +38,5 @@ export function formatServerDate(value: string | null | undefined, locale: strin
 export function formatServerDateOnly(value: string | null | undefined, locale: string): string {
   if (!value) { return '' }
   const fmt = locale === 'it' ? 'DD/MM/YYYY' : 'YYYY-MM-DD'
-  return moment(value).format(fmt)
+  return dayjs(value).format(fmt)
 }

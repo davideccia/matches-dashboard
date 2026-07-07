@@ -112,7 +112,7 @@ watch(open, async (val) => {
       state.location_name = tournament.location_name
       state.location_address = tournament.location_address
       state.location_city = tournament.location_city
-      state.date = tournament.date.slice(0, 10)
+      state.date = serverDateOnlyToInput(tournament.date)
       state.status = tournament.status
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
@@ -157,7 +157,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     state.location_name = saved.location_name
     state.location_address = saved.location_address
     state.location_city = saved.location_city
-    state.date = saved.date.slice(0, 10)
+    state.date = serverDateOnlyToInput(saved.date)
     state.status = saved.status
 
     emit('saved')
