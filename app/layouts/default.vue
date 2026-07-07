@@ -10,7 +10,7 @@
         >
         <div v-if="!collapsed" class="text-center">
           <UBadge variant="outline">
-            {{ appConfig.version }}
+            v{{ appConfig.version }}
           </UBadge>
         </div>
         <UNavigationMenu
