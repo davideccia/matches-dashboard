@@ -49,7 +49,7 @@
               variant="ghost"
               color="neutral"
               :aria-label="t('common.cancel')"
-              @click="tournamentId = null"
+              @click="() => { tournamentId = null }"
             />
             <div class="h-6 w-px bg-accented" />
             <UButton
@@ -58,7 +58,7 @@
               variant="soft"
               :loading="generating"
               :disabled="!tournamentId"
-              @click="confirmGenerateOpen = true"
+              @click="() => { confirmGenerateOpen = true }"
             >
               {{ t('match.generate') }}
             </UButton>
@@ -150,7 +150,7 @@
       </template>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <UButton variant="ghost" color="neutral" @click="confirmDeleteOpen = false">
+          <UButton variant="ghost" color="neutral" @click="() => { confirmDeleteOpen = false }">
             {{ t('common.cancel') }}
           </UButton>
           <UButton color="error" :loading="deleting" @click="deleteMatch">
@@ -168,7 +168,7 @@
       </template>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <UButton variant="ghost" color="neutral" @click="confirmGenerateOpen = false">
+          <UButton variant="ghost" color="neutral" @click="() => { confirmGenerateOpen = false }">
             {{ t('common.cancel') }}
           </UButton>
           <UButton color="primary" :loading="generating" @click="generateMatches">

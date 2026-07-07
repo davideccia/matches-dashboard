@@ -37,7 +37,7 @@
               color="neutral"
               size="sm"
               :aria-label="t('common.cancel')"
-              @click="state.athlete_id = null"
+              @click="() => { state.athlete_id = null }"
             />
           </div>
         </UFormField>
@@ -60,7 +60,7 @@
               color="neutral"
               size="sm"
               :aria-label="t('common.cancel')"
-              @click="state.tournament_id = null"
+              @click="() => { state.tournament_id = null }"
             />
           </div>
         </UFormField>
@@ -82,7 +82,7 @@
               color="neutral"
               size="sm"
               :aria-label="t('common.cancel')"
-              @click="state.discipline_id = null"
+              @click="() => { state.discipline_id = null }"
             />
           </div>
         </UFormField>
@@ -104,7 +104,7 @@
               color="neutral"
               size="sm"
               :aria-label="t('common.cancel')"
-              @click="state.weight_category_id = null"
+              @click="() => { state.weight_category_id = null }"
             />
           </div>
         </UFormField>
@@ -164,7 +164,7 @@
             :color="state.arrived ? 'primary' : 'neutral'"
             size="sm"
             class="w-full"
-            @click="state.arrived = !state.arrived"
+            @click="() => { state.arrived = !state.arrived }"
           />
         </UFormField>
 
@@ -185,13 +185,13 @@
               variant="ghost"
               color="neutral"
               size="sm"
-              @click="state.weight_in = null"
+              @click="() => { state.weight_in = null }"
             />
           </div>
         </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">
-          <UButton variant="ghost" color="neutral" type="button" @click="open = false">
+          <UButton variant="ghost" color="neutral" type="button" @click="() => { open = false }">
             {{ t('common.cancel') }}
           </UButton>
           <UButton type="submit" :loading="loading">

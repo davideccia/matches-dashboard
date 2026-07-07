@@ -67,7 +67,7 @@
             icon="i-mdi-arrow-left"
             block
             variant="ghost"
-            @click="navigateTo('/login')"
+            @click="() => { navigateTo('/login') }"
           />
         </div>
 
@@ -96,7 +96,7 @@
               icon="i-mdi-arrow-left"
               block
               variant="ghost"
-              @click="navigateTo('/login')"
+              @click="() => { navigateTo('/login') }"
             />
           </template>
         </UAuthForm>

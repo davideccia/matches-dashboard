@@ -52,7 +52,7 @@
         </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">
-          <UButton variant="ghost" color="neutral" type="button" @click="open = false">
+          <UButton variant="ghost" color="neutral" type="button" @click="() => { open = false }">
             {{ t('common.cancel') }}
           </UButton>
           <UButton type="submit" :loading="loading">

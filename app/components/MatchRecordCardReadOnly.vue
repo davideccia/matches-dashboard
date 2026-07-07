@@ -8,7 +8,9 @@
           :class="statusIconClass[match.status]"
           class="size-4 shrink-0"
         />
-        <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">{{ match.sort }}</UBadge>
+        <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">
+          {{ match.sort }}
+        </UBadge>
         <UBadge
           v-if="match.tournament?.name"
           icon="i-mdi-trophy"
@@ -153,7 +155,7 @@
           color="neutral"
           size="xs"
           icon="i-mdi-clipboard-list-outline"
-          @click="judgesPointsOpen = true"
+          @click="() => { judgesPointsOpen = true }"
         >
           {{ t('match.judgesPointsTable') }}
         </UButton>

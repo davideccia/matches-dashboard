@@ -28,7 +28,7 @@
               :color="isAdult === null ? 'neutral' : isAdult ? 'success' : 'error'"
               :variant="isAdult === null ? 'outline' : 'subtle'"
               size="sm"
-              @click="isAdult = isAdult === null ? true : isAdult ? false : null"
+              @click="() => { isAdult = isAdult === null ? true : isAdult ? false : null }"
             >
               {{ t('athlete.filterIsAdult') }}
             </UButton>
@@ -117,7 +117,7 @@
       </template>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <UButton variant="ghost" color="neutral" @click="confirmOpen = false">
+          <UButton variant="ghost" color="neutral" @click="() => { confirmOpen = false }">
             {{ t('common.cancel') }}
           </UButton>
           <UButton color="error" :loading="deleting" @click="deleteItem">

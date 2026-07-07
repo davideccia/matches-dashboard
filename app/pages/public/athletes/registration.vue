@@ -453,7 +453,7 @@
       </template>
       <template #footer>
         <div class="flex justify-end px-6 py-4">
-          <UButton @click="showPrivacyModal = false">
+          <UButton @click="() => { showPrivacyModal = false }">
             {{ t('common.close') }}
           </UButton>
         </div>

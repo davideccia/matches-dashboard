@@ -37,13 +37,13 @@
               variant="ghost"
               color="neutral"
               :aria-label="t('common.cancel')"
-              @click="tournamentId = null"
+              @click="() => { tournamentId = null }"
             />
             <UButton
               :color="unpaid === null ? 'neutral' : unpaid ? 'success' : 'error'"
               :variant="unpaid === null ? 'outline' : 'subtle'"
               size="sm"
-              @click="unpaid = unpaid === null ? true : unpaid ? false : null"
+              @click="() => { unpaid = unpaid === null ? true : unpaid ? false : null }"
             >
               {{ t('registration.filterUnpaid') }}
             </UButton>
@@ -51,7 +51,7 @@
               :color="unarrived === null ? 'neutral' : unarrived ? 'success' : 'error'"
               :variant="unarrived === null ? 'outline' : 'subtle'"
               size="sm"
-              @click="unarrived = unarrived === null ? true : unarrived ? false : null"
+              @click="() => { unarrived = unarrived === null ? true : unarrived ? false : null }"
             >
               {{ t('registration.filterUnarrived') }}
             </UButton>
@@ -59,7 +59,7 @@
               :color="weightInExceeded === null ? 'neutral' : weightInExceeded ? 'success' : 'error'"
               :variant="weightInExceeded === null ? 'outline' : 'subtle'"
               size="sm"
-              @click="weightInExceeded = weightInExceeded === null ? true : weightInExceeded ? false : null"
+              @click="() => { weightInExceeded = weightInExceeded === null ? true : weightInExceeded ? false : null }"
             >
               {{ t('registration.filterWeightExceeded') }}
             </UButton>
@@ -149,7 +149,7 @@
       </template>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <UButton variant="ghost" color="neutral" @click="confirmOpen = false">
+          <UButton variant="ghost" color="neutral" @click="() => { confirmOpen = false }">
             {{ t('common.cancel') }}
           </UButton>
           <UButton color="error" :loading="deleting" @click="deleteItem">

@@ -79,7 +79,7 @@
       </template>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <UButton variant="ghost" color="neutral" @click="confirmOpen = false">
+          <UButton variant="ghost" color="neutral" @click="() => { confirmOpen = false }">
             {{ t('common.cancel') }}
           </UButton>
           <UButton color="error" :loading="deleting" @click="deleteItem">

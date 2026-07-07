@@ -21,7 +21,7 @@
       color="neutral"
       icon="i-mdi-weather-sunny"
       :class="!isDark ? 'text-highlighted font-semibold' : 'text-dimmed'"
-      @click="colorMode.preference = 'light'"
+      @click="() => { colorMode.preference = 'light' }"
     />
     <span class="text-dimmed text-xs select-none">·</span>
     <UButton
@@ -30,7 +30,7 @@
       color="neutral"
       icon="i-mdi-weather-night"
       :class="isDark ? 'text-highlighted font-semibold' : 'text-dimmed'"
-      @click="colorMode.preference = 'dark'"
+      @click="() => { colorMode.preference = 'dark' }"
     />
   </div>
 

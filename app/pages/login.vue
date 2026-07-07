@@ -73,7 +73,7 @@
               icon="i-mdi-lock-reset"
               block
               variant="ghost"
-              @click="navigateTo('/forgot-password')"
+              @click="() => { navigateTo('/forgot-password') }"
             />
             <USeparator class="mb-4" />
             <UButton
@@ -81,7 +81,7 @@
               icon="i-mdi-account-plus"
               block
               variant="outline"
-              @click="navigateTo('/public/athletes/registration')"
+              @click="() => { navigateTo('/public/athletes/registration') }"
             />
             <USeparator class="mb-4" />
             <UButton
@@ -89,7 +89,7 @@
               icon="i-mdi-sword-cross"
               block
               variant="outline"
-              @click="navigateTo('/public/tournaments/match_records')"
+              @click="() => { navigateTo('/public/tournaments/match_records') }"
             />
           </template>
         </UAuthForm>

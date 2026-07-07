@@ -56,7 +56,7 @@
             icon="i-mdi-arrow-left"
             block
             variant="ghost"
-            @click="navigateTo('/forgot-password')"
+            @click="() => { navigateTo('/forgot-password') }"
           />
         </div>
 
@@ -85,7 +85,7 @@
               icon="i-mdi-arrow-left"
               block
               variant="ghost"
-              @click="navigateTo('/login')"
+              @click="() => { navigateTo('/login') }"
             />
           </template>
         </UAuthForm>

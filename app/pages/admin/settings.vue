@@ -53,7 +53,7 @@
             :variant="colorMode.preference === mode.value ? 'solid' : 'outline'"
             color="neutral"
             size="sm"
-            @click="colorMode.preference = mode.value"
+            @click="() => { colorMode.preference = mode.value }"
           />
         </div>
       </div>

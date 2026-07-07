@@ -104,7 +104,7 @@
     </template>
     <template #footer>
       <div class="flex justify-end gap-2">
-        <UButton variant="ghost" color="neutral" @click="confirmBulkOpen = false">
+        <UButton variant="ghost" color="neutral" @click="() => { confirmBulkOpen = false }">
           {{ t('common.cancel') }}
         </UButton>
         <UButton color="error" :loading="bulkExecuting" @click="executeBulkAction">

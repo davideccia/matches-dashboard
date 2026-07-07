@@ -43,7 +43,7 @@
                     color="neutral"
                     size="sm"
                     :aria-label="t('common.cancel')"
-                    @click="state.tournament_id = null"
+                    @click="() => { state.tournament_id = null }"
                   />
                 </div>
               </UFormField>
@@ -67,7 +67,7 @@
                     color="neutral"
                     size="sm"
                     :aria-label="t('common.cancel')"
-                    @click="state.discipline_id = null"
+                    @click="() => { state.discipline_id = null }"
                   />
                 </div>
               </UFormField>
@@ -90,7 +90,7 @@
                     color="neutral"
                     size="sm"
                     :aria-label="t('common.cancel')"
-                    @click="state.weight_category_id = null"
+                    @click="() => { state.weight_category_id = null }"
                   />
                 </div>
               </UFormField>
@@ -105,7 +105,7 @@
                     :variant="genderFilter === 'male' ? 'solid' : 'outline'"
                     color="primary"
                     :disabled="filtersLocked"
-                    @click="genderFilter = 'male'"
+                    @click="() => { genderFilter = 'male' }"
                   >
                     {{ t('match.gender.male') }}
                   </UButton>
@@ -116,7 +116,7 @@
                     :variant="genderFilter === 'female' ? 'solid' : 'outline'"
                     color="primary"
                     :disabled="filtersLocked"
-                    @click="genderFilter = 'female'"
+                    @click="() => { genderFilter = 'female' }"
                   >
                     {{ t('match.gender.female') }}
                   </UButton>
@@ -127,7 +127,7 @@
                     :variant="genderFilter === 'hybrid' ? 'solid' : 'outline'"
                     color="neutral"
                     :disabled="filtersLocked"
-                    @click="genderFilter = 'hybrid'"
+                    @click="() => { genderFilter = 'hybrid' }"
                   >
                     {{ t('match.gender.hybrid') }}
                   </UButton>
@@ -233,7 +233,7 @@
                           color="neutral"
                           size="xs"
                           :aria-label="t('common.cancel')"
-                          @click="state.red_corner_id = null"
+                          @click="() => { state.red_corner_id = null }"
                         />
                       </div>
                     </UFormField>
@@ -284,7 +284,7 @@
                           color="neutral"
                           size="xs"
                           :aria-label="t('common.cancel')"
-                          @click="state.blue_corner_id = null"
+                          @click="() => { state.blue_corner_id = null }"
                         />
                       </div>
                     </UFormField>
@@ -464,7 +464,7 @@
 
         <!-- Sticky footer -->
         <div class="flex justify-end gap-2 px-6 py-4 border-t border-default shrink-0">
-          <UButton variant="ghost" color="neutral" type="button" @click="open = false">
+          <UButton variant="ghost" color="neutral" type="button" @click="() => { open = false }">
             {{ t('common.cancel') }}
           </UButton>
           <UButton type="submit" :loading="loading">

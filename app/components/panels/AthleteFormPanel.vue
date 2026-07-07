@@ -52,7 +52,7 @@
               color="neutral"
               size="sm"
               :aria-label="t('common.cancel')"
-              @click="state.generic_match_records_count = null"
+              @click="() => { state.generic_match_records_count = null }"
             />
           </div>
         </UFormField>
@@ -74,7 +74,7 @@
         </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">
-          <UButton variant="ghost" color="neutral" type="button" @click="open = false">
+          <UButton variant="ghost" color="neutral" type="button" @click="() => { open = false }">
             {{ t('common.cancel') }}
           </UButton>
           <UButton type="submit" :loading="loading">
