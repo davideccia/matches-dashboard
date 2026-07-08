@@ -25,7 +25,7 @@
           <template #details>
             <div class="space-y-6 p-6">
               <!-- Section 1: Filters -->
-              <UFormField name="tournament_id" :label="t('match.tournament')" required>
+              <UFormField v-if="!props.tournamentId" name="tournament_id" :label="t('match.tournament')" required>
                 <div class="flex items-center gap-2">
                   <ApiSelectMenu
                     v-model="state.tournament_id"
@@ -486,6 +486,7 @@ import { type Gender, MATCH_STATUSES, type MatchStatus } from '~/utils/constants
 const props = defineProps<{
   item: MatchRecord | null
   initialTab?: 'details' | 'outcome'
+  tournamentId?: string
 }>()
 
 const emit = defineEmits<{
@@ -606,7 +607,7 @@ watch(open, async (val) => {
       const { data: item } = await api.get<{ data: MatchRecord }>(`/api/admin/match_records/${props.item!.id}`)
       forceEntry.value = item.forced ?? false
       genderFilter.value = item.gender ?? 'male'
-      state.tournament_id = item.tournament_id ?? null
+      state.tournament_id = props.tournamentId ?? item.tournament_id ?? null
       state.red_corner_id = item.red_corner_id ?? null
       state.blue_corner_id = item.blue_corner_id ?? null
       state.weight_category_id = item.weight_category_id ?? null
@@ -632,7 +633,7 @@ watch(open, async (val) => {
   } else {
     forceEntry.value = false
     genderFilter.value = 'male'
-    state.tournament_id = null
+    state.tournament_id = props.tournamentId ?? null
     state.red_corner_id = null
     state.blue_corner_id = null
     state.weight_category_id = null
@@ -792,7 +793,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       const { data } = await api.put<{ data: MatchRecord }>(`/api/admin/match_records/${props.item!.id}`, body)
       saved = data
     } else {
-      const { data } = await api.post<{ data: MatchRecord }>('/api/admin/match_records', body)
+      const { data } = await api.post<{ data: MatchRecord }>(`/api/admin/tournaments/${props.tournamentId ?? event.data.tournament_id}/match_records`, body)
       saved = data
     }
 

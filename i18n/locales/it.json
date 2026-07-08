@@ -17,18 +17,13 @@
   "nav": {
     "dashboard": "Dashboard",
     "tournaments": "Tornei",
-    "registrations": "Iscrizioni",
-    "matches": "Incontri",
     "configurations": "Configurazioni",
     "users": "Utenti",
     "athletes": "Atleti",
     "disciplines": "Discipline",
     "weightCategories": "Categorie di peso",
     "logout": "Esci",
-    "list": "Elenco",
     "home": "Home",
-    "matchesList": "Elenco",
-    "matchesBoard": "Griglia",
     "settings": "Impostazioni"
   },
   "settings": {
@@ -68,7 +63,6 @@
     "selected": "selezionati"
   },
   "tournament": {
-    "title": "Torneo",
     "name": "Nome",
     "location": "Luogo",
     "locationName": "Luogo",
@@ -96,6 +90,17 @@
     "pdf": {
       "board": "Lista incontri (dettagliata)",
       "list": "Lista incontri (semplice)"
+    },
+    "viewDetail": "Visualizza dettagli",
+    "tab": {
+      "registry": "Anagrafica",
+      "registrations": "Iscrizioni",
+      "matchesList": "Lista Incontri",
+      "matchesBoard": "Griglia Incontri"
+    },
+    "section": {
+      "general": "Informazioni generali",
+      "location": "Location"
     }
   },
   "match": {
@@ -269,13 +274,11 @@
   "registration": {
     "title": "Iscrizione",
     "athlete": "Atleta",
-    "tournament": "Torneo",
     "teamName": "Team",
     "notes": "Note",
     "discipline": "Disciplina",
     "weightCategory": "Categoria di peso",
     "selectAthlete": "Seleziona atleta",
-    "selectTournament": "Seleziona torneo",
     "selectDiscipline": "Seleziona disciplina",
     "selectWeightCategory": "Seleziona categoria di peso",
     "createTitle": "Nuova iscrizione",

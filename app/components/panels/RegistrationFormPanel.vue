@@ -42,29 +42,6 @@
           </div>
         </UFormField>
 
-        <UFormField name="tournament_id" :label="t('registration.tournament')" required>
-          <div class="flex items-center gap-2">
-            <ApiSelectMenu
-              v-model="state.tournament_id"
-              endpoint="/api/admin/tournaments"
-              label-key="name"
-              :placeholder="t('registration.selectTournament')"
-              :disabled="isEdit"
-              class="w-full"
-            />
-            <UButton
-              v-if="state.tournament_id !== null && !isEdit"
-              type="button"
-              icon="i-mdi-close"
-              variant="ghost"
-              color="neutral"
-              size="sm"
-              :aria-label="t('common.cancel')"
-              @click="() => { state.tournament_id = null }"
-            />
-          </div>
-        </UFormField>
-
         <UFormField name="discipline_id" :label="t('registration.discipline')" required>
           <div class="flex items-center gap-2">
             <ApiSelectMenu
@@ -211,6 +188,7 @@ import * as z from 'zod'
 
 const props = defineProps<{
   item: Registration | null
+  tournamentId: string
 }>()
 
 const emit = defineEmits<{
@@ -313,7 +291,7 @@ watch(open, async (val) => {
     }
   } else {
     state.athlete_id = null
-    state.tournament_id = null
+    state.tournament_id = props.tournamentId
     state.discipline_id = null
     state.weight_category_id = null
     state.paid_at = null
@@ -343,7 +321,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       const { data } = await api.put<{ data: Registration }>(`/api/admin/registrations/${props.item!.id}`, body)
       saved = data
     } else {
-      const { data } = await api.post<{ data: Registration }>('/api/admin/registrations', body)
+      const { data } = await api.post<{ data: Registration }>(`/api/admin/tournaments/${props.tournamentId}/registrations`, body)
       saved = data
     }
 

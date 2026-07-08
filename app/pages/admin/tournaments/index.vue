@@ -39,6 +39,14 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1">
+              <UButton
+                icon="i-mdi-eye-outline"
+                variant="outline"
+                color="primary"
+                size="sm"
+                :label="t('tournament.viewDetail')"
+                @click="openDetail((row.original as unknown as Tournament))"
+              />
               <UDropdownMenu :items="getPdfMenuItems((row.original as unknown as Tournament))">
                 <UButton
                   icon="i-mdi-file-download-outline"
@@ -100,6 +108,7 @@ definePageMeta({ layout: 'default' })
 const { t, locale } = useI18n()
 const api = useApi()
 const toast = useToast()
+const localePath = useLocalePath()
 
 const tableRef = useTemplateRef('tableRef')
 
@@ -168,6 +177,10 @@ function getPdfMenuItems(item: Tournament) {
       { label: t('tournament.pdf.board'), icon: 'i-mdi-view-list', onSelect: () => downloadDetailedPdf(item) },
     ],
   ]
+}
+
+function openDetail(item: Tournament) {
+  navigateTo(localePath({ name: 'admin-tournaments-id', params: { id: item.id } }))
 }
 
 function openCreate() {

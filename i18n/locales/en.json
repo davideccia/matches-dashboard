@@ -15,11 +15,8 @@
     "liveManagement": "Live management"
   },
   "nav": {
-    "list": "List",
     "dashboard": "Dashboard",
     "tournaments": "Tournaments",
-    "registrations": "Registrations",
-    "matches": "Matches",
     "configurations": "Settings",
     "users": "Users",
     "athletes": "Athletes",
@@ -27,8 +24,6 @@
     "weightCategories": "Weight Categories",
     "logout": "Logout",
     "home": "Home",
-    "matchesList": "List",
-    "matchesBoard": "Grid",
     "settings": "Settings"
   },
   "settings": {
@@ -68,7 +63,6 @@
     "selected": "selected"
   },
   "tournament": {
-    "title": "Tournament",
     "name": "Name",
     "location": "Venue",
     "locationName": "Venue",
@@ -96,6 +90,17 @@
     "pdf": {
       "board": "Match list (detailed)",
       "list": "Matches list (simple)"
+    },
+    "viewDetail": "View details",
+    "tab": {
+      "registry": "Registry",
+      "registrations": "Registrations",
+      "matchesList": "Matches List",
+      "matchesBoard": "Matches Grid"
+    },
+    "section": {
+      "general": "General information",
+      "location": "Location"
     }
   },
   "match": {
@@ -269,13 +274,11 @@
   "registration": {
     "title": "Registration",
     "athlete": "Athlete",
-    "tournament": "Tournament",
     "teamName": "Team",
     "notes": "Notes",
     "discipline": "Discipline",
     "weightCategory": "Weight category",
     "selectAthlete": "Select athlete",
-    "selectTournament": "Select tournament",
     "selectDiscipline": "Select discipline",
     "selectWeightCategory": "Select weight category",
     "createTitle": "New registration",

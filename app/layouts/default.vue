@@ -60,36 +60,7 @@ const items = computed<NavigationMenuItem[][]>(() => [
     {
       label: t('nav.tournaments'),
       icon: 'i-mdi-trophy',
-      defaultOpen: true,
-      children: [
-        {
-          label: t('nav.list'),
-          icon: 'i-mdi-format-list-bulleted',
-          to: localePath('/admin/tournaments'),
-        },
-        {
-          label: t('nav.registrations'),
-          icon: 'i-mdi-clipboard-list-outline',
-          to: localePath('/admin/tournaments/registrations'),
-        },
-        {
-          label: t('nav.matches'),
-          icon: 'i-mdi-sword-cross',
-          defaultOpen: true,
-          children: [
-            {
-              label: t('nav.matchesList'),
-              icon: 'i-mdi-format-list-bulleted',
-              to: localePath('/admin/tournaments/match_records'),
-            },
-            {
-              label: t('nav.matchesBoard'),
-              icon: 'i-mdi-view-grid',
-              to: localePath('/admin/tournaments/match_records/board'),
-            },
-          ],
-        },
-      ],
+      to: localePath('/admin/tournaments'),
     },
     {
       label: t('nav.configurations'),
