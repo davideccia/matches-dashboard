@@ -89,7 +89,7 @@ NUXT_PUBLIC_API_BASE=http://localhost:9090 pnpm dev
 ```
 
 > [!IMPORTANT]
-> All `NUXT_PUBLIC_*` variables are baked into the bundle **at build time**, not read at runtime (a consequence of `ssr: false`). Set them before running `pnpm build` or `docker build`; changing them afterwards requires a rebuild.
+> `NUXT_PUBLIC_*` variables used by client-side code are baked into the bundle **at build time**. Set them before running `pnpm build` or `docker build`; changing them afterwards requires a rebuild.
 
 ## Configuration
 
@@ -168,11 +168,11 @@ Run `make help` to list all targets. The most common ones:
 | `make setup`        | Install dependencies and create `.env` from `.env.example` |
 | `make dev`          | Dev server on `localhost` only                             |
 | `make host`         | Dev server exposed on `0.0.0.0` (LAN / Docker)             |
-| `make build`        | Production build → `.output/public/` (static)              |
+| `make build`        | Production build → `.output/` (Nuxt SSR server + assets)   |
 | `make preview`      | Serve the built output locally                             |
 | `make lint-fix`     | Run ESLint with auto-fix                                   |
 | `make typecheck`    | Type-check via `nuxi`                                      |
-| `make docker-build` | Build and push a multi-arch image                          |
+| `make docker-build` | Build the production image (`PUSH=1` to push multi-arch)   |
 | `make clean`        | Remove build artifacts and Nuxt cache                      |
 
 > [!TIP]
@@ -180,17 +180,17 @@ Run `make help` to list all targets. The most common ones:
 
 ## Deployment
 
-`pnpm build` produces a **static site** in `.output/public/` — no Node.js server required at runtime. The recommended path is the included Docker image:
+`pnpm build` produces a Nuxt SSR server in `.output/` — a Node.js process serves the app at runtime. The recommended path is the included Docker image:
 
 ```bash
-docker build \
-  --build-arg NUXT_PUBLIC_API_BASE=https://api.example.com \
-  -t matches-dashboard .
+docker build -f docker/production/Dockerfile -t matches-dashboard .
 
-docker run -p 80:80 matches-dashboard
+docker run -p 3000:3000 \
+  -e NUXT_PUBLIC_API_BASE=https://api.example.com \
+  matches-dashboard
 ```
 
-The multi-stage [`Dockerfile`](Dockerfile) builds the app with Node 22, then serves the static output from `nginx:alpine` (with a healthcheck). The bundled [`nginx.conf`](nginx.conf) handles SPA routing (`try_files … /index.html`) so deep links resolve after a hard refresh.
+Or via `make docker-build` (see the [Commands](#commands) table). The multi-stage [`docker/production/Dockerfile`](docker/production/Dockerfile) builds the app with Node 22 and runs `.output/server/index.mjs` as a non-root user, with a healthcheck.
 
 > [!IMPORTANT]
 > The Laravel API and the Reverb WebSocket endpoint must both be reachable **from the browser** at the configured `NUXT_PUBLIC_*` addresses for live features to work.

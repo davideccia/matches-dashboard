@@ -1,4 +1,18 @@
-.PHONY: setup up up-host build preview lint lint-fix typecheck clean release help
+.PHONY: setup up up-host build preview lint lint-fix typecheck docker-build clean release help
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+
+DOCKER_FILE := docker/production/Dockerfile
+DOCKER_IMAGE := matches-dashboard
+DOCKER_PLATFORMS := linux/amd64,linux/arm64
+
+docker-build: ## Build production image (PUSH=1 for multi-arch push, e.g. make docker-build REGISTRY=ghcr.io/you PUSH=1)
+	@docker buildx build \
+		--platform $(if $(filter 1,$(PUSH)),$(DOCKER_PLATFORMS),linux/$(shell uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')) \
+		-f $(DOCKER_FILE) \
+		-t $(if $(REGISTRY),$(REGISTRY)/,)$(DOCKER_IMAGE):$(if $(V),$(V),latest) \
+		$(if $(filter 1,$(PUSH)),--push,--load) \
+		.
 
 # ── Setup ─────────────────────────────────────────────────────────────────────
 

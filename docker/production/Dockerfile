@@ -1,3 +1,4 @@
+# Build from the repo root: docker build -f docker/production/Dockerfile .
 FROM node:22-alpine AS base
 RUN corepack enable pnpm
 
@@ -9,10 +10,10 @@ COPY . .
 RUN pnpm run build
 
 FROM base AS runtime
-RUN addgroup -g 1001 -S www-data && adduser -S www-data -u 1001 -G www-data
+RUN addgroup -g 1001 -S nodeapp && adduser -S nodeapp -u 1001 -G nodeapp
 WORKDIR /app
-COPY --from=build --chown=www-data:www-data /app/.output /app/.output
-USER www-data
+COPY --from=build --chown=nodeapp:nodeapp /app/.output /app/.output
+USER nodeapp
 ENV NODE_ENV=production
 ENV PORT=3000
 EXPOSE 3000

@@ -10,11 +10,11 @@ The `Makefile` is the canonical entrypoint (`make help` lists all targets):
 make setup            # install deps + create .env from .env.example
 make dev              # dev server on localhost only → http://localhost:3000
 make host             # dev server exposed on 0.0.0.0 (LAN / Docker)
-make build            # production build → .output/public/ (static, ssr: false)
+make build            # production build → .output/ (Nuxt SSR server + client assets)
 make preview          # serve the build locally
 make lint-fix         # ESLint + auto-fix
 make typecheck        # nuxi typecheck
-make docker-build     # buildx multi-arch image, pushed to the registry in the Makefile
+make docker-build     # build the production image (PUSH=1 REGISTRY=... for multi-arch push)
 make release V=1.2.3  # bump package.json version, commit, tag (PUSH=1 to push)
 ```
 
@@ -22,7 +22,7 @@ The underlying scripts also work directly: `pnpm dev`, `pnpm build`, `pnpm eslin
 
 **There is no automated test suite** (no test runner or test files in the repo). Verify changes via `make typecheck`, `make lint-fix`, and manual runs.
 
-All env vars are baked into the bundle at **build time** (not read at runtime) because `ssr: false`:
+`NUXT_PUBLIC_*` values used by client-side code are baked into the bundle at **build time**:
 
 | Variable                     | Default                 | Purpose                |
 | ---------------------------- | ----------------------- | ---------------------- |
@@ -32,11 +32,11 @@ All env vars are baked into the bundle at **build time** (not read at runtime) b
 | `NUXT_PUBLIC_REVERB_PORT`    | `8080`                  | Reverb WebSocket port  |
 | `NUXT_PUBLIC_REVERB_SCHEME`  | `http`                  | `http` or `https`      |
 
-`NUXT_PUBLIC_API_BASE` is reused as Sanctum's `baseUrl`. For Docker, pass it as a `--build-arg` (see Container below).
+`NUXT_PUBLIC_API_BASE` is reused as Sanctum's `baseUrl`. For Docker, pass it as an environment variable at container runtime (see Container below).
 
 ## Architecture
 
-**Thin SPA client.** `ssr: false` — Nuxt builds static files only (no Node server). All business logic, persistence, and auth live in a separate **Laravel API** ([repo](https://codeberg.org/davideccia/matches-api-laravel)). This frontend renders UI, validates input with Zod, and talks HTTP + WebSocket.
+**SSR client for a separate API.** Nuxt runs as a Node server (`.output/server/index.mjs`) rendering the SPA. All business logic, persistence, and auth live in a separate **Laravel API** ([repo](https://codeberg.org/davideccia/matches-api-laravel)). This frontend renders UI, validates input with Zod, and talks HTTP + WebSocket.
 
 ### Two audiences, one app
 
@@ -86,11 +86,14 @@ Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GE
 
 ## Container
 
-`Dockerfile` is multi-stage: Node 22 build → `nginx:alpine` serving `.output/public/` (with a healthcheck). `nginx.conf` handles SPA routing (`try_files … /index.html`). Pass the API URL as a build arg (build-time only):
+`docker/production/Dockerfile` is multi-stage: Node 22 build → Node 22 runtime running `.output/server/index.mjs` as a non-root user (with a healthcheck). Build from the repo root so the build context includes the full source:
 
 ```bash
-docker build --build-arg NUXT_PUBLIC_API_BASE=https://api.example.com -t matches-dashboard .
+docker build -f docker/production/Dockerfile -t matches-dashboard .
+docker run -p 3000:3000 -e NUXT_PUBLIC_API_BASE=https://api.example.com matches-dashboard
 ```
+
+`make docker-build` wraps this with `docker buildx` (set `PUSH=1 REGISTRY=...` to push a multi-arch image).
 
 ## Further docs
 
