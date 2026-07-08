@@ -30,7 +30,6 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:8081',
       wsBase: process.env.NUXT_PUBLIC_WS_BASE ?? '',
       reverbAppKey: process.env.NUXT_PUBLIC_REVERB_APP_KEY ?? '',
       reverbHost: process.env.NUXT_PUBLIC_REVERB_HOST ?? 'localhost',
@@ -67,7 +66,7 @@ export default defineNuxtConfig({
   },
 
   sanctum: {
-    baseUrl: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:8081',
+    baseUrl: process.env.NUXT_PUBLIC_SANCTUM_BASE_URL ?? 'http://localhost:8081',
     mode: 'token',
     endpoints: {
       login: '/api/admin/auth/login',

@@ -199,7 +199,7 @@ interface PageData<T> {
 }
 
 function apiGet<T>(path: string, params?: Record<string, unknown>): Promise<T> {
-  return $fetch<T>(path, { baseURL: config.public.apiBase, params })
+  return $fetch<T>(path, { baseURL: config.public.sanctum.baseUrl, params })
 }
 
 // ── Tournament selection ─────────────────────────────────────────────────────

@@ -24,15 +24,15 @@ The underlying scripts also work directly: `pnpm dev`, `pnpm build`, `pnpm eslin
 
 `NUXT_PUBLIC_*` values used by client-side code are baked into the bundle at **build time**:
 
-| Variable                     | Default                 | Purpose                |
-| ---------------------------- | ----------------------- | ---------------------- |
-| `NUXT_PUBLIC_API_BASE`       | `http://localhost:8081` | Laravel API base URL   |
-| `NUXT_PUBLIC_REVERB_APP_KEY` | —                       | Laravel Reverb app key |
-| `NUXT_PUBLIC_REVERB_HOST`    | `localhost`             | Reverb WebSocket host  |
-| `NUXT_PUBLIC_REVERB_PORT`    | `8080`                  | Reverb WebSocket port  |
-| `NUXT_PUBLIC_REVERB_SCHEME`  | `http`                  | `http` or `https`      |
+| Variable                       | Default                 | Purpose                |
+| ------------------------------ | ----------------------- | ---------------------- |
+| `NUXT_PUBLIC_SANCTUM_BASE_URL` | `http://localhost:8081` | Laravel API base URL   |
+| `NUXT_PUBLIC_REVERB_APP_KEY`   | —                       | Laravel Reverb app key |
+| `NUXT_PUBLIC_REVERB_HOST`      | `localhost`             | Reverb WebSocket host  |
+| `NUXT_PUBLIC_REVERB_PORT`      | `8080`                  | Reverb WebSocket port  |
+| `NUXT_PUBLIC_REVERB_SCHEME`    | `http`                  | `http` or `https`      |
 
-`NUXT_PUBLIC_API_BASE` is reused as Sanctum's `baseUrl`. For Docker, pass it as an environment variable at container runtime (see Container below).
+`NUXT_PUBLIC_SANCTUM_BASE_URL` feeds Sanctum's `baseUrl` (used by both admin and public API calls). For Docker, pass it as an environment variable at container runtime (see Container below).
 
 ## Architecture
 
@@ -90,7 +90,7 @@ Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GE
 
 ```bash
 docker build -f docker/production/Dockerfile -t matches-dashboard .
-docker run -p 3000:3000 -e NUXT_PUBLIC_API_BASE=https://api.example.com matches-dashboard
+docker run -p 3000:3000 -e NUXT_PUBLIC_SANCTUM_BASE_URL=https://api.example.com matches-dashboard
 ```
 
 `make docker-build` wraps this with `docker buildx` (set `PUSH=1 REGISTRY=...` to push a multi-arch image).

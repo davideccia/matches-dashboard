@@ -479,10 +479,10 @@ function apiHeaders() {
   return { 'Accept-Language': locale.value }
 }
 async function apiGet<T>(path: string, params?: Record<string, unknown>): Promise<T> {
-  return $fetch<T>(path, { baseURL: config.public.apiBase, params, headers: apiHeaders() })
+  return $fetch<T>(path, { baseURL: config.public.sanctum.baseUrl, params, headers: apiHeaders() })
 }
 async function apiPost<T>(path: string, body: Record<string, unknown>): Promise<T> {
-  return $fetch<T>(path, { method: 'POST', baseURL: config.public.apiBase, body, headers: apiHeaders() })
+  return $fetch<T>(path, { method: 'POST', baseURL: config.public.sanctum.baseUrl, body, headers: apiHeaders() })
 }
 
 // ── Stepper ──────────────────────────────────────────────────────────────────
@@ -737,7 +737,7 @@ async function downloadPdf() {
   try {
     const blob = await $fetch<Blob>(
       `/api/public/registration_form/registrations/${registrationId.value}/pdf`,
-      { baseURL: config.public.apiBase, responseType: 'blob', headers: apiHeaders() },
+      { baseURL: config.public.sanctum.baseUrl, responseType: 'blob', headers: apiHeaders() },
     )
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')

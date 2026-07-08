@@ -85,7 +85,7 @@ pnpm dev
 To target a backend on a different host or port:
 
 ```bash
-NUXT_PUBLIC_API_BASE=http://localhost:9090 pnpm dev
+NUXT_PUBLIC_SANCTUM_BASE_URL=http://localhost:9090 pnpm dev
 ```
 
 > [!IMPORTANT]
@@ -93,13 +93,13 @@ NUXT_PUBLIC_API_BASE=http://localhost:9090 pnpm dev
 
 ## Configuration
 
-| Variable                     | Default                 | Purpose                |
-| ---------------------------- | ----------------------- | ---------------------- |
-| `NUXT_PUBLIC_API_BASE`       | `http://localhost:8081` | Laravel API base URL   |
-| `NUXT_PUBLIC_REVERB_APP_KEY` | —                       | Laravel Reverb app key |
-| `NUXT_PUBLIC_REVERB_HOST`    | `localhost`             | Reverb WebSocket host  |
-| `NUXT_PUBLIC_REVERB_PORT`    | `8080`                  | Reverb WebSocket port  |
-| `NUXT_PUBLIC_REVERB_SCHEME`  | `http`                  | `http` or `https`      |
+| Variable                       | Default                 | Purpose                |
+| ------------------------------ | ----------------------- | ---------------------- |
+| `NUXT_PUBLIC_SANCTUM_BASE_URL` | `http://localhost:8081` | Laravel API base URL   |
+| `NUXT_PUBLIC_REVERB_APP_KEY`   | —                       | Laravel Reverb app key |
+| `NUXT_PUBLIC_REVERB_HOST`      | `localhost`             | Reverb WebSocket host  |
+| `NUXT_PUBLIC_REVERB_PORT`      | `8080`                  | Reverb WebSocket port  |
+| `NUXT_PUBLIC_REVERB_SCHEME`    | `http`                  | `http` or `https`      |
 
 ## Routes
 
@@ -186,7 +186,7 @@ Run `make help` to list all targets. The most common ones:
 docker build -f docker/production/Dockerfile -t matches-dashboard .
 
 docker run -p 3000:3000 \
-  -e NUXT_PUBLIC_API_BASE=https://api.example.com \
+  -e NUXT_PUBLIC_SANCTUM_BASE_URL=https://api.example.com \
   matches-dashboard
 ```
 

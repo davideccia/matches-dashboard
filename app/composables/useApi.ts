@@ -31,12 +31,12 @@ export function useApi() {
 
   const download = async (path: string, filename = 'document.pdf') => {
     if (!import.meta.client) { return }
-    const { public: { apiBase } } = useRuntimeConfig()
+    const { public: { sanctum } } = useRuntimeConfig()
     const token = useCookie('sanctum.token.cookie')
     const blob = await $fetch<Blob>(path, {
       method: 'GET',
       responseType: 'blob',
-      baseURL: apiBase as string,
+      baseURL: sanctum.baseUrl as string,
       headers: {
         ...lang(),
         ...(token.value ? { Authorization: `Bearer ${token.value}` } : {}),
