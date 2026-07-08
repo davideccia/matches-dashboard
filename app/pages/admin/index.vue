@@ -92,7 +92,7 @@
                 <UBadge
                   :color="statusBadgeColor(item.status)"
                   variant="subtle"
-                  size="sm"
+                  size="md"
                   class="self-start"
                 >
                   {{ tournamentStatusLabel(item.status) }}
