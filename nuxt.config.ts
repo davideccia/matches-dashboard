@@ -77,6 +77,7 @@ export default defineNuxtConfig({
     redirect: {
       onLogin: '/admin',
       onLogout: '/',
+      onGuestOnly: '/admin',
     },
     redirectIfUnauthenticated: true,
     globalMiddleware: {
