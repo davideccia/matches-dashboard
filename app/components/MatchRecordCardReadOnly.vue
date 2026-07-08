@@ -1,5 +1,9 @@
 <template>
-  <UCard variant="outline" class="w-full flex flex-col ring-2 sm:ring-4">
+  <UCard
+    variant="outline"
+    class="w-full flex flex-col ring-2 sm:ring-4"
+    :class="match.status === 'in_progress' ? 'ring-warning animate-pulse' : ''"
+  >
     <!-- ── HEADER: context + status ─────────────────────────── -->
     <template #header>
       <div class="flex items-center flex-wrap gap-1">
@@ -8,23 +12,10 @@
           :class="statusIconClass[match.status]"
           class="size-4 shrink-0"
         />
-        <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">
-          {{ match.sort }}
-        </UBadge>
-        <UBadge
-          v-if="match.tournament?.name"
-          icon="i-mdi-trophy"
-          color="warning"
-          variant="subtle"
-          size="md"
-        >
-          {{ match.tournament.name }}
-        </UBadge>
-        <USeparator orientation="vertical" class="h-4" />
         <UBadge
           v-if="match.discipline?.label"
           icon="i-mdi-boxing-glove"
-          color="primary"
+          color="info"
           variant="subtle"
           size="md"
         >
@@ -33,7 +24,7 @@
         <UBadge
           v-if="match.weight_category?.label"
           icon="i-mdi-scale-balance"
-          color="primary"
+          color="info"
           variant="subtle"
           size="md"
         >
@@ -73,7 +64,12 @@
       </div>
 
       <!-- VS -->
-      <span class="text-xs font-bold tracking-widest uppercase text-muted select-none">vs</span>
+      <div class="flex flex-col items-center gap-2">
+        <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">
+          {{ match.sort }}
+        </UBadge>
+        <span class="text-xs font-bold tracking-widest uppercase text-muted select-none">vs</span>
+      </div>
 
       <!-- Blue corner -->
       <div
