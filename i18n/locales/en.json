@@ -78,6 +78,7 @@
     "selected": "selected"
   },
   "tournament": {
+    "title": "Tournament",
     "name": "Name",
     "location": "Venue",
     "locationName": "Venue",
