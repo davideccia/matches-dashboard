@@ -1,45 +1,9 @@
-.PHONY: setup up up-host build preview lint lint-fix typecheck docker-build clean release help
-
-# ── Docker ────────────────────────────────────────────────────────────────────
-
-DOCKER_FILE := docker/production/Dockerfile
-DOCKER_IMAGE := matches-dashboard
-DOCKER_PLATFORMS := linux/amd64,linux/arm64
-
-docker-build: ## Build production image (PUSH=1 for multi-arch push, e.g. make docker-build REGISTRY=ghcr.io/you PUSH=1)
-	@docker buildx build \
-		--platform $(if $(filter 1,$(PUSH)),$(DOCKER_PLATFORMS),linux/$(shell uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')) \
-		-f $(DOCKER_FILE) \
-		-t $(if $(REGISTRY),$(REGISTRY)/,)$(DOCKER_IMAGE):$(if $(V),$(V),latest) \
-		$(if $(filter 1,$(PUSH)),--push,--load) \
-		.
-
-# ── Setup ─────────────────────────────────────────────────────────────────────
-
-setup: ## Install dependencies and create .env from .env.example
-	@if [ ! -f .env ]; then \
-		cp .env.example .env; \
-		echo ".env created from .env.example"; \
-	else \
-		echo ".env already exists, skipping"; \
-	fi
-	pnpm install
+.PHONY: dev lint lint-fix typecheck release clean help
 
 # ── Dev ───────────────────────────────────────────────────────────────────────
 
-dev: ## Start dev server on localhost only (PORT env var supported, fallback 3000)
-	pnpm dev --host 127.0.0.1
-
-host: ## Start dev server exposed on 0.0.0.0 (LAN / Docker)
+dev:
 	pnpm dev --host 0.0.0.0
-
-# ── Build & preview ───────────────────────────────────────────────────────────
-
-build: ## Build for production
-	pnpm build
-
-preview: ## Preview production build locally
-	pnpm preview
 
 # ── Code quality ──────────────────────────────────────────────────────────────
 
