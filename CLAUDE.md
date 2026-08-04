@@ -9,16 +9,15 @@ The `Makefile` is the canonical entrypoint (`make help` lists all targets):
 ```bash
 make setup            # install deps + create .env from .env.example
 make dev              # dev server on localhost only → http://localhost:3000
-make host             # dev server exposed on 0.0.0.0 (LAN / Docker)
-make build            # production build → .output/ (Nuxt SSR server + client assets)
+make host             # dev server exposed on 0.0.0.0 (LAN)
 make preview          # serve the build locally
 make lint-fix         # ESLint + auto-fix
 make typecheck        # nuxi typecheck
-make docker-build     # build the production image (PUSH=1 REGISTRY=... for multi-arch push)
 make release V=1.2.3  # bump package.json version, commit, tag (PUSH=1 to push)
+pnpm generate         # static SPA build → .output/public/
 ```
 
-The underlying scripts also work directly: `pnpm dev`, `pnpm build`, `pnpm eslint . --fix`, `pnpm nuxi typecheck`.
+The underlying scripts also work directly: `pnpm dev`, `pnpm generate`, `pnpm eslint . --fix`, `pnpm nuxi typecheck`.
 
 **There is no automated test suite** (no test runner or test files in the repo). Verify changes via `make typecheck`, `make lint-fix`, and manual runs.
 
@@ -32,11 +31,11 @@ The underlying scripts also work directly: `pnpm dev`, `pnpm build`, `pnpm eslin
 | `NUXT_PUBLIC_REVERB_PORT`      | `8080`                  | Reverb WebSocket port  |
 | `NUXT_PUBLIC_REVERB_SCHEME`    | `http`                  | `http` or `https`      |
 
-`NUXT_PUBLIC_SANCTUM_BASE_URL` feeds Sanctum's `baseUrl` (used by both admin and public API calls). For Docker, pass it as an environment variable at container runtime (see Container below).
+`NUXT_PUBLIC_SANCTUM_BASE_URL` feeds Sanctum's `baseUrl` (used by both admin and public API calls). It is read from `process.env` at build time, so there is **no runtime override** — set it in the Amplify environment variables and redeploy (see Deployment below).
 
 ## Architecture
 
-**SSR client for a separate API.** Nuxt runs as a Node server (`.output/server/index.mjs`) rendering the SPA. All business logic, persistence, and auth live in a separate **Laravel API** ([repo](https://codeberg.org/davideccia/matches-api-laravel)). This frontend renders UI, validates input with Zod, and talks HTTP + WebSocket.
+**Static SPA client for a separate API.** `ssr: false` — `pnpm generate` emits static files in `.output/public/`, no Node server at runtime. All business logic, persistence, and auth live in a separate **Laravel API** ([repo](https://codeberg.org/davideccia/matches-api-laravel)). This frontend renders UI, validates input with Zod, and talks HTTP + WebSocket.
 
 ### Two audiences, one app
 
@@ -84,16 +83,14 @@ Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GE
 
 `app/app.config.ts` sets `@nuxt/ui` color tokens. The primary color is changeable at runtime from Settings; it persists to the `ui-primary-color` cookie and is reapplied on boot by `plugins/color-preference.client.ts`. `COLOR_PALETTE` and `COLOR_SECONDARY_MAP` in `constants.ts` define valid choices.
 
-## Container
+## Deployment
 
-`docker/production/Dockerfile` is multi-stage: Node 22 build → Node 22 runtime running `.output/server/index.mjs` as a non-root user (with a healthcheck). Build from the repo root so the build context includes the full source:
+**AWS Amplify Hosting**, static. `amplify.yml` at the repo root is the build spec (Node 22 + pnpm, artifacts from `.output/public`). Two things are configured in the Amplify console, not in this repo:
 
-```bash
-docker build -f docker/production/Dockerfile -t matches-dashboard .
-docker run -p 3000:3000 -e NUXT_PUBLIC_SANCTUM_BASE_URL=https://api.example.com matches-dashboard
-```
+- the `NUXT_PUBLIC_*` environment variables (baked in at build time — a change needs a redeploy);
+- a **rewrite** of every non-asset path to `/index.html` with status `200`. Without it any deep link (`/admin/...`, `/en/public/...`) 404s on refresh, since only `index.html` is emitted.
 
-`make docker-build` wraps this with `docker buildx` (set `PUSH=1 REGISTRY=...` to push a multi-arch image).
+The Amplify domain must be in the Laravel API's CORS allowlist and in Reverb's allowed origins.
 
 ## Further docs
 

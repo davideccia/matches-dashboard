@@ -89,7 +89,7 @@ NUXT_PUBLIC_SANCTUM_BASE_URL=http://localhost:9090 pnpm dev
 ```
 
 > [!IMPORTANT]
-> `NUXT_PUBLIC_*` variables used by client-side code are baked into the bundle **at build time**. Set them before running `pnpm build` or `docker build`; changing them afterwards requires a rebuild.
+> `NUXT_PUBLIC_*` variables used by client-side code are baked into the bundle **at build time**. Set them before running `pnpm generate` (or in the Amplify environment variables); changing them afterwards requires a rebuild.
 
 ## Configuration
 
@@ -163,34 +163,33 @@ docs/                 # In-depth developer documentation (en + it)
 
 Run `make help` to list all targets. The most common ones:
 
-| Command             | Description                                                |
-| ------------------- | ---------------------------------------------------------- |
-| `make setup`        | Install dependencies and create `.env` from `.env.example` |
-| `make dev`          | Dev server on `localhost` only                             |
-| `make host`         | Dev server exposed on `0.0.0.0` (LAN / Docker)             |
-| `make build`        | Production build → `.output/` (Nuxt SSR server + assets)   |
-| `make preview`      | Serve the built output locally                             |
-| `make lint-fix`     | Run ESLint with auto-fix                                   |
-| `make typecheck`    | Type-check via `nuxi`                                      |
-| `make docker-build` | Build the production image (`PUSH=1` to push multi-arch)   |
-| `make clean`        | Remove build artifacts and Nuxt cache                      |
+| Command          | Description                                                |
+| ---------------- | ---------------------------------------------------------- |
+| `make setup`     | Install dependencies and create `.env` from `.env.example` |
+| `make dev`       | Dev server on `localhost` only                             |
+| `make host`      | Dev server exposed on `0.0.0.0` (LAN)                      |
+| `pnpm generate`  | Static SPA build → `.output/public/`                       |
+| `make preview`   | Serve the built output locally                             |
+| `make lint-fix`  | Run ESLint with auto-fix                                   |
+| `make typecheck` | Type-check via `nuxi`                                      |
+| `make clean`     | Remove build artifacts and Nuxt cache                      |
 
 > [!TIP]
 > Run `make lint-fix` after every coding session. The repo enforces `@antfu/eslint-config` (single quotes, no semicolons, sorted imports).
 
 ## Deployment
 
-`pnpm build` produces a Nuxt SSR server in `.output/` — a Node.js process serves the app at runtime. The recommended path is the included Docker image:
+`pnpm generate` produces static files in `.output/public/` — no Node.js process at runtime. The app is deployed on **AWS Amplify Hosting**:
 
-```bash
-docker build -f docker/production/Dockerfile -t matches-dashboard .
+1. Connect the repository in the Amplify console. The build spec [`amplify.yml`](amplify.yml) at the repo root is picked up automatically (Node 22, pnpm, artifacts from `.output/public`).
+2. Set the `NUXT_PUBLIC_*` [environment variables](#configuration) in **App settings → Environment variables**. They are baked in at build time, so changing one requires a redeploy.
+3. Add the SPA rewrite rule under **App settings → Rewrites and redirects**, otherwise deep links such as `/admin/athletes` return a 404 on refresh:
 
-docker run -p 3000:3000 \
-  -e NUXT_PUBLIC_SANCTUM_BASE_URL=https://api.example.com \
-  matches-dashboard
-```
+   | Source                                                                                                   | Target        | Type          |
+   | -------------------------------------------------------------------------------------------------------- | ------------- | ------------- |
+   | `</^[^.]+$\|\.(?!(css\|gif\|ico\|jpg\|js\|png\|txt\|svg\|woff\|woff2\|ttf\|map\|json\|webp)$)([^.]+$)/>` | `/index.html` | 200 (Rewrite) |
 
-Or via `make docker-build` (see the [Commands](#commands) table). The multi-stage [`docker/production/Dockerfile`](docker/production/Dockerfile) builds the app with Node 22 and runs `.output/server/index.mjs` as a non-root user, with a healthcheck.
+The Amplify domain must also be allowed by the Laravel API's CORS configuration (and by Reverb's allowed origins).
 
 > [!IMPORTANT]
 > The Laravel API and the Reverb WebSocket endpoint must both be reachable **from the browser** at the configured `NUXT_PUBLIC_*` addresses for live features to work.
