@@ -31,7 +31,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      wsBase: process.env.NUXT_PUBLIC_WS_BASE ?? '',
+      // Password che sblocca lo switcher ambiente da /login.
+      // Vuota ⇒ gesto disattivato (fail closed).
+      envSwitcherPassword: process.env.NUXT_PUBLIC_ENV_SWITCHER_PASSWORD ?? '',
       reverbAppKey: process.env.NUXT_PUBLIC_REVERB_APP_KEY ?? '',
       reverbHost: process.env.NUXT_PUBLIC_REVERB_HOST ?? 'localhost',
       reverbPort: process.env.NUXT_PUBLIC_REVERB_PORT ?? '8080',
@@ -67,7 +69,8 @@ export default defineNuxtConfig({
   },
 
   sanctum: {
-    baseUrl: process.env.NUXT_PUBLIC_SANCTUM_BASE_URL ?? 'http://localhost:8081',
+    // Default di build. A runtime può essere sovrascritto per-browser da useApiConfig().
+    baseUrl: process.env.NUXT_PUBLIC_SANCTUM_BASE_URL ?? 'https://api.matches.it',
     mode: 'token',
     endpoints: {
       login: '/api/admin/auth/login',

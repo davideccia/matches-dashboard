@@ -36,7 +36,22 @@
     "languageDesc": "Scegli la lingua dell'interfaccia",
     "light": "Chiaro",
     "dark": "Scuro",
-    "system": "Sistema"
+    "system": "Sistema",
+    "apiEnvironment": "Ambiente API",
+    "apiEnvironmentDesc": "Ripunta l'applicazione a un'altra API senza ricompilare",
+    "apiEnvironmentWarning": "Non modificare i valori se non sei consapevole di cosa stai facendo",
+    "apiEnvironmentOverridden": "Ambiente non predefinito",
+    "apiEnvironmentApply": "Applica e ricarica",
+    "apiEnvironmentReset": "Ripristina default",
+    "apiBaseUrl": "URL base API",
+    "reverbAppKey": "Reverb app key",
+    "reverbHost": "Reverb host",
+    "reverbPort": "Reverb port",
+    "reverbScheme": "Reverb scheme",
+    "apiBaseUrlDesc": "Scegli un endpoint noto o scrivine uno nuovo e confermalo con «Crea»",
+    "apiEnvironmentNotProduction": "Ambiente non di produzione",
+    "apiEnvironmentPassword": "Password",
+    "apiEnvironmentPasswordWrong": "Password errata"
   },
   "common": {
     "save": "Salva",

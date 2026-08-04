@@ -6,17 +6,17 @@ declare global {
 }
 
 export default defineNuxtPlugin(() => {
-  const config = useRuntimeConfig()
+  const { config } = useApiConfig()
 
   window.Pusher = Pusher
 
   const echo = new Echo({
     broadcaster: 'reverb',
-    key: config.public.reverbAppKey,
-    wsHost: config.public.reverbHost,
-    wsPort: Number(config.public.reverbPort),
-    wssPort: Number(config.public.reverbPort),
-    forceTLS: config.public.reverbScheme === 'https',
+    key: config.value.reverbAppKey,
+    wsHost: config.value.reverbHost,
+    wsPort: Number(config.value.reverbPort),
+    wssPort: Number(config.value.reverbPort),
+    forceTLS: config.value.reverbScheme === 'https',
     enabledTransports: ['ws', 'wss'],
   })
 

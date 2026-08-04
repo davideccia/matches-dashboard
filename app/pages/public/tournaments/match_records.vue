@@ -177,7 +177,7 @@ import type { MatchRecord, Tournament } from '~/types/models'
 
 definePageMeta({ layout: false, sanctum: { excluded: true } })
 
-const config = useRuntimeConfig()
+const { config: apiConfig } = useApiConfig()
 const { t, locale } = useI18n()
 
 function tournamentStatusLabel(status: string): string {
@@ -199,7 +199,7 @@ interface PageData<T> {
 }
 
 function apiGet<T>(path: string, params?: Record<string, unknown>): Promise<T> {
-  return $fetch<T>(path, { baseURL: config.public.sanctum.baseUrl, params })
+  return $fetch<T>(path, { baseURL: apiConfig.value.baseUrl, params })
 }
 
 // ── Tournament selection ─────────────────────────────────────────────────────

@@ -14,11 +14,13 @@
           class="absolute -bottom-10 -right-10 w-48 h-48 rounded-full bg-white/20"
         />
       </div>
-      <img
-        :src="logoSrc"
-        alt="Logo"
-        class="w-20 h-20 drop-shadow-lg relative z-10 rounded-2xl"
-      >
+      <ApiEnvironmentUnlock>
+        <img
+          :src="logoSrc"
+          alt="Logo"
+          class="w-20 h-20 drop-shadow-lg relative z-10 rounded-2xl"
+        >
+      </ApiEnvironmentUnlock>
     </div>
 
     <!-- Card: grows full height on mobile, fixed max-width centered on desktop -->
@@ -40,11 +42,13 @@
             class="absolute -bottom-16 left-1/4 w-64 h-64 rounded-full bg-white/6"
           />
         </div>
-        <img
-          :src="logoSrc"
-          alt="Logo"
-          class="w-48 h-48 drop-shadow-2xl relative z-10 rounded-3xl border-4 border-primary"
-        >
+        <ApiEnvironmentUnlock>
+          <img
+            :src="logoSrc"
+            alt="Logo"
+            class="w-48 h-48 drop-shadow-2xl relative z-10 rounded-3xl border-4 border-primary"
+          >
+        </ApiEnvironmentUnlock>
       </div>
 
       <!-- Right panel: form -->

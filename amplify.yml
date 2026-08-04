@@ -14,6 +14,7 @@ frontend:
     files:
       - '**/*'
   cache:
+    # .nuxt is deliberately NOT cached: a stale build cache keeps the old
+    # NUXT_PUBLIC_* values baked in when only an env var changes.
     paths:
       - node_modules/**/*
-      - .nuxt/**/*

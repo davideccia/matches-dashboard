@@ -63,15 +63,15 @@ const items = computed<NavigationMenuItem[][]>(() => [
       to: localePath('/admin/tournaments'),
     },
     {
+      label: t('nav.athletes'),
+      icon: 'i-mdi-run',
+      to: localePath('/admin/configurations/athletes'),
+    },
+    {
       label: t('nav.configurations'),
       icon: 'i-mdi-tune-vertical-variant',
       defaultOpen: true,
       children: [
-        {
-          label: t('nav.athletes'),
-          icon: 'i-mdi-run',
-          to: localePath('/admin/configurations/athletes'),
-        },
         {
           label: t('nav.disciplines'),
           icon: 'i-mdi-sword-cross',

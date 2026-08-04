@@ -38,6 +38,12 @@ export type ClientType = typeof CLIENT_TYPES[number]
 
 export const PAGE_SIZES = [10, 20, 50, 100] as const
 
+// Primo elemento = produzione (usato per capire se si è su un ambiente diverso).
+export const API_ENDPOINTS = [
+  'https://api.matches.it',
+  'http://localhost:8081',
+] as const
+
 export const COLOR_PALETTE = [
   { name: 'sky', bgClass: 'bg-sky-500' },
   { name: 'blue', bgClass: 'bg-blue-500' },
