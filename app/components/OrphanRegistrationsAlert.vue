@@ -39,7 +39,9 @@
         >
           <template #description>
             <div class="flex items-center justify-between gap-3">
-              <span class="text-sm text-muted">{{ t('match.matchmakingIssues.viewDetails') }}</span>
+              <span class="text-sm text-muted">
+                {{ noTierCount > 0 ? t('match.matchmakingIssues.noTierCount', { count: noTierCount }) : t('match.matchmakingIssues.viewDetails') }}
+              </span>
               <UIcon name="i-lucide-chevron-right" class="size-4 shrink-0 text-muted" />
             </div>
           </template>
@@ -67,7 +69,10 @@
                 <span class="text-muted opacity-50">·</span>
                 <span class="text-default">{{ item.weight_category_label }}</span>
                 <span class="text-muted opacity-50">·</span>
-                <span class="text-default">{{ experienceTierLabel(item.experience_tier) }}</span>
+                <span class="text-default">{{ item.experience_tier ?? '—' }}</span>
+                <span class="text-muted tabular-nums">
+                  {{ t('match.matchmakingIssues.matchCount', { count: item.match_count }) }}
+                </span>
               </li>
               <li v-if="filteredItems.length === 0" class="py-4 text-center text-sm text-muted">
                 {{ t('match.matchmakingIssues.noResults') }}
@@ -92,6 +97,10 @@ const { t } = useI18n()
 const modalOpen = ref(false)
 const search = ref('')
 
+// Le iscrizioni 'no_tier' sono l'unica causa risolvibile dalla configurazione
+// dei range: vale la pena contarle già nell'alert chiuso.
+const noTierCount = computed(() => props.items.filter(item => item.reason === 'no_tier').length)
+
 const filteredItems = computed(() => {
   const q = search.value.trim().toLowerCase()
   if (!q) { return props.items }
@@ -99,14 +108,7 @@ const filteredItems = computed(() => {
     item.athlete_name.toLowerCase().includes(q)
     || item.discipline_label.toLowerCase().includes(q)
     || item.weight_category_label.toLowerCase().includes(q)
-    || experienceTierLabel(item.experience_tier).toLowerCase().includes(q),
+    || (item.experience_tier?.toLowerCase().includes(q) ?? false),
   )
 })
-
-function experienceTierLabel(tier: MatchmakingIssue['experience_tier']): string {
-  if (tier === 'beginner') { return t('match.experienceTier.beginner') }
-  if (tier === 'intermediate') { return t('match.experienceTier.intermediate') }
-  if (tier === 'advanced') { return t('match.experienceTier.advanced') }
-  return tier
-}
 </script>

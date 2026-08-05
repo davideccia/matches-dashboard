@@ -83,6 +83,11 @@ const items = computed<NavigationMenuItem[][]>(() => [
           to: localePath('/admin/configurations/weight_categories'),
         },
         {
+          label: t('nav.experienceTiers'),
+          icon: 'i-mdi-stairs',
+          to: localePath('/admin/configurations/experience_tiers'),
+        },
+        {
           label: t('nav.users'),
           icon: 'i-mdi-account-group',
           to: localePath('/admin/configurations/users'),

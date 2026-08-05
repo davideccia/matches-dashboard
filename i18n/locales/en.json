@@ -22,6 +22,7 @@
     "athletes": "Athletes",
     "disciplines": "Disciplines",
     "weightCategories": "Weight Categories",
+    "experienceTiers": "Experience ranges",
     "logout": "Logout",
     "home": "Home",
     "settings": "Settings"
@@ -116,7 +117,13 @@
     },
     "section": {
       "general": "General information",
-      "location": "Location"
+      "location": "Location",
+      "experienceTiers": "Experience ranges"
+    },
+    "experienceTiers": {
+      "empty": "No range for this tournament: the global ones apply",
+      "overrideWarning": "This tournament has its own ranges: the global ones do not apply",
+      "emptyHint": "No range defined: add one to override the global ranges."
     }
   },
   "match": {
@@ -192,12 +199,6 @@
       "hybrid": "None"
     },
     "cornerPreview": "Match preview",
-    "experienceTier": {
-      "label": "Level",
-      "beginner": "Beginner",
-      "intermediate": "Intermediate",
-      "advanced": "Advanced"
-    },
     "matchmakingIssues": {
       "okTitle": "No unmatched registrations",
       "okDescription": "All registered athletes have at least one match assigned.",
@@ -205,7 +206,13 @@
       "viewDetails": "View details",
       "modalTitle": "Unmatched registrations",
       "searchPlaceholder": "Search athlete, discipline…",
-      "noResults": "No results"
+      "noResults": "No results",
+      "matchCount": "({count} matches)",
+      "noTierCount": "{count} falls outside every range | {count} fall outside every range",
+      "reason": {
+        "no_tier": "No range",
+        "unpaired": "No opponent"
+      }
     },
     "generate": "Generate matches",
     "generateConfirm": "Are you sure? Existing matches will be deleted and everything will be recalculated.",
@@ -335,6 +342,27 @@
     "created": "Weight category created",
     "updated": "Weight category updated",
     "deleted": "Weight category deleted"
+  },
+  "experienceTier": {
+    "label": "Label",
+    "minMatchCount": "Min matches",
+    "maxMatchCount": "Max matches",
+    "enabled": "Enabled",
+    "enabledHint": "Only enabled tiers are used by automatic match generation",
+    "maxHint": "Leave empty for no upper bound",
+    "maxLowerThanMin": "Must be greater than or equal to min matches",
+    "createTitle": "New experience tier",
+    "editTitle": "Edit experience tier",
+    "deleteConfirm": "Are you sure you want to delete this experience tier?",
+    "created": "Experience tier created",
+    "updated": "Experience tier updated",
+    "deleted": "Experience tier deleted",
+    "unbounded": "∞",
+    "range": "Match range",
+    "active": "Active",
+    "inactive": "Inactive",
+    "rangePreview": "Athletes with {range} matches fought fall into this range.",
+    "globalHint": "These ranges apply to every tournament that does not define its own."
   },
   "publicMatchRecords": {
     "title": "Live matches",

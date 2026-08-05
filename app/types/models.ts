@@ -1,4 +1,4 @@
-import type { EndMethod, ExperienceTier, Gender, MatchStatus, TournamentStatus } from '~/utils/constants'
+import type { EndMethod, Gender, MatchStatus, TournamentStatus } from '~/utils/constants'
 
 // ─── Models ──────────────────────────────────────────────────────────────────
 
@@ -15,6 +15,17 @@ export interface WeightCategory {
   id: string
   label: string
   value: number
+  created_at: string
+  updated_at: string
+}
+
+export interface ExperienceTier {
+  id: string
+  tournament_id: string | null
+  label: string
+  min_match_count: number
+  max_match_count: number | null
+  enabled: boolean
   created_at: string
   updated_at: string
 }
@@ -48,8 +59,11 @@ export interface MatchmakingIssue {
   discipline_label: string
   weight_category_id: number
   weight_category_label: string
-  experience_tier: ExperienceTier
+  // Free-form tier label coming from the experience_tiers table; null when the
+  // athlete's match count falls outside every enabled tier (reason: 'no_tier').
+  experience_tier: string | null
   match_count: number
+  reason: 'no_tier' | 'unpaired'
 }
 
 export interface Tournament {
@@ -66,6 +80,7 @@ export interface Tournament {
   // relazioni opzionali
   registrations?: Registration[]
   match_records?: MatchRecord[]
+  experience_tiers?: ExperienceTier[]
 }
 
 export interface Registration {

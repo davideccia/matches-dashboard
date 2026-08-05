@@ -22,6 +22,7 @@
     "athletes": "Atleti",
     "disciplines": "Discipline",
     "weightCategories": "Categorie di peso",
+    "experienceTiers": "Range matchmaking",
     "logout": "Esci",
     "home": "Home",
     "settings": "Impostazioni"
@@ -116,7 +117,13 @@
     },
     "section": {
       "general": "Informazioni generali",
-      "location": "Location"
+      "location": "Location",
+      "experienceTiers": "Range matchmaking"
+    },
+    "experienceTiers": {
+      "empty": "Nessun range per questo torneo: si applicano quelli globali",
+      "overrideWarning": "Questo torneo ha range propri: quelli globali non si applicano",
+      "emptyHint": "Nessun range definito: aggiungine uno per sovrascrivere quelli globali."
     }
   },
   "match": {
@@ -192,12 +199,6 @@
       "hybrid": "Nessuno"
     },
     "cornerPreview": "Anteprima incontro",
-    "experienceTier": {
-      "label": "Livello",
-      "beginner": "Principiante (-5)",
-      "intermediate": "Intermedio (5|15)",
-      "advanced": "Avanzato (+15)"
-    },
     "matchmakingIssues": {
       "okTitle": "Nessuna iscrizione senza match",
       "okDescription": "Tutti gli atleti iscritti hanno almeno un incontro assegnato.",
@@ -205,7 +206,13 @@
       "viewDetails": "Visualizza dettagli",
       "modalTitle": "Iscrizioni senza match",
       "searchPlaceholder": "Cerca atleta, disciplina…",
-      "noResults": "Nessun risultato"
+      "noResults": "Nessun risultato",
+      "matchCount": "({count} incontri)",
+      "noTierCount": "{count} non rientra in nessun range | {count} non rientrano in nessun range",
+      "reason": {
+        "no_tier": "Nessun range",
+        "unpaired": "Nessun avversario"
+      }
     },
     "generate": "Generazione automatica",
     "generateConfirm": "Confermi la generazione automatica degli incontri? E' consigliata una revisione manuale dopo l'avvenuta generazione",
@@ -335,6 +342,27 @@
     "created": "Categoria di peso creata",
     "updated": "Categoria di peso aggiornata",
     "deleted": "Categoria di peso eliminata"
+  },
+  "experienceTier": {
+    "label": "Etichetta",
+    "minMatchCount": "Incontri min",
+    "maxMatchCount": "Incontri max",
+    "enabled": "Attivo",
+    "enabledHint": "Solo i livelli attivi vengono usati dalla generazione automatica degli incontri",
+    "maxHint": "Lascia vuoto per nessun limite superiore",
+    "maxLowerThanMin": "Deve essere maggiore o uguale a incontri min",
+    "createTitle": "Nuovo livello di esperienza",
+    "editTitle": "Modifica livello di esperienza",
+    "deleteConfirm": "Sei sicuro di voler eliminare questo livello di esperienza?",
+    "created": "Livello di esperienza creato",
+    "updated": "Livello di esperienza aggiornato",
+    "deleted": "Livello di esperienza eliminato",
+    "unbounded": "∞",
+    "range": "Range incontri",
+    "active": "Attivo",
+    "inactive": "Non attivo",
+    "rangePreview": "Rientrano in questo range gli atleti con {range} incontri disputati.",
+    "globalHint": "Questi range valgono per tutti i tornei che non ne definiscono di propri."
   },
   "publicMatchRecords": {
     "title": "Incontri dal vivo",

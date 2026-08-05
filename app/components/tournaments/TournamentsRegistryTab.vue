@@ -58,12 +58,106 @@
         </div>
       </UForm>
     </UCard>
+
+    <!-- Fuori dal form del torneo: i tier si salvano da soli, non col submit sopra. -->
+    <UCard class="mt-6">
+      <template #header>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h4 class="flex items-center gap-2 text-sm font-medium text-highlighted">
+              <UIcon name="i-mdi-stairs" class="size-4" />
+              {{ t('tournament.section.experienceTiers') }}
+            </h4>
+            <p class="mt-1 text-xs text-muted">
+              {{ hasEnabledTier ? t('tournament.experienceTiers.overrideWarning') : t('tournament.experienceTiers.empty') }}
+            </p>
+          </div>
+          <UButton
+            icon="i-mdi-plus"
+            size="sm"
+            variant="subtle"
+            @click="openTierCreate"
+          >
+            {{ t('common.add') }}
+          </UButton>
+        </div>
+      </template>
+
+      <div v-if="tiersStatus === 'pending'" class="space-y-2">
+        <USkeleton v-for="i in 2" :key="i" class="h-9 w-full" />
+      </div>
+      <ul v-else-if="tiers?.length" class="divide-y divide-default rounded-md border border-muted">
+        <li
+          v-for="tier in tiers"
+          :key="tier.id"
+          class="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 text-sm"
+          :class="{ 'opacity-60': !tier.enabled }"
+        >
+          <span class="font-medium text-highlighted">{{ tier.label }}</span>
+          <span class="text-muted opacity-50">·</span>
+          <span class="text-default tabular-nums">
+            {{ formatTierRange(tier.min_match_count, tier.max_match_count) }}
+          </span>
+          <UBadge v-if="!tier.enabled" color="neutral" variant="subtle" icon="i-lucide-circle-slash">
+            {{ t('experienceTier.inactive') }}
+          </UBadge>
+          <div class="ml-auto flex gap-1">
+            <UButton
+              icon="i-mdi-pencil"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              :aria-label="t('common.edit')"
+              @click="openTierEdit(tier)"
+            />
+            <UButton
+              icon="i-mdi-delete"
+              variant="ghost"
+              color="error"
+              size="sm"
+              :aria-label="t('common.delete')"
+              @click="confirmTierDelete(tier)"
+            />
+          </div>
+        </li>
+      </ul>
+      <p v-else class="text-sm text-muted">
+        {{ t('tournament.experienceTiers.emptyHint') }}
+      </p>
+    </UCard>
+
+    <ClientOnly>
+      <ExperienceTierFormPanel
+        v-model="tierPanelOpen"
+        :item="editingTier"
+        :tournament-id="tournament.id"
+        @saved="() => refreshTiers()"
+      />
+
+      <UModal v-model:open="tierConfirmOpen" :title="t('common.confirm')">
+        <template #body>
+          <p class="text-sm text-muted">
+            {{ t('experienceTier.deleteConfirm') }}
+          </p>
+        </template>
+        <template #footer>
+          <div class="flex justify-end gap-2">
+            <UButton variant="ghost" color="neutral" @click="() => { tierConfirmOpen = false }">
+              {{ t('common.cancel') }}
+            </UButton>
+            <UButton color="error" :loading="deletingTier" @click="deleteTier">
+              {{ t('common.delete') }}
+            </UButton>
+          </div>
+        </template>
+      </UModal>
+    </ClientOnly>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { Tournament } from '~/types/models'
+import type { ExperienceTier, Tournament } from '~/types/models'
 import * as z from 'zod'
 import { TOURNAMENT_STATUSES, type TournamentStatus } from '~/utils/constants'
 
@@ -137,6 +231,55 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
   } finally {
     saving.value = false
+  }
+}
+
+// ─── Range matchmaking del torneo ────────────────────────────────────────────
+// Letti dall'endpoint nested, così la sezione è autonoma dal refetch del parent.
+
+const { data: tiers, status: tiersStatus, refresh: refreshTiers } = useLazyAsyncData(
+  () => `tournament-${tournament.id}-experience-tiers`,
+  () => api.get<{ data: ExperienceTier[] }>(`/api/admin/tournaments/${tournament.id}/experience_tiers`).then(res => res.data),
+  { watch: [() => tournament.id] },
+)
+
+// Solo i tier abilitati sostituiscono il set globale (MatchmakingService::tiers()).
+const hasEnabledTier = computed(() => tiers.value?.some(tier => tier.enabled) ?? false)
+
+const tierPanelOpen = ref(false)
+const editingTier = ref<ExperienceTier | null>(null)
+const tierConfirmOpen = ref(false)
+const tierDeleteTarget = ref<ExperienceTier | null>(null)
+const deletingTier = ref(false)
+
+function openTierCreate() {
+  editingTier.value = null
+  tierPanelOpen.value = true
+}
+
+function openTierEdit(tier: ExperienceTier) {
+  editingTier.value = tier
+  tierPanelOpen.value = true
+}
+
+function confirmTierDelete(tier: ExperienceTier) {
+  tierDeleteTarget.value = tier
+  tierConfirmOpen.value = true
+}
+
+async function deleteTier() {
+  if (!tierDeleteTarget.value) { return }
+  deletingTier.value = true
+  try {
+    await api.del(`/api/admin/experience_tiers/${tierDeleteTarget.value.id}`)
+    tierConfirmOpen.value = false
+    tierDeleteTarget.value = null
+    await refreshTiers()
+    toast.add({ title: t('experienceTier.deleted'), color: 'success' })
+  } catch (e) {
+    toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+  } finally {
+    deletingTier.value = false
   }
 }
 </script>
