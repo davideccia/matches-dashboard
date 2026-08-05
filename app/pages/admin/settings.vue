@@ -82,11 +82,6 @@
           />
         </div>
       </div>
-      <!-- Ambiente API — solo superadmin -->
-      <USeparator />
-      <ClientOnly>
-        <ApiEnvironmentSwitcher />
-      </ClientOnly>
     </div>
   </UDashboardPanel>
 </template>

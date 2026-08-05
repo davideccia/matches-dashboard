@@ -1,26 +1,5 @@
 <template>
   <div class="flex flex-col gap-4 rounded-lg border border-warning/40 bg-warning/5 p-4">
-    <div v-if="header || !isProduction" class="flex items-start justify-between gap-3">
-      <div v-if="header">
-        <p class="text-sm font-semibold text-highlighted flex items-center gap-1.5">
-          <UIcon name="i-mdi-alert-outline" class="size-4 text-warning" />
-          {{ t('settings.apiEnvironment') }}
-        </p>
-        <p class="text-xs text-muted">
-          {{ t('settings.apiEnvironmentDesc') }}
-        </p>
-      </div>
-      <UBadge
-        v-if="!isProduction"
-        color="warning"
-        variant="subtle"
-        icon="i-mdi-flask-outline"
-        class="shrink-0"
-      >
-        {{ hasOverride ? t('settings.apiEnvironmentOverridden') : t('settings.apiEnvironmentNotProduction') }}
-      </UBadge>
-    </div>
-
     <UAlert
       color="warning"
       variant="soft"

@@ -41,10 +41,10 @@ Since the build is static there is no server to re-read env vars, so the API/Rev
 
 `app/plugins/api-base-url.ts` hooks `sanctum:request` and rewrites `context.options.baseURL` on **every** request, so the Sanctum client (created once) still follows the override. The call sites that bypass that client — `useApi().download()` and the two `/public/**` pages — read `useApiConfig().config.value.baseUrl` directly. `plugins/echo.client.ts` reads the resolved Reverb values, which is why applying an override triggers a `location.reload()`: Echo opens its connection once at plugin init.
 
-`ApiEnvironmentSwitcher.vue` covers `baseUrl` plus all four Reverb values, so the realtime scoreboard follows the environment. Switching invalidates the current token → 401 → back to `/login`. It is reachable two ways:
+`ApiEnvironmentSwitcher.vue` covers `baseUrl` plus all four Reverb values, so the realtime scoreboard follows the environment. Switching invalidates the current token → 401 → back to `/login`. There is a single way in: **5 clicks on a logo** (within 1.5 s of each other) → password → switcher, via `ApiEnvironmentUnlock.vue`, which wraps the logo in a `<slot />`. Wired logos:
 
-- **`/admin/settings`** — normal, keyboard-accessible path, rendered only for `user.superadmin`.
-- **`/login`** — 5 clicks on the logo (within 1.5 s of each other) → password → switcher, via `ApiEnvironmentUnlock.vue`. This exists because **a wrong base URL makes login impossible**, which would make `/admin/settings` — and therefore the fix — unreachable. Both logos (mobile strip and desktop panel) are wired; only one is visible per breakpoint.
+- **`/login`** — both the mobile strip and the desktop panel logo (only one is visible per breakpoint). This one matters because **a wrong base URL makes login impossible**, so the fix has to be reachable before authenticating.
+- **`layouts/default.vue`** — the admin sidebar logo, for repointing while logged in.
 
 The typed password is compared directly against `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD`. It fails closed: with the variable empty the gesture does nothing at all.
 

@@ -2,12 +2,14 @@
   <UDashboardGroup>
     <UDashboardSidebar collapsible resizable>
       <template #default="{ collapsed }">
-        <img
-          src="~/assets/logo.png"
-          :class="collapsed ? 'size-10 mx-auto rounded-xl' : 'h-24 w-auto mx-auto rounded-xl border-4'"
-          class="object-contain border-primary"
-          alt="logo"
-        >
+        <ApiEnvironmentUnlock>
+          <img
+            src="~/assets/logo.png"
+            :class="collapsed ? 'size-10 mx-auto rounded-xl' : 'h-24 w-auto mx-auto rounded-xl border-4'"
+            class="object-contain border-primary"
+            alt="logo"
+          >
+        </ApiEnvironmentUnlock>
         <div v-if="!collapsed" class="text-center">
           <UBadge variant="outline">
             v{{ appConfig.version }}
