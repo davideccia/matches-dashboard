@@ -40,7 +40,7 @@
     "system": "Sistema",
     "apiEnvironment": "Ambiente API",
     "apiEnvironmentDesc": "Ripunta l'applicazione a un'altra API senza ricompilare",
-    "apiEnvironmentWarning": "Non modificare i valori se non sei consapevole di cosa stai facendo",
+    "apiEnvironmentWarning": "Modificare questi valori può comportare malfunzionamenti dell'applicazione",
     "apiEnvironmentOverridden": "Ambiente non predefinito",
     "apiEnvironmentApply": "Applica e ricarica",
     "apiEnvironmentReset": "Ripristina default",

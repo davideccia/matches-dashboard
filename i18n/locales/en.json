@@ -40,7 +40,7 @@
     "system": "System",
     "apiEnvironment": "API environment",
     "apiEnvironmentDesc": "Point the app at a different API without rebuilding",
-    "apiEnvironmentWarning": "Don't change values if you're not sure what you're doing",
+    "apiEnvironmentWarning": "Changing these values can cause malfunctions",
     "apiEnvironmentOverridden": "Non-default environment",
     "apiEnvironmentApply": "Apply and reload",
     "apiEnvironmentReset": "Restore default",
