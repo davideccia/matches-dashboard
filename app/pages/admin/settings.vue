@@ -13,23 +13,21 @@
             {{ t('settings.appearanceDesc') }}
           </p>
         </div>
-        <div class="flex flex-wrap gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           <button
             v-for="c in palette"
             :key="c.name"
             type="button"
-            class="size-7 rounded-full shrink-0 transition-transform hover:scale-110 focus-visible:outline-none"
-            :class="[
-              c.bgClass,
-              currentPrimary === c.name ? 'ring-2 ring-offset-2 ring-primary scale-110' : '',
-            ]"
-            :aria-label="c.name"
+            class="flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs capitalize transition-colors focus-visible:outline-none"
+            :class="currentPrimary === c.name
+              ? 'border-primary bg-primary/10 text-highlighted font-semibold'
+              : 'border-default text-muted hover:bg-elevated'"
             @click="setColor(c.name)"
-          />
+          >
+            <span class="size-3 rounded-full shrink-0" :class="c.bgClass" />
+            {{ c.name }}
+          </button>
         </div>
-        <p class="text-xs text-muted capitalize">
-          {{ currentPrimary }}
-        </p>
       </div>
 
       <USeparator />

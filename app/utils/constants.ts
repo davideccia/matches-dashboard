@@ -41,25 +41,45 @@ export const API_ENDPOINTS = [
   'http://localhost:8081',
 ] as const
 
+// Tutti i colori cromatici di Tailwind (esclusi i neutri: slate, gray, zinc, neutral, stone, ...).
 export const COLOR_PALETTE = [
-  { name: 'sky', bgClass: 'bg-sky-500' },
-  { name: 'blue', bgClass: 'bg-blue-500' },
-  { name: 'violet', bgClass: 'bg-violet-500' },
-  { name: 'pink', bgClass: 'bg-pink-500' },
-  { name: 'rose', bgClass: 'bg-rose-500' },
+  { name: 'red', bgClass: 'bg-red-500' },
   { name: 'orange', bgClass: 'bg-orange-500' },
+  { name: 'amber', bgClass: 'bg-amber-500' },
+  { name: 'yellow', bgClass: 'bg-yellow-500' },
+  { name: 'lime', bgClass: 'bg-lime-500' },
+  { name: 'green', bgClass: 'bg-green-500' },
   { name: 'emerald', bgClass: 'bg-emerald-500' },
   { name: 'teal', bgClass: 'bg-teal-500' },
+  { name: 'cyan', bgClass: 'bg-cyan-500' },
+  { name: 'sky', bgClass: 'bg-sky-500' },
+  { name: 'blue', bgClass: 'bg-blue-500' },
+  { name: 'indigo', bgClass: 'bg-indigo-500' },
+  { name: 'violet', bgClass: 'bg-violet-500' },
+  { name: 'purple', bgClass: 'bg-purple-500' },
+  { name: 'fuchsia', bgClass: 'bg-fuchsia-500' },
+  { name: 'pink', bgClass: 'bg-pink-500' },
+  { name: 'rose', bgClass: 'bg-rose-500' },
 ] as const
 export type ColorName = typeof COLOR_PALETTE[number]['name']
 
+// Secondario = colore adiacente nella ruota (l'ultimo torna al primo).
 export const COLOR_SECONDARY_MAP: Record<string, string> = {
-  sky: 'blue',
-  blue: 'indigo',
-  violet: 'purple',
-  pink: 'rose',
-  rose: 'red',
+  red: 'orange',
   orange: 'amber',
+  amber: 'yellow',
+  yellow: 'lime',
+  lime: 'green',
+  green: 'emerald',
   emerald: 'teal',
   teal: 'cyan',
+  cyan: 'sky',
+  sky: 'blue',
+  blue: 'indigo',
+  indigo: 'violet',
+  violet: 'purple',
+  purple: 'fuchsia',
+  fuchsia: 'pink',
+  pink: 'rose',
+  rose: 'red',
 }
