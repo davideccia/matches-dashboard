@@ -10,7 +10,7 @@ The `Makefile` is the canonical entrypoint (`make help` lists all targets):
 make dev              # dev server, exposed on 0.0.0.0 (LAN) → http://localhost:3000
 make lint             # ESLint (no auto-fix)
 make lint-fix         # ESLint + auto-fix
-make typecheck        # nuxi typecheck (currently broken — see below)
+make typecheck        # nuxi typecheck — CURRENTLY BROKEN, see below
 make release V=1.2.3  # bump package.json version, commit, tag (PUSH=1 to push)
 make clean            # remove .nuxt .output dist
 pnpm generate         # static SPA build → .output/public/
@@ -18,7 +18,11 @@ pnpm generate         # static SPA build → .output/public/
 
 The underlying scripts also work directly: `pnpm dev`, `pnpm generate`, `pnpm eslint . --fix`, `pnpm nuxi typecheck`.
 
-**There is no automated test suite** (no test runner or test files in the repo). Verify changes via `make typecheck`, `make lint-fix`, and manual runs.
+`make typecheck` **does not run**: `nuxi typecheck` shells out to an npx-installed `vue-tsc`, which fails to resolve the repo's TypeScript 6 (`ERR_PACKAGE_PATH_NOT_EXPORTED` from `resolveTscPath`) and exits 1 before type-checking anything. Don't read that failure as a type error in the code, and don't treat it as a gate you can satisfy — the only working checks are `make lint-fix` and running the app.
+
+**There is no automated test suite** (no test runner, no test files, no test script). `.claude/rules/common/testing.md` describes an 80%-coverage TDD workflow that has no infrastructure behind it here; verify changes via `make lint-fix` and manual runs against a live API.
+
+`README.md` was synced against the code on 2026-08-06 (commands, routes, config defaults, domain model, structure). When you change a route, a `make` target, or a `NUXT_PUBLIC_*` default, update it there too — and keep the `Makefile` and `nuxt.config.ts` as the tiebreakers if they ever drift again.
 
 `NUXT_PUBLIC_*` values used by client-side code are baked into the bundle at **build time**:
 
@@ -61,7 +65,7 @@ For a whole deploy, keep using the Amplify environment variables (build time —
 - **Admin** (`/admin/**`, `/login`) — authenticated via Sanctum token (stored in a cookie by `nuxt-auth-sanctum`). Protected by Sanctum's global middleware (`sanctum.globalMiddleware.enabled: true`), so **every route is protected by default**.
 - **Public** (`/public/**`) — unauthenticated. Pages must opt out with `definePageMeta({ sanctum: { excluded: true } })`. `/login` uses `sanctum: { guestOnly: true }`.
 
-The root `/` always redirects to `/admin` (via `localePath`); the middleware then bounces unauthenticated users to `/login`.
+The root `/` is **not a redirect** — `app/pages/index.vue` is a landing page with three entry buttons (`/login`, `/public/athletes/registration`, `/public/tournaments/match_records`), using `layout: false` and `sanctum: { guestOnly: true }`. Because `sanctum.redirect.onGuestOnly` is `/admin`, an already-authenticated admin hitting `/` lands on `/admin` instead. `/forgot-password` and `/reset-password` are `guestOnly` too.
 
 ### Key composables
 
@@ -88,7 +92,7 @@ Panels live in `components/panels/` and are auto-registered **without** a path p
 
 ### Match board auto-scroll ("seek")
 
-Both `admin/.../match_records/board.vue` and the public scoreboard auto-scroll to the active bout. Each card registers its DOM node into an index-aligned `matchCardEls` array via a function ref; a `watch` on the items does `await nextTick()` (the DOM isn't ready otherwise) then `scrollIntoView` to the first `in_progress` match, falling back to the first `scheduled`. The admin board gates this with a `hasScrolledInitially` flag (scroll once, re-armed on tournament change / refresh); the public board deliberately omits the flag so it re-centers on every WebSocket-driven refresh.
+Both `components/tournaments/TournamentsMatchesBoardTab.vue` (the admin board — there is no longer a standalone `match_records/board.vue` page) and the public scoreboard auto-scroll to the active bout. Each card registers its DOM node into an index-aligned `matchCardEls` array via a function ref; a `watch` on the items does `await nextTick()` (the DOM isn't ready otherwise) then `scrollIntoView` to the first `in_progress` match, falling back to the first `scheduled`. The admin board gates this with a `hasScrolledInitially` flag (scroll once, re-armed on tournament change / refresh); the public board deliberately omits the flag so it re-centers on every WebSocket-driven refresh.
 
 ### i18n
 
@@ -111,9 +115,18 @@ Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GE
 
 The Amplify domain must be in the Laravel API's CORS allowlist and in Reverb's allowed origins.
 
-## Further docs
+## Architecture map (`docs/` + the `/architecture` route)
 
-In-depth chapter docs live in `docs/en/` and `docs/it/` (start at `00-index.md`).
+`docs/` holds a **generated pair** describing this repo as a graph (79 nodes, 141 edges, plus named flows), produced by the `repo-architecture-map` skill:
+
+- **`docs/architecture.json`** — the agent-readable version (`nodes`, `edges`, `flows`, `generated_from`). Read this first when orienting in an unfamiliar corner of the app; it is cheaper than grepping and encodes the relationships between composables, plugins, and pages.
+- **`docs/architecture.html`** — the human-readable interactive diagram, rendered by `app/pages/architecture.vue`, which imports it with `?raw` and drops it into an `<iframe>` (isolating it from Tailwind and `@nuxt/ui`).
+
+Both are **regenerable artifacts, not hand-maintained docs** — they go stale after structural changes; re-run the skill rather than patching the JSON by hand.
+
+The `/architecture` route is **dev-only**. An inline module in `nuxt.config.ts` hooks `pages:extend` and, outside `nuxt dev`, splices out any page whose file ends in `pages/architecture.vue` — matching by _file_ rather than path, because i18n has already added the `/en/` variant by then. So neither the URL nor the diagram's contents reach the published bundle. If you add another dev-only page, follow that same by-file pattern.
+
+`README.md` still links to `docs/en/00-index.md` and `docs/it/00-index.md`; **those directories do not exist** — the chapter docs were replaced by the architecture map above.
 
 ## End of session
 
