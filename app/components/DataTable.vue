@@ -276,6 +276,7 @@ async function executeBulkAction() {
 
 defineExpose({
   refresh,
+  get items() { return items.value },
   get selectedIds() { return selectedIds.value },
   get total() { return total.value },
   get pending() { return loading.value },

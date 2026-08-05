@@ -60,55 +60,58 @@
     </UCard>
 
     <!-- Fuori dal form del torneo: i tier si salvano da soli, non col submit sopra. -->
-    <UCard class="mt-6">
-      <template #header>
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h4 class="flex items-center gap-2 text-sm font-medium text-highlighted">
-              <UIcon name="i-mdi-stairs" class="size-4" />
-              {{ t('tournament.section.experienceTiers') }}
-            </h4>
-            <p class="mt-1 text-xs text-muted">
-              {{ hasEnabledTier ? t('tournament.experienceTiers.overrideWarning') : t('tournament.experienceTiers.empty') }}
-            </p>
-          </div>
-          <UButton
-            icon="i-mdi-plus"
-            size="sm"
-            variant="subtle"
-            @click="openTierCreate"
-          >
-            {{ t('common.add') }}
-          </UButton>
+    <div class="mt-6 flex flex-col gap-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h4 class="flex items-center gap-2 text-sm font-medium text-highlighted">
+            <UIcon name="i-mdi-stairs" class="size-4" />
+            {{ t('tournament.section.experienceTiers') }}
+          </h4>
+          <p class="mt-1 text-xs text-muted">
+            {{ hasEnabledTier ? t('tournament.experienceTiers.overrideWarning') : t('tournament.experienceTiers.empty') }}
+          </p>
         </div>
-      </template>
-
-      <div v-if="tiersStatus === 'pending'" class="space-y-2">
-        <USkeleton v-for="i in 2" :key="i" class="h-9 w-full" />
-      </div>
-      <ul v-else-if="tiers?.length" class="divide-y divide-default rounded-md border border-muted">
-        <li
-          v-for="tier in tiers"
-          :key="tier.id"
-          class="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 text-sm"
-          :class="{ 'opacity-60': !tier.enabled }"
+        <UButton
+          icon="i-mdi-plus"
+          size="sm"
+          variant="subtle"
+          @click="openTierCreate"
         >
-          <span class="font-medium text-highlighted">{{ tier.label }}</span>
-          <span class="text-muted opacity-50">·</span>
-          <span class="text-default tabular-nums">
-            {{ formatTierRange(tier.min_match_count, tier.max_match_count) }}
+          {{ t('common.add') }}
+        </UButton>
+      </div>
+
+      <DataTable
+        ref="tiersTable"
+        url="/api/admin/experience_tiers"
+        :columns="tierColumns"
+        :params="{ tournament_id: tournament.id }"
+        empty-icon="i-mdi-stairs"
+        :bulk-actions="[{ endpoint: '/api/admin/experience_tiers/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
+      >
+        <template #range-cell="{ row }">
+          <span class="tabular-nums">
+            {{ formatTierRange((row.original as unknown as ExperienceTier).min_match_count, (row.original as unknown as ExperienceTier).max_match_count) }}
           </span>
-          <UBadge v-if="!tier.enabled" color="neutral" variant="subtle" icon="i-lucide-circle-slash">
-            {{ t('experienceTier.inactive') }}
+        </template>
+        <template #enabled-cell="{ row }">
+          <UBadge
+            :color="(row.original as unknown as ExperienceTier).enabled ? 'success' : 'neutral'"
+            variant="subtle"
+            :icon="(row.original as unknown as ExperienceTier).enabled ? 'i-lucide-circle-check' : 'i-lucide-circle-slash'"
+          >
+            {{ (row.original as unknown as ExperienceTier).enabled ? t('experienceTier.active') : t('experienceTier.inactive') }}
           </UBadge>
-          <div class="ml-auto flex gap-1">
+        </template>
+        <template #actions-cell="{ row }">
+          <div class="flex justify-end gap-1">
             <UButton
               icon="i-mdi-pencil"
               variant="ghost"
               color="neutral"
               size="sm"
               :aria-label="t('common.edit')"
-              @click="openTierEdit(tier)"
+              @click="openTierEdit((row.original as unknown as ExperienceTier))"
             />
             <UButton
               icon="i-mdi-delete"
@@ -116,22 +119,19 @@
               color="error"
               size="sm"
               :aria-label="t('common.delete')"
-              @click="confirmTierDelete(tier)"
+              @click="confirmTierDelete((row.original as unknown as ExperienceTier))"
             />
           </div>
-        </li>
-      </ul>
-      <p v-else class="text-sm text-muted">
-        {{ t('tournament.experienceTiers.emptyHint') }}
-      </p>
-    </UCard>
+        </template>
+      </DataTable>
+    </div>
 
     <ClientOnly>
       <ExperienceTierFormPanel
         v-model="tierPanelOpen"
         :item="editingTier"
         :tournament-id="tournament.id"
-        @saved="() => refreshTiers()"
+        @saved="() => tiersTable?.refresh()"
       />
 
       <UModal v-model:open="tierConfirmOpen" :title="t('common.confirm')">
@@ -156,7 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormSubmitEvent } from '@nuxt/ui'
+import type { FormSubmitEvent, TableColumn } from '@nuxt/ui'
 import type { ExperienceTier, Tournament } from '~/types/models'
 import * as z from 'zod'
 import { TOURNAMENT_STATUSES, type TournamentStatus } from '~/utils/constants'
@@ -237,14 +237,19 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
 // ─── Range matchmaking del torneo ────────────────────────────────────────────
 // Letti dall'endpoint nested, così la sezione è autonoma dal refetch del parent.
 
-const { data: tiers, status: tiersStatus, refresh: refreshTiers } = useLazyAsyncData(
-  () => `tournament-${tournament.id}-experience-tiers`,
-  () => api.get<{ data: ExperienceTier[] }>(`/api/admin/tournaments/${tournament.id}/experience_tiers`).then(res => res.data),
-  { watch: [() => tournament.id] },
-)
+// Tipo esplicito: `hasEnabledTier` legge `items` ed è usato nel template, quindi
+// l'inferenza dal ref del template sarebbe circolare (ts 7022).
+const tiersTable = useTemplateRef<{ items: ExperienceTier[], refresh: () => Promise<void> }>('tiersTable')
+
+const tierColumns = computed(() => [
+  { accessorKey: 'label', header: t('experienceTier.label') },
+  { id: 'range', header: t('experienceTier.range'), meta: { class: { th: 'text-right', td: 'text-right' } } },
+  { accessorKey: 'enabled', header: t('experienceTier.enabled') },
+  { id: 'actions', header: '' },
+] as TableColumn<Record<string, unknown>>[])
 
 // Solo i tier abilitati sostituiscono il set globale (MatchmakingService::tiers()).
-const hasEnabledTier = computed(() => tiers.value?.some(tier => tier.enabled) ?? false)
+const hasEnabledTier = computed(() => tiersTable.value?.items?.some(tier => tier.enabled) ?? false)
 
 const tierPanelOpen = ref(false)
 const editingTier = ref<ExperienceTier | null>(null)
@@ -274,7 +279,7 @@ async function deleteTier() {
     await api.del(`/api/admin/experience_tiers/${tierDeleteTarget.value.id}`)
     tierConfirmOpen.value = false
     tierDeleteTarget.value = null
-    await refreshTiers()
+    await tiersTable.value?.refresh()
     toast.add({ title: t('experienceTier.deleted'), color: 'success' })
   } catch (e) {
     toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
