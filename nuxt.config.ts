@@ -4,7 +4,27 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   ssr: false,
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/eslint', 'nuxt-auth-sanctum'],
+  modules: [
+    '@nuxt/ui',
+    '@nuxtjs/i18n',
+    '@nuxt/eslint',
+    'nuxt-auth-sanctum',
+
+    /**
+     * /architecture (mappa dell'architettura) è uno strumento di sviluppo:
+     * fuori da `nuxt dev` la rotta viene rimossa, così né l'URL né il contenuto
+     * di docs/architecture.html finiscono nel bundle statico pubblicato.
+     */
+    (_options, nuxt) => {
+      if (nuxt.options.dev) { return }
+      nuxt.hook('pages:extend', (pages) => {
+        // Per file, non per path: i18n può già aver aggiunto le varianti /en/.
+        for (let i = pages.length - 1; i >= 0; i--) {
+          if (pages[i]?.file?.endsWith('pages/architecture.vue')) { pages.splice(i, 1) }
+        }
+      })
+    },
+  ],
 
   components: [
     { path: '~/components/panels', pathPrefix: false },

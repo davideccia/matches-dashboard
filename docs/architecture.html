@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>matches-dashboard — architecture map</title>
+<style>
+  :root {
+    --bg: #0b1017;
+    --bg-panel: #111823;
+    --bg-node: #172130;
+    --line: #24313f;
+    --line-strong: #34465a;
+    --text: #dbe4ee;
+    --text-dim: #8798aa;
+    --text-faint: #63758a;
+    --entry: #60a5fa;
+    --domain: #a78bfa;
+    --data: #34d399;
+    --async: #fbbf24;
+    --integration: #fb7185;
+    --infra: #38bdf8;
+    --flow: #fde047;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.45 ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+  header {
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px;
+    padding: 12px 18px; border-bottom: 1px solid var(--line);
+  }
+  header h1 { margin: 0; font-size: 15px; font-weight: 650; letter-spacing: .01em; }
+  header .meta { color: var(--text-faint); font-size: 12px; }
+  header .legend { margin-left: auto; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11.5px; color: var(--text-dim); }
+  header .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  header .legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+
+  main {
+    display: flex; align-items: stretch;
+    height: calc(100vh - 50px); min-height: 0;
+  }
+  #diagram {
+    position: relative; flex: 1 1 auto; min-width: 0; overflow: hidden;
+    touch-action: none; cursor: grab; background:
+      radial-gradient(circle at 18% 12%, #131c28 0%, var(--bg) 55%);
+  }
+  #diagram.dragging { cursor: grabbing; }
+  #canvas { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+  #edges, #overlay { position: absolute; top: 0; left: 0; overflow: visible; }
+  #overlay { pointer-events: none; }
+  #nodes { position: absolute; top: 0; left: 0; }
+
+  .band-label {
+    position: absolute; font-size: 12px; font-weight: 650; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--text-faint); white-space: nowrap;
+  }
+  .band-rule { position: absolute; height: 1px; background: var(--line); opacity: .8; }
+
+  .node {
+    position: absolute; padding: 7px 9px; border-radius: 8px;
+    background: var(--bg-node); border: 1px solid var(--line-strong);
+    border-left-width: 3px; cursor: pointer; overflow: hidden;
+    transition: opacity .16s, box-shadow .16s, border-color .16s;
+  }
+  .node .nl {
+    font-size: 12.5px; font-weight: 600; line-height: 1.25; color: var(--text);
+    overflow-wrap: anywhere;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .node .nt { font-size: 10.5px; color: var(--text-faint); margin-top: 2px; letter-spacing: .02em; }
+  .node:hover, .node.focus { box-shadow: 0 0 0 1px var(--line-strong), 0 6px 18px #0008; }
+  .node.dim { opacity: .16; }
+  .node.on { opacity: 1; box-shadow: 0 0 0 2px var(--flow), 0 6px 20px #0009; }
+  .node.orphan { border-style: dashed; }
+
+  .edge { fill: none; stroke: var(--line-strong); stroke-width: 1.1; opacity: .55; }
+  .edge.dim { opacity: .07; }
+  .edge.on { stroke: var(--flow); stroke-width: 2; opacity: .95; }
+  .edge-hit { fill: none; stroke: transparent; stroke-width: 12; cursor: help; }
+  .flow-path { fill: none; stroke: var(--flow); stroke-width: 2.4; stroke-dasharray: 7 6; opacity: .85; }
+  .badge {
+    position: absolute; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--flow); color: #191400; font-size: 11.5px; font-weight: 750;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px #000a;
+  }
+
+  #panel {
+    flex: 0 0 340px; max-width: 340px; border-left: 1px solid var(--line);
+    background: var(--bg-panel); overflow-y: auto; padding: 14px 14px 28px;
+  }
+  #panel h2 { margin: 0 0 4px; font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--text-faint); }
+  #panel .hint { font-size: 11.5px; color: var(--text-faint); margin: 0 0 12px; }
+  .flow {
+    border: 1px solid var(--line); border-radius: 9px; padding: 9px 10px; margin-bottom: 8px;
+    cursor: pointer; background: #131b26; transition: border-color .15s, background .15s;
+  }
+  .flow:hover { border-color: var(--line-strong); }
+  .flow.active { border-color: var(--flow); background: #1a1c14; }
+  .flow .fn { font-size: 13px; font-weight: 650; }
+  .flow .fd { font-size: 11.5px; color: var(--text-dim); margin-top: 3px; }
+  .steps { list-style: none; margin: 8px 0 2px; padding: 0; }
+  .steps li {
+    display: flex; gap: 8px; align-items: flex-start; padding: 4px 6px; border-radius: 6px;
+    font-size: 12px; cursor: pointer;
+  }
+  .steps li:hover { background: #202a1a; }
+  .steps .n {
+    flex: 0 0 18px; height: 18px; border-radius: 50%; background: var(--flow); color: #191400;
+    font-size: 10.5px; font-weight: 750; display: flex; align-items: center; justify-content: center; margin-top: 1px;
+  }
+  .steps .sp { color: var(--text-faint); font-size: 10.5px; overflow-wrap: anywhere; }
+  .clear {
+    width: 100%; margin: 2px 0 14px; padding: 6px; border-radius: 7px; cursor: pointer;
+    background: transparent; border: 1px dashed var(--line-strong); color: var(--text-dim); font: inherit; font-size: 12px;
+  }
+  .clear:hover { color: var(--text); border-color: var(--flow); }
+  .controls { display: flex; gap: 6px; margin-bottom: 12px; }
+  .controls button {
+    flex: 1; padding: 5px; border-radius: 7px; cursor: pointer; font: inherit; font-size: 12px;
+    background: #16202c; border: 1px solid var(--line-strong); color: var(--text-dim);
+  }
+  .controls button:hover { color: var(--text); }
+
+  #tooltip {
+    position: fixed; z-index: 50; max-width: 320px; pointer-events: none; opacity: 0;
+    transition: opacity .12s; padding: 9px 11px; border-radius: 9px;
+    background: #0d141d; border: 1px solid var(--line-strong); box-shadow: 0 10px 30px #000b;
+  }
+  #tooltip.show { opacity: 1; }
+  #tooltip .tl { font-size: 13px; font-weight: 650; }
+  #tooltip .tm { font-size: 11px; color: var(--text-faint); margin: 2px 0 5px; overflow-wrap: anywhere; }
+  #tooltip .td { font-size: 12px; color: var(--text-dim); }
+
+  @media (max-width: 900px) {
+    main { flex-direction: column; height: auto; }
+    #diagram { height: 62vh; flex: none; }
+    #panel { flex: none; max-width: none; width: 100%; border-left: 0; border-top: 1px solid var(--line); }
+    header .legend { width: 100%; margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>matches-dashboard — architecture map</h1>
+  <span class="meta" id="counts"></span>
+  <div class="legend" id="legend"></div>
+</header>
+
+<main>
+  <section id="diagram">
+    <div id="canvas">
+      <svg id="edges"></svg>
+      <div id="nodes"></div>
+      <svg id="overlay"></svg>
+    </div>
+  </section>
+  <aside id="panel">
+    <div class="controls">
+      <button id="btn-fit">Fit</button>
+      <button id="btn-zin">Zoom +</button>
+      <button id="btn-zout">Zoom −</button>
+    </div>
+    <h2>Flows</h2>
+    <p class="hint">Select a flow to trace the path work actually takes; click a step to centre its node. Hover any node for its file and role.</p>
+    <div id="flows"></div>
+  </aside>
+</main>
+
+<div id="tooltip"></div>
+
+<script>
+const GRAPH = {"generated_from":"matches-dashboard (Nuxt 4 static SPA client for the matches Laravel API)","nodes":[{"id":"app-root","label":"App root","type":"other","layer":"entry","path":"app/app.vue","description":"Wraps every route in UApp, the toaster and the active @nuxt/ui locale, then renders the layout and page."},{"id":"layout-default","label":"Admin shell layout","type":"other","layer":"entry","path":"app/layouts/default.vue","description":"Dashboard chrome for all /admin pages: sidebar navigation, version badge, user menu with logout, and the sidebar logo that hides the environment-switcher gesture."},{"id":"page-landing","label":"Landing chooser","type":"controller","layer":"entry","path":"app/pages/index.vue","description":"Guest-only entry page offering three destinations: admin login, public athlete registration, and the public scoreboard."},{"id":"page-login","label":"Login page","type":"controller","layer":"entry","path":"app/pages/login.vue","description":"Guest-only Zod-validated credential form that calls useAuth().login and redirects to /admin, and the only pre-auth place to repoint the API base URL."},{"id":"page-forgot-password","label":"Forgot password page","type":"controller","layer":"entry","path":"app/pages/forgot-password.vue","description":"Guest-only form posting an email to the API's forgot_password endpoint to trigger a reset link."},{"id":"page-reset-password","label":"Reset password page","type":"controller","layer":"entry","path":"app/pages/reset-password.vue","description":"Guest-only form that reads token and email from the query string and posts the new password to reset_password."},{"id":"page-admin-dashboard","label":"Admin dashboard","type":"controller","layer":"entry","path":"app/pages/admin/index.vue","description":"Per-tournament overview of registration and match counters, fetched from /api/admin/dashboard with an AbortController guarding overlapping refreshes."},{"id":"page-admin-tournaments","label":"Tournaments list page","type":"controller","layer":"entry","path":"app/pages/admin/tournaments/index.vue","description":"Paginated tournament table with create/edit panel, bulk delete, and simple/detailed match-list PDF downloads."},{"id":"page-admin-tournament-detail","label":"Tournament detail page","type":"controller","layer":"entry","path":"app/pages/admin/tournaments/[id].vue","description":"Loads one tournament and hosts the four working tabs (registry, registrations, matches list, matches board) in a UTabs shell."},{"id":"page-admin-athletes","label":"Athletes page","type":"controller","layer":"entry","path":"app/pages/admin/configurations/athletes.vue","description":"CRUD page for athletes over the generic DataTable plus AthleteFormPanel."},{"id":"page-admin-disciplines","label":"Disciplines page","type":"controller","layer":"entry","path":"app/pages/admin/configurations/disciplines.vue","description":"CRUD page for disciplines, which carry the default round count and minutes per round."},{"id":"page-admin-weight-categories","label":"Weight categories page","type":"controller","layer":"entry","path":"app/pages/admin/configurations/weight_categories.vue","description":"CRUD page for the weight categories used to pair athletes."},{"id":"page-admin-experience-tiers","label":"Experience tiers page","type":"controller","layer":"entry","path":"app/pages/admin/configurations/experience_tiers.vue","description":"CRUD page for the global match-count tiers that drive matchmaking eligibility."},{"id":"page-admin-users","label":"Users page","type":"controller","layer":"entry","path":"app/pages/admin/configurations/users.vue","description":"CRUD page for admin users, including the superadmin flag."},{"id":"page-admin-settings","label":"Settings page","type":"controller","layer":"entry","path":"app/pages/admin/settings.vue","description":"Purely client-side preferences: primary colour, light/dark mode and interface language — no API call involved."},{"id":"page-public-registration","label":"Public registration wizard","type":"controller","layer":"entry","path":"app/pages/public/athletes/registration.vue","description":"Unauthenticated four-step stepper (tax number lookup, athlete data, tournament choice, summary) ending in a registration and its PDF."},{"id":"page-public-scoreboard","label":"Public scoreboard","type":"controller","layer":"entry","path":"app/pages/public/tournaments/match_records.vue","description":"Unauthenticated live match board: picks a tournament, lists its bouts read-only, and re-fetches on every Reverb notification."},{"id":"page-architecture-map","label":"Architecture map page","type":"controller","layer":"entry","path":"app/pages/architecture.vue","description":"Dev-only unauthenticated route that embeds docs/architecture.html in an iframe; nuxt.config strips the route from production builds so neither route nor content ships."},{"id":"data-table","label":"DataTable","type":"service","layer":"domain","path":"app/components/DataTable.vue","description":"Generic paginated table driven by a url plus columns: debounced search, page-size control, row selection, bulk actions, a filters slot and an exposed refresh()."},{"id":"api-select-menu","label":"ApiSelectMenu","type":"service","layer":"domain","path":"app/components/ApiSelectMenu.vue","description":"Searchable popover select that pages options from an endpoint with debounced server-side search, IntersectionObserver infinite scroll and UForm integration."},{"id":"panel-athlete","label":"AthleteFormPanel","type":"service","layer":"domain","path":"app/components/panels/AthleteFormPanel.vue","description":"Slideover create/edit form for athletes, re-fetching the record by id when opened in edit mode."},{"id":"panel-discipline","label":"DisciplineFormPanel","type":"service","layer":"domain","path":"app/components/panels/DisciplineFormPanel.vue","description":"Slideover create/edit form for disciplines and their round defaults."},{"id":"panel-weight-category","label":"WeightCategoryFormPanel","type":"service","layer":"domain","path":"app/components/panels/WeightCategoryFormPanel.vue","description":"Slideover create/edit form for weight categories."},{"id":"panel-experience-tier","label":"ExperienceTierFormPanel","type":"service","layer":"domain","path":"app/components/panels/ExperienceTierFormPanel.vue","description":"Slideover create/edit form for experience tiers, posting to the tournament-scoped endpoint when a tournamentId prop is given."},{"id":"panel-user","label":"UserFormPanel","type":"service","layer":"domain","path":"app/components/panels/UserFormPanel.vue","description":"Slideover create/edit form for admin users and their credentials."},{"id":"panel-tournament","label":"TournamentFormPanel","type":"service","layer":"domain","path":"app/components/panels/TournamentFormPanel.vue","description":"Slideover create/edit form for tournaments: name, venue, date and status."},{"id":"panel-registration","label":"RegistrationFormPanel","type":"service","layer":"domain","path":"app/components/panels/RegistrationFormPanel.vue","description":"Slideover form enrolling an athlete in a tournament with discipline and weight category, plus payment, arrival and weigh-in fields."},{"id":"panel-match-record","label":"MatchRecordFormPanel","type":"service","layer":"domain","path":"app/components/panels/MatchRecordFormPanel.vue","description":"The largest form in the app: bout composition, corner athletes filtered by tournament/discipline/category/gender, outcome, and the judges' points grid kept in sync with the round count."},{"id":"tab-registry","label":"Registry tab","type":"service","layer":"domain","path":"app/components/tournaments/TournamentsRegistryTab.vue","description":"Edits the tournament's own fields and manages its tournament-scoped experience tiers in a nested table."},{"id":"tab-registrations","label":"Registrations tab","type":"service","layer":"domain","path":"app/components/tournaments/TournamentsRegistrationsTab.vue","description":"Table of a tournament's registrations with unpaid/unarrived/weigh-in filters, per-row PDF download and bulk delete."},{"id":"tab-matches-list","label":"Matches list tab","type":"service","layer":"domain","path":"app/components/tournaments/TournamentsMatchesListTab.vue","description":"Tabular view of a tournament's bouts with matchmaking-issue alert, match generation trigger, edit panel and bulk delete."},{"id":"tab-matches-board","label":"Matches board tab","type":"service","layer":"domain","path":"app/components/tournaments/TournamentsMatchesBoardTab.vue","description":"Card board of a tournament's bouts that auto-scrolls once to the in-progress (else first scheduled) match, re-armed on refresh."},{"id":"match-record-card","label":"MatchRecordCardReadOnly","type":"service","layer":"domain","path":"app/components/MatchRecordCardReadOnly.vue","description":"Read-only bout card — corners, status, outcome and judges' points — shared by the admin board and the public scoreboard."},{"id":"judges-points-table","label":"MatchRecordJudgesPointsTable","type":"service","layer":"domain","path":"app/components/MatchRecordJudgesPointsTable.vue","description":"Per-round three-judge score grid with column totals, editable in the form panel and read-only on the cards."},{"id":"orphan-registrations-alert","label":"OrphanRegistrationsAlert","type":"service","layer":"domain","path":"app/components/OrphanRegistrationsAlert.vue","description":"Surfaces the API's matchmaking_issues: a success alert when empty, otherwise a searchable modal listing unpaired or tier-less registrations."},{"id":"api-env-unlock","label":"ApiEnvironmentUnlock","type":"middleware","layer":"domain","path":"app/components/ApiEnvironmentUnlock.vue","description":"Wraps a logo in a slot and opens the switcher after five clicks within 1.5 s plus the right password; fails closed when no password is configured."},{"id":"api-env-switcher","label":"ApiEnvironmentSwitcher","type":"service","layer":"domain","path":"app/components/ApiEnvironmentSwitcher.vue","description":"Zod-validated form over base URL and all four Reverb values that writes a per-browser override and can reset back to the build defaults."},{"id":"locale-switcher","label":"LocaleSwitcher","type":"service","layer":"domain","path":"app/components/LocaleSwitcher.vue","description":"Small it/en toggle used on the pages that render without the admin layout."},{"id":"color-mode-switcher","label":"ColorModeSwitcher","type":"service","layer":"domain","path":"app/components/ColorModeSwitcher.vue","description":"Orphan: a palette popover plus light/dark button that no page or layout references — the Settings page reimplements the same controls inline."},{"id":"use-api","label":"useApi","type":"service","layer":"data","path":"app/composables/useApi.ts","description":"Wraps the Sanctum client with the active locale as Accept-Language and exposes get/post/put/del/upload/download for every admin call."},{"id":"api-download","label":"useApi().download","type":"service","layer":"data","path":"app/composables/useApi.ts","description":"PDF escape hatch that bypasses the Sanctum client: plain $fetch with a blob response, the resolved base URL and the token read straight from the cookie."},{"id":"api-upload","label":"useApi().upload","type":"service","layer":"data","path":"app/composables/useApi.ts","description":"Orphan: a multipart FormData POST helper that is exported but called from nowhere in the app."},{"id":"api-error-message","label":"getApiErrorMessage","type":"service","layer":"data","path":"app/composables/useApi.ts","description":"Pulls the backend's message out of an unknown error object and is what every catch block feeds to a toast."},{"id":"use-auth","label":"useAuth","type":"service","layer":"data","path":"app/composables/useAuth.ts","description":"Wraps useSanctumAuth and unwraps the API's { data } envelope to expose user, isAuthenticated, login, logout and fetchUser."},{"id":"use-user","label":"useUser","type":"service","layer":"data","path":"app/composables/useUser.ts","description":"Exposes the current user plus a clear() that calls refreshNuxtData, invalidating every cached payload on login and logout."},{"id":"use-api-config","label":"useApiConfig","type":"service","layer":"data","path":"app/composables/useApiConfig.ts","description":"Resolves base URL and Reverb settings with localStorage override winning over build-time env vars winning over API_ENDPOINTS[0], and reloads the page when an override is applied."},{"id":"use-color-preference","label":"useColorPreference","type":"service","layer":"data","path":"app/composables/useColorPreference.ts","description":"Sets the runtime primary/secondary @nuxt/ui colours and persists the choice to a long-lived cookie."},{"id":"public-fetch-helpers","label":"Public $fetch helpers","type":"service","layer":"data","path":"app/pages/public/athletes/registration.vue, app/pages/public/tournaments/match_records.vue","description":"Per-page apiGet/apiPost wrappers that skip the Sanctum client entirely, reading only the resolved base URL so no token is ever attached."},{"id":"types-models","label":"Domain model types","type":"model","layer":"data","path":"app/types/models.ts","description":"TypeScript mirrors of the API resources (Athlete, Tournament, Registration, MatchRecord, User, …) where relations are optional because they appear only with ?with=."},{"id":"constants-enums","label":"Enums & constants","type":"model","layer":"data","path":"app/utils/constants.ts","description":"The backend's enum vocabularies as const arrays plus page sizes, the API endpoint list and the colour palette."},{"id":"utils-date","label":"Date helpers","type":"service","layer":"data","path":"app/utils/date.ts","description":"dayjs conversions between API ISO strings, HTML date inputs and locale-aware display formats, with no timezone shifting."},{"id":"utils-experience-tier","label":"Tier range helper","type":"service","layer":"data","path":"app/utils/experienceTier.ts","description":"Formats a tier's match-count range as min–max, printing ∞ when there is no upper bound."},{"id":"echo-plugin","label":"Echo plugin","type":"infra","layer":"async","path":"app/plugins/echo.client.ts","description":"Client-only plugin that builds the Laravel Echo instance for the reverb broadcaster once at boot from the resolved config, which is why an override needs a reload."},{"id":"use-echo","label":"useEcho","type":"service","layer":"async","path":"app/composables/useEcho.ts","description":"One-line accessor returning the injected $echo instance."},{"id":"use-tournament-match-records","label":"useTournamentMatchRecords","type":"observer","layer":"async","path":"app/composables/useTournamentMatchRecords.ts","description":"Subscribes to one tournament's channel and exposes lastEvent, always unsubscribing before re-subscribing on id change and on unmount."},{"id":"reverb-channel","label":"MatchRecordChanged event","type":"event","layer":"async","path":"channel tournaments.{id}.match_records","description":"Notify-only broadcast carrying just a refresh flag — no domain data crosses the socket, so REST stays the single source of truth."},{"id":"api-admin-auth","label":"Admin auth endpoints","type":"external","layer":"integration","path":"/api/admin/auth/{login,user,logout,forgot_password,reset_password}","description":"Laravel Sanctum token endpoints for sign-in, identity, sign-out and the password-reset pair."},{"id":"api-admin-resources","label":"Admin resource endpoints","type":"external","layer":"integration","path":"/api/admin/{athletes,disciplines,weight_categories,experience_tiers,users,registrations,match_records}","description":"Paginated index, show, store, update, destroy and /bulk delete routes backing every configuration CRUD page."},{"id":"api-admin-tournaments","label":"Admin tournament endpoints","type":"external","layer":"integration","path":"/api/admin/tournaments/**","description":"Tournament CRUD plus its nested registrations, experience_tiers and match_records collections and the match_records/generate matchmaking trigger."},{"id":"api-admin-dashboard","label":"Dashboard endpoint","type":"external","layer":"integration","path":"/api/admin/dashboard","description":"Returns the pre-aggregated per-tournament registration and match counters the admin home renders."},{"id":"api-admin-pdf","label":"Admin PDF endpoints","type":"external","layer":"integration","path":"/api/admin/registrations/{id}/pdf, /api/admin/tournaments/{id}/match_records/pdf","description":"Server-rendered blobs: a registration form and the simple or detailed match list for a tournament."},{"id":"api-public-endpoints","label":"Public API endpoints","type":"external","layer":"integration","path":"/api/public/**","description":"Token-free routes: tournaments and their match records for the scoreboard, plus the registration_form lookups, athlete/registration creation and its PDF."},{"id":"reverb-server","label":"Laravel Reverb","type":"external","layer":"integration","path":"NUXT_PUBLIC_REVERB_* (ws/wss)","description":"The API's WebSocket server; its allowed origins must include this app's deployed domain or the scoreboard stays silent."},{"id":"nuxt-config","label":"Nuxt config","type":"infra","layer":"infra","path":"nuxt.config.ts","description":"ssr: false plus the module set, the prefix-less panels component scan, runtimeConfig defaults, i18n strategy and the Sanctum block."},{"id":"sanctum-module","label":"Sanctum auth module","type":"middleware","layer":"infra","path":"nuxt-auth-sanctum (nuxt.config.ts → sanctum)","description":"Token-mode client whose global middleware protects every route by default, so public pages must opt out with sanctum: { excluded: true }."},{"id":"plugin-api-base-url","label":"Base URL rewrite plugin","type":"middleware","layer":"infra","path":"app/plugins/api-base-url.ts","description":"Hooks sanctum:request and rewrites baseURL on every request so the runtime override reaches a client that was created only once."},{"id":"plugin-auth","label":"Auth hook plugin","type":"observer","layer":"infra","path":"app/plugins/auth.ts","description":"On sanctum:logout calls useUser().clear() so no stale payload survives the session."},{"id":"plugin-color-preference","label":"Colour boot plugin","type":"infra","layer":"infra","path":"app/plugins/color-preference.client.ts","description":"Reapplies the saved primary colour from the cookie at boot, validating it against the palette first."},{"id":"app-config","label":"App config (theme)","type":"infra","layer":"infra","path":"app/app.config.ts","description":"@nuxt/ui colour tokens and the version string read from package.json for the sidebar badge."},{"id":"runtime-config","label":"Build-time env vars","type":"infra","layer":"infra","path":"nuxt.config.ts → runtimeConfig.public, .env.example","description":"The NUXT_PUBLIC_* values (API base URL, Reverb settings, switcher password) baked into the static bundle at build time."},{"id":"storage-api-override","label":"localStorage override","type":"infra","layer":"infra","path":"localStorage key matches.api-override","description":"Per-browser API/Reverb override that repoints an already-built bundle; it guards no data, since the API still authenticates every request."},{"id":"cookie-token","label":"Sanctum token cookie","type":"infra","layer":"infra","path":"cookie sanctum.token.cookie","description":"Where the bearer token lives; the download helper reads it directly because it bypasses the Sanctum client."},{"id":"cookie-ui-color","label":"Primary colour cookie","type":"infra","layer":"infra","path":"cookie ui-primary-color","description":"Persists the chosen accent colour across reloads for the boot plugin to reapply."},{"id":"i18n-locales","label":"i18n locales","type":"infra","layer":"infra","path":"i18n/locales/it.json, i18n/locales/en.json","description":"Italian is the unprefixed default and English lives under /en/; both files must gain every new key together."},{"id":"public-assets","label":"Static public assets","type":"infra","layer":"infra","path":"public/","description":"Favicons, web manifest, robots.txt and the privacy.txt the registration wizard fetches into its consent modal."},{"id":"amplify-deploy","label":"Amplify build spec","type":"infra","layer":"infra","path":"amplify.yml","description":"Node 22 + pnpm static build publishing .output/public, deliberately not caching .nuxt so an env-var change cannot stay baked in."},{"id":"makefile","label":"Makefile","type":"infra","layer":"infra","path":"Makefile","description":"Canonical entrypoint for dev, lint, typecheck, release tagging and clean; there is no automated test suite to run."},{"id":"eslint-config","label":"ESLint config","type":"infra","layer":"infra","path":"eslint.config.mjs","description":"Antfu + Nuxt + vue-i18n rule set, run through make lint-fix as the repo's only automated gate."},{"id":"db-schema-doc","label":"DB schema reference","type":"other","layer":"infra","path":"DB.md","description":"DBML dump of the API's authoritative schema — the reference the model types are written against, not something this app reads."}],"edges":[{"from":"app-root","to":"layout-default","type":"calls","label":"renders layout"},{"from":"app-root","to":"i18n-locales","type":"reads","label":"active locale"},{"from":"nuxt-config","to":"sanctum-module","type":"depends_on","label":"configures"},{"from":"nuxt-config","to":"runtime-config","type":"depends_on","label":"declares"},{"from":"nuxt-config","to":"i18n-locales","type":"depends_on","label":"registers"},{"from":"nuxt-config","to":"page-architecture-map","type":"depends_on","label":"strips route in prod"},{"from":"amplify-deploy","to":"nuxt-config","type":"calls","label":"pnpm generate"},{"from":"amplify-deploy","to":"runtime-config","type":"reads","label":"bakes env vars"},{"from":"makefile","to":"eslint-config","type":"calls","label":"lint-fix"},{"from":"makefile","to":"nuxt-config","type":"calls","label":"dev / typecheck"},{"from":"sanctum-module","to":"api-admin-auth","type":"calls","label":"login / user / logout"},{"from":"sanctum-module","to":"cookie-token","type":"writes","label":"stores token"},{"from":"plugin-api-base-url","to":"sanctum-module","type":"observes","label":"sanctum:request"},{"from":"plugin-api-base-url","to":"use-api-config","type":"reads","label":"resolved baseUrl"},{"from":"plugin-auth","to":"sanctum-module","type":"observes","label":"sanctum:logout"},{"from":"plugin-auth","to":"use-user","type":"calls","label":"clear()"},{"from":"plugin-color-preference","to":"cookie-ui-color","type":"reads","label":"saved colour"},{"from":"plugin-color-preference","to":"app-config","type":"writes","label":"applies tokens"},{"from":"use-api-config","to":"runtime-config","type":"reads","label":"build defaults"},{"from":"use-api-config","to":"storage-api-override","type":"reads","label":"runtime override"},{"from":"use-api-config","to":"constants-enums","type":"reads","label":"API_ENDPOINTS[0]"},{"from":"use-color-preference","to":"cookie-ui-color","type":"writes","label":"persists choice"},{"from":"use-color-preference","to":"app-config","type":"writes","label":"sets colours"},{"from":"use-color-preference","to":"constants-enums","type":"reads","label":"palette"},{"from":"use-api","to":"sanctum-module","type":"calls","label":"authenticated client"},{"from":"use-api","to":"i18n-locales","type":"reads","label":"Accept-Language"},{"from":"api-download","to":"use-api-config","type":"reads","label":"baseUrl"},{"from":"api-download","to":"cookie-token","type":"reads","label":"bearer token"},{"from":"api-download","to":"api-admin-pdf","type":"calls","label":"blob GET"},{"from":"use-auth","to":"sanctum-module","type":"calls","label":"useSanctumAuth"},{"from":"use-auth","to":"types-models","type":"depends_on","label":"User"},{"from":"use-user","to":"use-auth","type":"calls","label":"current user"},{"from":"public-fetch-helpers","to":"use-api-config","type":"reads","label":"baseUrl"},{"from":"public-fetch-helpers","to":"api-public-endpoints","type":"calls","label":"token-free HTTP"},{"from":"types-models","to":"constants-enums","type":"depends_on","label":"enum types"},{"from":"types-models","to":"db-schema-doc","type":"depends_on","label":"mirrors schema"},{"from":"use-api","to":"api-admin-resources","type":"calls","label":"CRUD"},{"from":"use-api","to":"api-admin-tournaments","type":"calls","label":"CRUD + generate"},{"from":"use-api","to":"api-admin-dashboard","type":"calls","label":"GET counters"},{"from":"use-api","to":"api-admin-auth","type":"calls","label":"password reset"},{"from":"page-landing","to":"locale-switcher","type":"calls","label":"renders"},{"from":"page-landing","to":"page-login","type":"calls","label":"navigates"},{"from":"page-landing","to":"page-public-registration","type":"calls","label":"navigates"},{"from":"page-landing","to":"page-public-scoreboard","type":"calls","label":"navigates"},{"from":"page-login","to":"use-auth","type":"calls","label":"login()"},{"from":"page-login","to":"use-user","type":"calls","label":"clear() before login"},{"from":"page-login","to":"api-env-unlock","type":"calls","label":"logo gesture"},{"from":"page-login","to":"page-forgot-password","type":"calls","label":"navigates"},{"from":"page-forgot-password","to":"use-api","type":"calls","label":"POST forgot_password"},{"from":"page-reset-password","to":"use-api","type":"calls","label":"POST reset_password"},{"from":"layout-default","to":"api-env-unlock","type":"calls","label":"sidebar logo gesture"},{"from":"layout-default","to":"use-auth","type":"calls","label":"user + logout"},{"from":"layout-default","to":"app-config","type":"reads","label":"version badge"},{"from":"api-env-unlock","to":"api-env-switcher","type":"calls","label":"after unlock"},{"from":"api-env-unlock","to":"runtime-config","type":"reads","label":"compares password"},{"from":"api-env-switcher","to":"use-api-config","type":"calls","label":"setOverride / reset"},{"from":"api-env-switcher","to":"constants-enums","type":"reads","label":"endpoint list"},{"from":"page-admin-dashboard","to":"layout-default","type":"depends_on","label":"layout"},{"from":"page-admin-dashboard","to":"use-api","type":"calls","label":"GET dashboard"},{"from":"page-admin-dashboard","to":"constants-enums","type":"reads","label":"statuses"},{"from":"page-admin-settings","to":"use-color-preference","type":"calls","label":"setColor"},{"from":"page-admin-settings","to":"i18n-locales","type":"calls","label":"setLocale"},{"from":"page-admin-tournaments","to":"data-table","type":"calls","label":"lists tournaments"},{"from":"page-admin-tournaments","to":"panel-tournament","type":"calls","label":"create / edit"},{"from":"page-admin-tournaments","to":"api-download","type":"calls","label":"match-list PDFs"},{"from":"page-admin-tournaments","to":"page-admin-tournament-detail","type":"calls","label":"row → detail"},{"from":"page-admin-tournament-detail","to":"use-api","type":"calls","label":"GET tournament"},{"from":"page-admin-tournament-detail","to":"tab-registry","type":"calls","label":"tab"},{"from":"page-admin-tournament-detail","to":"tab-registrations","type":"calls","label":"tab"},{"from":"page-admin-tournament-detail","to":"tab-matches-list","type":"calls","label":"tab"},{"from":"page-admin-tournament-detail","to":"tab-matches-board","type":"calls","label":"tab"},{"from":"tab-registry","to":"data-table","type":"calls","label":"tier table"},{"from":"tab-registry","to":"panel-experience-tier","type":"calls","label":"create / edit tier"},{"from":"tab-registry","to":"use-api","type":"calls","label":"PUT tournament"},{"from":"tab-registry","to":"utils-experience-tier","type":"calls","label":"range label"},{"from":"tab-registrations","to":"data-table","type":"calls","label":"registrations table"},{"from":"tab-registrations","to":"panel-registration","type":"calls","label":"create / edit"},{"from":"tab-registrations","to":"api-download","type":"calls","label":"registration PDF"},{"from":"tab-registrations","to":"use-api","type":"calls","label":"DELETE registration"},{"from":"tab-matches-list","to":"data-table","type":"calls","label":"bouts table"},{"from":"tab-matches-list","to":"panel-match-record","type":"calls","label":"edit bout"},{"from":"tab-matches-list","to":"orphan-registrations-alert","type":"calls","label":"matchmaking issues"},{"from":"tab-matches-list","to":"use-api","type":"calls","label":"generate / delete"},{"from":"tab-matches-board","to":"match-record-card","type":"calls","label":"one card per bout"},{"from":"tab-matches-board","to":"panel-match-record","type":"calls","label":"edit outcome"},{"from":"tab-matches-board","to":"orphan-registrations-alert","type":"calls","label":"matchmaking issues"},{"from":"tab-matches-board","to":"use-api","type":"calls","label":"list / generate / delete"},{"from":"orphan-registrations-alert","to":"types-models","type":"depends_on","label":"MatchmakingIssue"},{"from":"page-admin-athletes","to":"data-table","type":"calls","label":"table"},{"from":"page-admin-athletes","to":"panel-athlete","type":"calls","label":"create / edit"},{"from":"page-admin-athletes","to":"use-api","type":"calls","label":"DELETE athlete"},{"from":"page-admin-disciplines","to":"data-table","type":"calls","label":"table"},{"from":"page-admin-disciplines","to":"panel-discipline","type":"calls","label":"create / edit"},{"from":"page-admin-weight-categories","to":"data-table","type":"calls","label":"table"},{"from":"page-admin-weight-categories","to":"panel-weight-category","type":"calls","label":"create / edit"},{"from":"page-admin-experience-tiers","to":"data-table","type":"calls","label":"table"},{"from":"page-admin-experience-tiers","to":"panel-experience-tier","type":"calls","label":"create / edit"},{"from":"page-admin-experience-tiers","to":"utils-experience-tier","type":"calls","label":"range label"},{"from":"page-admin-users","to":"data-table","type":"calls","label":"table"},{"from":"page-admin-users","to":"panel-user","type":"calls","label":"create / edit"},{"from":"data-table","to":"use-api","type":"calls","label":"paginated GET / bulk"},{"from":"data-table","to":"api-error-message","type":"calls","label":"toast on failure"},{"from":"data-table","to":"constants-enums","type":"reads","label":"page sizes"},{"from":"api-select-menu","to":"use-api","type":"calls","label":"paged option search"},{"from":"panel-athlete","to":"use-api","type":"calls","label":"GET / POST / PUT"},{"from":"panel-athlete","to":"api-error-message","type":"calls","label":"toast on failure"},{"from":"panel-athlete","to":"utils-date","type":"calls","label":"birth date"},{"from":"panel-discipline","to":"use-api","type":"calls","label":"GET / POST / PUT"},{"from":"panel-weight-category","to":"use-api","type":"calls","label":"GET / POST / PUT"},{"from":"panel-experience-tier","to":"use-api","type":"calls","label":"GET / POST / PUT"},{"from":"panel-experience-tier","to":"utils-experience-tier","type":"calls","label":"range preview"},{"from":"panel-user","to":"use-api","type":"calls","label":"GET / POST / PUT"},{"from":"panel-tournament","to":"use-api","type":"calls","label":"GET / POST / PUT"},{"from":"panel-tournament","to":"utils-date","type":"calls","label":"date fields"},{"from":"panel-tournament","to":"constants-enums","type":"reads","label":"statuses"},{"from":"panel-registration","to":"api-select-menu","type":"calls","label":"athlete / discipline / category"},{"from":"panel-registration","to":"use-api","type":"calls","label":"GET / POST / PUT"},{"from":"panel-match-record","to":"api-select-menu","type":"calls","label":"tournament / corners / filters"},{"from":"panel-match-record","to":"judges-points-table","type":"calls","label":"editable scores"},{"from":"panel-match-record","to":"use-api","type":"calls","label":"GET / POST / PUT"},{"from":"panel-match-record","to":"constants-enums","type":"reads","label":"statuses / end methods"},{"from":"panel-match-record","to":"api-error-message","type":"calls","label":"toast on failure"},{"from":"match-record-card","to":"judges-points-table","type":"calls","label":"read-only scores"},{"from":"match-record-card","to":"types-models","type":"depends_on","label":"MatchRecord"},{"from":"page-public-registration","to":"public-fetch-helpers","type":"calls","label":"lookup / create"},{"from":"page-public-registration","to":"locale-switcher","type":"calls","label":"renders"},{"from":"page-public-registration","to":"utils-date","type":"calls","label":"birth date"},{"from":"page-public-registration","to":"public-assets","type":"reads","label":"privacy.txt"},{"from":"page-public-registration","to":"api-public-endpoints","type":"calls","label":"registration PDF blob"},{"from":"page-public-scoreboard","to":"public-fetch-helpers","type":"calls","label":"tournaments / bouts"},{"from":"page-public-scoreboard","to":"match-record-card","type":"calls","label":"one card per bout"},{"from":"page-public-scoreboard","to":"locale-switcher","type":"calls","label":"renders"},{"from":"page-public-scoreboard","to":"use-tournament-match-records","type":"subscribes","label":"lastEvent"},{"from":"echo-plugin","to":"use-api-config","type":"reads","label":"Reverb settings"},{"from":"echo-plugin","to":"reverb-server","type":"subscribes","label":"opens ws once"},{"from":"use-echo","to":"echo-plugin","type":"reads","label":"$echo"},{"from":"use-tournament-match-records","to":"use-echo","type":"calls","label":"channel()"},{"from":"use-tournament-match-records","to":"reverb-channel","type":"subscribes","label":"listen .MatchRecordChanged"},{"from":"reverb-server","to":"reverb-channel","type":"publishes","label":"broadcasts refresh flag"},{"from":"page-architecture-map","to":"nuxt-config","type":"depends_on","label":"dev-only route"},{"from":"color-mode-switcher","to":"use-color-preference","type":"calls","label":"unused caller"}],"flows":[{"id":"flow-admin-login","name":"Admin sign-in","description":"An admin lands on the chooser, authenticates against Sanctum in token mode, and reaches the dashboard with the token attached to every later request.","steps":["page-landing","page-login","use-auth","sanctum-module","api-admin-auth","cookie-token","plugin-api-base-url","page-admin-dashboard","use-api","api-admin-dashboard"]},{"id":"flow-resource-crud","name":"Configuration CRUD","description":"The recipe every configuration page repeats: a generic table lists a resource, a slideover panel creates or edits one record with related options fetched on demand, and the table refreshes on save.","steps":["page-admin-athletes","data-table","panel-athlete","api-select-menu","use-api","sanctum-module","api-admin-resources","api-error-message"]},{"id":"flow-matchmaking-board","name":"Matchmaking and bout board","description":"Inside a tournament the operator triggers server-side match generation, sees which registrations could not be paired, then works the board card by card recording outcomes and judges' points.","steps":["page-admin-tournament-detail","tab-matches-board","use-api","api-admin-tournaments","orphan-registrations-alert","match-record-card","panel-match-record","judges-points-table"]},{"id":"flow-public-registration","name":"Public athlete registration","description":"An athlete self-enrols without any account: the tax-number lookup decides create-or-reuse, the wizard collects the tournament choice, and the confirmed registration is downloadable as a PDF.","steps":["page-public-registration","public-fetch-helpers","use-api-config","api-public-endpoints","public-assets"]},{"id":"flow-realtime-scoreboard","name":"Realtime scoreboard refresh","description":"Echo connects once at boot; when the API broadcasts a change the page is only told to refresh and re-reads the bouts over REST, which stays the single source of truth.","steps":["echo-plugin","reverb-server","reverb-channel","use-tournament-match-records","page-public-scoreboard","public-fetch-helpers","api-public-endpoints","match-record-card"]},{"id":"flow-api-override","name":"Runtime API repointing","description":"Because the bundle is static there is no server to re-read env vars, so five clicks on a logo plus a password write a per-browser override and reload the page so both HTTP and WebSocket follow the new environment.","steps":["page-login","api-env-unlock","api-env-switcher","use-api-config","storage-api-override","plugin-api-base-url","echo-plugin","api-admin-auth"]}]};
+
+const LAYERS = ['entry', 'domain', 'data', 'async', 'integration', 'infra']
+const LAYER_META = {
+  entry: { title: 'Entry — routes & shell', color: 'var(--entry)' },
+  domain: { title: 'Domain — components with behaviour', color: 'var(--domain)' },
+  data: { title: 'Data — composables, types, helpers', color: 'var(--data)' },
+  async: { title: 'Async — realtime', color: 'var(--async)' },
+  integration: { title: 'Integration — external systems', color: 'var(--integration)' },
+  infra: { title: 'Infra — config, storage, deploy', color: 'var(--infra)' },
+}
+
+const NODE_W = 178, NODE_H = 54, GAP_X = 22, GAP_Y = 22
+const BAND_HEAD = 24, BAND_GAP = 46, COLS = 7, PAD = 30
+
+const byId = new Map(GRAPH.nodes.map(n => [n.id, n]))
+const degree = new Map(GRAPH.nodes.map(n => [n.id, 0]))
+for (const e of GRAPH.edges) {
+  degree.set(e.from, (degree.get(e.from) ?? 0) + 1)
+  degree.set(e.to, (degree.get(e.to) ?? 0) + 1)
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+const pos = new Map()
+const bands = []
+let cursorY = PAD, maxW = 0
+
+for (const layer of LAYERS) {
+  const nodes = GRAPH.nodes.filter(n => n.layer === layer)
+  if (!nodes.length) { continue }
+  const rows = Math.ceil(nodes.length / COLS)
+  const cols = Math.ceil(nodes.length / rows)
+  const w = cols * NODE_W + (cols - 1) * GAP_X
+  maxW = Math.max(maxW, w)
+  bands.push({ layer, nodes, rows, cols, w, y: cursorY })
+  cursorY += BAND_HEAD + rows * NODE_H + (rows - 1) * GAP_Y + BAND_GAP
+}
+const TOTAL_W = maxW + PAD * 2
+const TOTAL_H = cursorY - BAND_GAP + PAD
+
+for (const band of bands) {
+  const x0 = (TOTAL_W - band.w) / 2
+  band.x = x0
+  band.nodes.forEach((n, i) => {
+    const r = Math.floor(i / band.cols), c = i % band.cols
+    pos.set(n.id, {
+      x: x0 + c * (NODE_W + GAP_X),
+      y: band.y + BAND_HEAD + r * (NODE_H + GAP_Y),
+    })
+  })
+}
+
+/* ── Render ──────────────────────────────────────────────────────────────── */
+const canvas = document.getElementById('canvas')
+const svg = document.getElementById('edges')
+const overlay = document.getElementById('overlay')
+const nodesLayer = document.getElementById('nodes')
+const diagram = document.getElementById('diagram')
+const tooltip = document.getElementById('tooltip')
+
+for (const el of [canvas, svg, overlay, nodesLayer]) {
+  el.style.width = TOTAL_W + 'px'
+  el.style.height = TOTAL_H + 'px'
+}
+svg.setAttribute('viewBox', `0 0 ${TOTAL_W} ${TOTAL_H}`)
+overlay.setAttribute('viewBox', `0 0 ${TOTAL_W} ${TOTAL_H}`)
+
+svg.innerHTML = `<defs>
+  <marker id="ah" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L8,4 L0,8 z" fill="#3f556c"></path>
+  </marker>
+  <marker id="ahf" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L8,4 L0,8 z" fill="#fde047"></path>
+  </marker>
+</defs>`
+
+document.getElementById('counts').textContent =
+  `${GRAPH.nodes.length} nodes · ${GRAPH.edges.length} edges · ${GRAPH.flows.length} flows`
+document.getElementById('legend').innerHTML = LAYERS
+  .map(l => `<span><i style="background:${LAYER_META[l].color}"></i>${LAYER_META[l].title}</span>`).join('')
+
+/* band labels + rules */
+for (const band of bands) {
+  const lab = document.createElement('div')
+  lab.className = 'band-label'
+  lab.textContent = LAYER_META[band.layer].title
+  lab.style.left = band.x + 'px'
+  lab.style.top = band.y + 'px'
+  lab.style.color = LAYER_META[band.layer].color
+  nodesLayer.appendChild(lab)
+
+  const rule = document.createElement('div')
+  rule.className = 'band-rule'
+  rule.style.left = PAD + 'px'
+  rule.style.top = (band.y + BAND_HEAD - 8) + 'px'
+  rule.style.width = (TOTAL_W - PAD * 2) + 'px'
+  nodesLayer.appendChild(rule)
+}
+
+/* nodes */
+const nodeEls = new Map()
+for (const n of GRAPH.nodes) {
+  const p = pos.get(n.id)
+  const el = document.createElement('div')
+  el.className = 'node' + (degree.get(n.id) === 0 ? ' orphan' : '')
+  el.style.left = p.x + 'px'
+  el.style.top = p.y + 'px'
+  el.style.width = NODE_W + 'px'
+  el.style.height = NODE_H + 'px'
+  el.style.borderLeftColor = LAYER_META[n.layer].color
+  el.innerHTML = `<div class="nl"></div><div class="nt"></div>`
+  el.querySelector('.nl').textContent = n.label
+  el.querySelector('.nt').textContent = n.type
+  el.addEventListener('pointerenter', () => showTip(n, el))
+  el.addEventListener('pointerleave', hideTip)
+  el.addEventListener('click', (ev) => { ev.stopPropagation(); showTip(n, el) })
+  nodesLayer.appendChild(el)
+  nodeEls.set(n.id, el)
+}
+
+/* edges */
+const edgeEls = []
+function anchor(a, b) {
+  const ac = { x: a.x + NODE_W / 2, y: a.y + NODE_H / 2 }
+  const bc = { x: b.x + NODE_W / 2, y: b.y + NODE_H / 2 }
+  if (Math.abs(bc.y - ac.y) > NODE_H) {
+    const down = bc.y > ac.y
+    const y1 = down ? a.y + NODE_H : a.y
+    const y2 = down ? b.y : b.y + NODE_H
+    const dy = Math.max(28, Math.abs(y2 - y1) * 0.45)
+    return `M${ac.x},${y1} C${ac.x},${down ? y1 + dy : y1 - dy} ${bc.x},${down ? y2 - dy : y2 + dy} ${bc.x},${y2}`
+  }
+  const right = bc.x > ac.x
+  const x1 = right ? a.x + NODE_W : a.x
+  const x2 = right ? b.x : b.x + NODE_W
+  const dx = Math.max(24, Math.abs(x2 - x1) * 0.5)
+  const lift = 14
+  return `M${x1},${ac.y} C${x1 + (right ? dx : -dx)},${ac.y - lift} ${x2 + (right ? -dx : dx)},${bc.y - lift} ${x2},${bc.y}`
+}
+for (const e of GRAPH.edges) {
+  const a = pos.get(e.from), b = pos.get(e.to)
+  const d = anchor(a, b)
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+  path.setAttribute('d', d)
+  path.setAttribute('class', 'edge')
+  path.setAttribute('marker-end', 'url(#ah)')
+  svg.appendChild(path)
+  const hit = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+  hit.setAttribute('d', d)
+  hit.setAttribute('class', 'edge-hit')
+  hit.addEventListener('pointerenter', ev => showEdgeTip(e, ev))
+  hit.addEventListener('pointerleave', hideTip)
+  svg.appendChild(hit)
+  edgeEls.push({ e, path })
+}
+
+/* ── Tooltip ─────────────────────────────────────────────────────────────── */
+function placeTip(cx, cy) {
+  tooltip.classList.add('show')
+  const r = tooltip.getBoundingClientRect()
+  let x = cx + 14, y = cy + 14
+  if (x + r.width > window.innerWidth - 8) { x = Math.max(8, cx - r.width - 14) }
+  if (y + r.height > window.innerHeight - 8) { y = Math.max(8, cy - r.height - 14) }
+  tooltip.style.left = x + 'px'
+  tooltip.style.top = y + 'px'
+}
+function showTip(n, el) {
+  tooltip.innerHTML = `<div class="tl"></div><div class="tm"></div><div class="td"></div>`
+  tooltip.querySelector('.tl').textContent = n.label
+  tooltip.querySelector('.tm').textContent = `${n.type} · ${n.layer} · ${n.path}`
+  tooltip.querySelector('.td').textContent = n.description
+  const r = el.getBoundingClientRect()
+  placeTip(r.left + r.width / 2, r.top + r.height / 2)
+}
+function showEdgeTip(e, ev) {
+  tooltip.innerHTML = `<div class="tl"></div><div class="td"></div>`
+  tooltip.querySelector('.tl').textContent = `${byId.get(e.from).label} → ${byId.get(e.to).label}`
+  tooltip.querySelector('.td').textContent = e.type + (e.label ? ` · ${e.label}` : '')
+  placeTip(ev.clientX, ev.clientY)
+}
+function hideTip() { tooltip.classList.remove('show') }
+
+/* ── Zoom & pan ──────────────────────────────────────────────────────────── */
+let scale = 1, tx = 0, ty = 0
+function apply() { canvas.style.transform = `translate(${tx}px,${ty}px) scale(${scale})` }
+function fitTo(box) {
+  const r = diagram.getBoundingClientRect()
+  if (!r.width || !r.height) { return }
+  const m = 24
+  scale = Math.min((r.width - m * 2) / box.w, (r.height - m * 2) / box.h)
+  scale = Math.max(0.12, Math.min(scale, 1.35))
+  tx = (r.width - box.w * scale) / 2 - box.x * scale
+  ty = (r.height - box.h * scale) / 2 - box.y * scale
+  apply()
+}
+const fullBox = { x: 0, y: 0, w: TOTAL_W, h: TOTAL_H }
+function boxOf(ids) {
+  const ps = ids.map(id => pos.get(id)).filter(Boolean)
+  if (!ps.length) { return fullBox }
+  const x1 = Math.min(...ps.map(p => p.x)) - 40
+  const y1 = Math.min(...ps.map(p => p.y)) - 40
+  const x2 = Math.max(...ps.map(p => p.x)) + NODE_W + 40
+  const y2 = Math.max(...ps.map(p => p.y)) + NODE_H + 40
+  return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 }
+}
+function fit() { fitTo(activeFlow ? boxOf(activeFlow.steps) : fullBox) }
+
+diagram.addEventListener('wheel', (ev) => {
+  ev.preventDefault()
+  const r = diagram.getBoundingClientRect()
+  const mx = ev.clientX - r.left, my = ev.clientY - r.top
+  const next = Math.max(0.1, Math.min(2.6, scale * (ev.deltaY < 0 ? 1.12 : 1 / 1.12)))
+  tx = mx - (mx - tx) * (next / scale)
+  ty = my - (my - ty) * (next / scale)
+  scale = next
+  apply()
+}, { passive: false })
+
+let dragging = false, lastX = 0, lastY = 0
+diagram.addEventListener('pointerdown', (ev) => {
+  dragging = true; lastX = ev.clientX; lastY = ev.clientY
+  diagram.classList.add('dragging')
+  diagram.setPointerCapture(ev.pointerId)
+})
+diagram.addEventListener('pointermove', (ev) => {
+  if (!dragging) { return }
+  tx += ev.clientX - lastX; ty += ev.clientY - lastY
+  lastX = ev.clientX; lastY = ev.clientY
+  apply()
+})
+for (const t of ['pointerup', 'pointercancel']) {
+  diagram.addEventListener(t, () => { dragging = false; diagram.classList.remove('dragging') })
+}
+function zoomBy(f) {
+  const r = diagram.getBoundingClientRect()
+  const mx = r.width / 2, my = r.height / 2
+  const next = Math.max(0.1, Math.min(2.6, scale * f))
+  tx = mx - (mx - tx) * (next / scale)
+  ty = my - (my - ty) * (next / scale)
+  scale = next
+  apply()
+}
+document.getElementById('btn-fit').addEventListener('click', fit)
+document.getElementById('btn-zin').addEventListener('click', () => zoomBy(1.25))
+document.getElementById('btn-zout').addEventListener('click', () => zoomBy(1 / 1.25))
+window.addEventListener('resize', fit)
+requestAnimationFrame(() => requestAnimationFrame(fit))
+window.addEventListener('load', fit)
+
+/* ── Flows ───────────────────────────────────────────────────────────────── */
+const flowsBox = document.getElementById('flows')
+let activeFlow = null
+
+const clearBtn = document.createElement('button')
+clearBtn.className = 'clear'
+clearBtn.textContent = 'Show the whole graph'
+clearBtn.addEventListener('click', () => selectFlow(null))
+flowsBox.appendChild(clearBtn)
+
+const flowCards = new Map()
+for (const f of GRAPH.flows) {
+  const card = document.createElement('div')
+  card.className = 'flow'
+  card.innerHTML = `<div class="fn"></div><div class="fd"></div><ul class="steps" hidden></ul>`
+  card.querySelector('.fn').textContent = f.name
+  card.querySelector('.fd').textContent = f.description
+  const ul = card.querySelector('.steps')
+  f.steps.forEach((id, i) => {
+    const n = byId.get(id)
+    const li = document.createElement('li')
+    li.innerHTML = `<span class="n"></span><span><span class="sl"></span><br><span class="sp"></span></span>`
+    li.querySelector('.n').textContent = i + 1
+    li.querySelector('.sl').textContent = n.label
+    li.querySelector('.sp').textContent = n.path
+    li.addEventListener('click', (ev) => { ev.stopPropagation(); centreOn(id) })
+    ul.appendChild(li)
+  })
+  card.addEventListener('click', () => selectFlow(activeFlow === f ? null : f))
+  flowsBox.appendChild(card)
+  flowCards.set(f.id, card)
+}
+
+function centreOn(id) {
+  const p = pos.get(id)
+  const r = diagram.getBoundingClientRect()
+  tx = r.width / 2 - (p.x + NODE_W / 2) * scale
+  ty = r.height / 2 - (p.y + NODE_H / 2) * scale
+  apply()
+  const el = nodeEls.get(id)
+  el.classList.add('focus')
+  setTimeout(() => el.classList.remove('focus'), 900)
+}
+
+function selectFlow(f) {
+  activeFlow = f
+  overlay.innerHTML = ''
+  for (const b of overlay.parentNode.querySelectorAll('.badge')) { b.remove() }
+  for (const [id, card] of flowCards) {
+    const on = f && f.id === id
+    card.classList.toggle('active', !!on)
+    card.querySelector('.steps').hidden = !on
+  }
+  if (!f) {
+    for (const el of nodeEls.values()) { el.classList.remove('dim', 'on') }
+    for (const { path } of edgeEls) { path.classList.remove('dim', 'on') }
+    fit()
+    return
+  }
+  const onPath = new Set(f.steps)
+  for (const [id, el] of nodeEls) {
+    el.classList.toggle('on', onPath.has(id))
+    el.classList.toggle('dim', !onPath.has(id))
+  }
+  const pairs = new Set()
+  for (let i = 0; i < f.steps.length - 1; i++) { pairs.add(f.steps[i] + '>' + f.steps[i + 1]) }
+  for (const { e, path } of edgeEls) {
+    const hot = pairs.has(e.from + '>' + e.to)
+    path.classList.toggle('on', hot)
+    path.classList.toggle('dim', !hot)
+    path.setAttribute('marker-end', hot ? 'url(#ahf)' : 'url(#ah)')
+  }
+  /* ordered overlay through every step, direct edge or not */
+  const pts = f.steps.map(id => {
+    const p = pos.get(id)
+    return { x: p.x + NODE_W / 2, y: p.y + NODE_H / 2 }
+  })
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i], b = pts[i + 1]
+    const seg = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+    const mx = (a.x + b.x) / 2
+    seg.setAttribute('d', `M${a.x},${a.y} C${mx},${a.y} ${mx},${b.y} ${b.x},${b.y}`)
+    seg.setAttribute('class', 'flow-path')
+    seg.setAttribute('marker-end', 'url(#ahf)')
+    overlay.appendChild(seg)
+  }
+  f.steps.forEach((id, i) => {
+    const p = pos.get(id)
+    const badge = document.createElement('div')
+    badge.className = 'badge'
+    badge.textContent = i + 1
+    badge.style.left = (p.x - 8) + 'px'
+    badge.style.top = (p.y - 8) + 'px'
+    canvas.appendChild(badge)
+  })
+  fitTo(boxOf(f.steps))
+}
+
+diagram.addEventListener('click', (ev) => { if (ev.target === diagram || ev.target === canvas) { hideTip() } })
+</script>
+</body>
+</html>
