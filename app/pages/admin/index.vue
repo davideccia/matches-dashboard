@@ -78,7 +78,8 @@
           <div
             v-for="item in items"
             :key="item.tournament_id"
-            class="rounded-xl border border-default bg-elevated p-4 flex flex-col gap-4 hover:border-accented transition-colors"
+            class="rounded-xl border bg-elevated p-4 flex flex-col gap-4 transition-colors"
+            :class="item.status === 'in_progress' ? 'border-warning ring-2 ring-warning' : 'border-default hover:border-accented'"
           >
             <!-- Card header -->
             <div class="flex items-start justify-between gap-2">
@@ -94,7 +95,12 @@
                   variant="subtle"
                   size="md"
                   class="self-start"
+                  :class="item.status === 'in_progress' ? 'animate-pulse' : ''"
                 >
+                  <span
+                    v-if="item.status === 'in_progress'"
+                    class="size-1.5 rounded-full bg-warning inline-block"
+                  />
                   {{ tournamentStatusLabel(item.status) }}
                 </UBadge>
               </div>
@@ -211,8 +217,8 @@ const items = computed(() => data.value?.data ?? [])
 const STATUS_COLORS: Record<TournamentStatus, BadgeProps['color']> = {
   scheduled: 'neutral',
   registrations_opened: 'info',
-  registrations_closed: 'warning',
-  in_progress: 'primary',
+  registrations_closed: 'info',
+  in_progress: 'warning',
   completed: 'success',
   cancelled: 'error',
 }
