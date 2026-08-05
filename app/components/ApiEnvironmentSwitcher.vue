@@ -42,11 +42,12 @@
       >
         <UInputMenu
           v-model="state.baseUrl"
-          :items="endpoints"
+          v-model:open="menuOpen"
+          :items="endpointItems"
           create-item="always"
           icon="i-mdi-server-network"
           class="w-full font-mono"
-          @create="(value: string) => state.baseUrl = value"
+          @create="onCreateEndpoint"
         />
       </UFormField>
 
@@ -105,6 +106,18 @@ const schema = z.object({
 })
 
 const state = reactive<ApiConfig>({ ...config.value })
+
+// UInputMenu annulla la selezione della voce "crea" (preventDefault interno): il valore va
+// aggiunto agli items e il menu chiuso a mano, altrimenti sembra che il click non faccia nulla.
+const endpointItems = ref<string[]>([...endpoints])
+const menuOpen = ref(false)
+
+function onCreateEndpoint(value: string) {
+  const url = value.trim().replace(/\/+$/, '')
+  if (!endpointItems.value.includes(url)) { endpointItems.value.push(url) }
+  state.baseUrl = url
+  menuOpen.value = false
+}
 
 function onSubmit(event: FormSubmitEvent<z.output<typeof schema>>) {
   setOverride(event.data)
