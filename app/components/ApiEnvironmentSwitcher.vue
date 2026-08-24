@@ -70,11 +70,8 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import type { ApiConfig } from '~/composables/useApiConfig'
 import * as z from 'zod'
 
-// header: false quando il titolo è già fornito dal contenitore (es. UModal).
-const { header = true } = defineProps<{ header?: boolean }>()
-
 const { t } = useI18n()
-const { config, endpoints, hasOverride, isProduction, setOverride, resetOverride } = useApiConfig()
+const { config, endpoints, hasOverride, setOverride, resetOverride } = useApiConfig()
 
 const schema = z.object({
   baseUrl: z.url().transform(v => v.trim().replace(/\/+$/, '')),

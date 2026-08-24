@@ -2,12 +2,19 @@ import { API_ENDPOINTS } from '~/utils/constants'
 
 const STORAGE_KEY = 'matches.api-override'
 
+export type ReverbScheme = 'http' | 'https'
+
 export interface ApiConfig {
   baseUrl: string
   reverbAppKey: string
   reverbHost: string
   reverbPort: string
-  reverbScheme: string
+  reverbScheme: ReverbScheme
+}
+
+/** L'env è una stringa libera: qualunque valore diverso da 'https' degrada a 'http'. */
+function toReverbScheme(value: unknown): ReverbScheme {
+  return value === 'https' ? 'https' : 'http'
 }
 
 /**
@@ -23,7 +30,7 @@ export function useApiConfig() {
     reverbAppKey: cfg.reverbAppKey,
     reverbHost: cfg.reverbHost,
     reverbPort: String(cfg.reverbPort),
-    reverbScheme: cfg.reverbScheme,
+    reverbScheme: toReverbScheme(cfg.reverbScheme),
   }))
 
   // ssr: false ⇒ l'initializer gira solo lato client, localStorage è disponibile.

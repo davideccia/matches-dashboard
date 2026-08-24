@@ -6,7 +6,7 @@
   <ClientOnly>
     <UModal v-model:open="open" :title="t('settings.apiEnvironment')">
       <template #body>
-        <ApiEnvironmentSwitcher v-if="unlocked" :header="false" />
+        <ApiEnvironmentSwitcher v-if="unlocked" />
 
         <UForm
           v-else
