@@ -23,16 +23,18 @@ The underlying scripts also work directly: `pnpm dev`, `pnpm generate`, `pnpm es
 
 `README.md` was synced against the code on 2026-08-06 (commands, routes, config defaults, domain model, structure). When you change a route, a `make` target, or a `NUXT_PUBLIC_*` default, update it there too — and keep the `Makefile` and `nuxt.config.ts` as the tiebreakers if they ever drift again.
 
-`NUXT_PUBLIC_*` values used by client-side code are baked into the bundle at **build time**:
+The build is static, so these values are baked into the bundle at **build time** — they end up in the `index.html` payload, not in the `_nuxt/` assets:
 
-| Variable                            | Default                  | Purpose                                                                                                       |
-| ----------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| `NUXT_PUBLIC_SANCTUM_BASE_URL`      | `https://api.matches.it` | Laravel API base URL                                                                                          |
-| `NUXT_PUBLIC_REVERB_APP_KEY`        | —                        | Laravel Reverb app key                                                                                        |
-| `NUXT_PUBLIC_REVERB_HOST`           | `localhost`              | Reverb WebSocket host                                                                                         |
-| `NUXT_PUBLIC_REVERB_PORT`           | `8080`                   | Reverb WebSocket port                                                                                         |
-| `NUXT_PUBLIC_REVERB_SCHEME`         | `http`                   | `http` or `https`                                                                                             |
-| `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` | —                        | Plaintext password unlocking the API environment switcher from `/login`. **Empty ⇒ the gesture is disabled.** |
+| Variable                            | Default                  | Purpose                                                                                                                                    |
+| ----------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NUXT_BASE_URL`                     | `https://api.matches.it` | Laravel API base URL. **Note the name**: it is not a `NUXT_PUBLIC_*` variable — `nuxt.config.ts` reads it directly into `sanctum.baseUrl`. |
+| `NUXT_PUBLIC_REVERB_APP_KEY`        | —                        | Laravel Reverb app key                                                                                                                     |
+| `NUXT_PUBLIC_REVERB_HOST`           | `localhost`              | Reverb WebSocket host                                                                                                                      |
+| `NUXT_PUBLIC_REVERB_PORT`           | `8080`                   | Reverb WebSocket port                                                                                                                      |
+| `NUXT_PUBLIC_REVERB_SCHEME`         | `http`                   | `http` or `https`                                                                                                                          |
+| `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` | —                        | Plaintext password unlocking the API environment switcher from `/login`. **Empty ⇒ the gesture is disabled.**                              |
+
+Those six are the **only** environment variables the code reads (`nuxt.config.ts:56-60,93`). `.env.example` also lists `PORT`, which nothing in the app consumes — it is only there for whatever serves the built files.
 
 ### Runtime override (`useApiConfig`)
 
@@ -53,7 +55,7 @@ The typed password is compared directly against `NUXT_PUBLIC_ENV_SWITCHER_PASSWO
 
 **The password is obfuscation, not security.** It is a `NUXT_PUBLIC_*` value in a static bundle, so it is readable by anyone who looks — and in any case anyone can set the `matches.api-override` key in `localStorage` from the console and get the same result without the dialog. That's acceptable because it guards no data: the override only affects that browser, and the API still authenticates every request. Don't present it as an access control, and don't reuse a password that means anything elsewhere.
 
-For a whole deploy, keep using the Amplify environment variables (build time — needs a redeploy). The `localStorage` override is the escape hatch for repointing an already-built bundle.
+For a whole deploy, set the values at build time — Amplify environment variables (needs a redeploy) or Docker `--build-arg` (needs a rebuild). The `localStorage` override is the escape hatch for repointing an already-built bundle.
 
 ## Architecture
 
@@ -107,25 +109,54 @@ Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GE
 
 ## Deployment
 
-**AWS Amplify Hosting**, static. `amplify.yml` at the repo root is the build spec (Node 22 + pnpm, artifacts from `.output/public`). Two things are configured in the Amplify console, not in this repo:
+Two supported targets. Both ship the same static `.output/public`, and both need the same two things: the build-time variables, and an **SPA rewrite of every non-asset path to `/index.html` with status `200`**. Without that rewrite any deep link (`/admin/tournaments/42`, `/en/public/...`) 404s on refresh, because `nuxt generate` emits nothing for dynamic routes.
 
-- the `NUXT_PUBLIC_*` environment variables (baked in at build time — a change needs a redeploy; for a one-off repoint without a rebuild use the runtime override above);
-- a **rewrite** of every non-asset path to `/index.html` with status `200`. Without it any deep link (`/admin/...`, `/en/public/...`) 404s on refresh, since only `index.html` is emitted.
+Whatever host you use, its domain must be in the Laravel API's CORS allowlist and in Reverb's allowed origins.
 
-The Amplify domain must be in the Laravel API's CORS allowlist and in Reverb's allowed origins.
+### Docker (`docker/production/`)
 
-## Architecture map (`docs/` + the `/architecture` route)
+Multi-stage build → `nginx:1.27-alpine-slim`, **~15 MB**, no Node at runtime. Meant to be driven from CI/CD — there is deliberately no compose file. The build context is the **repo root**, not the folder, and it needs BuildKit:
 
-`docs/` holds a **generated pair** describing this repo as a graph (79 nodes, 141 edges, plus named flows), produced by the `repo-architecture-map` skill:
+```bash
+docker build -f docker/production/Dockerfile -t matches-dashboard:prod \
+  --build-arg NUXT_BASE_URL=https://api.matches.it \
+  --build-arg NUXT_PUBLIC_REVERB_HOST=reverb.matches.it \
+  --build-arg NUXT_PUBLIC_REVERB_SCHEME=https --build-arg NUXT_PUBLIC_REVERB_PORT=443 .
+```
 
-- **`docs/architecture.json`** — the agent-readable version (`nodes`, `edges`, `flows`, `generated_from`). Read this first when orienting in an unfamiliar corner of the app; it is cheaper than grepping and encodes the relationships between composables, plugins, and pages.
-- **`docs/architecture.html`** — the human-readable interactive diagram, rendered by `app/pages/architecture.vue`, which imports it with `?raw` and drops it into an `<iframe>` (isolating it from Tailwind and `@nuxt/ui`).
+**One image per environment**: the `NUXT_*` values are baked into the `index.html` payload, so the pipeline must pass them as `--build-arg` from its own secrets/variables and rebuild to change them. `docker/production/README.md` has the CI-ready invocation.
 
-Both are **regenerable artifacts, not hand-maintained docs** — they go stale after structural changes; re-run the skill rather than patching the JSON by hand.
+The nginx config is split into `nginx.conf` (global), `default.conf` (server), and `security-headers.conf`. Three non-obvious points, all of them the result of an actual failure during setup:
 
-The `/architecture` route is **dev-only**. An inline module in `nuxt.config.ts` hooks `pages:extend` and, outside `nuxt dev`, splices out any page whose file ends in `pages/architecture.vue` — matching by _file_ rather than path, because i18n has already added the `/en/` variant by then. So neither the URL nor the diagram's contents reach the published bundle. If you add another dev-only page, follow that same by-file pattern.
+- **`security-headers.conf` is `include`d in every `location`, not just the server block.** In nginx an `add_header` inside a `location` cancels every inherited one, so without the repetition the SPA-fallback pages come out with no security headers at all.
+- **The SPA fallback is `try_files $uri $uri/index.html /index.html`**, not `$uri/` — the latter 301-redirects to the trailing slash instead of serving the directory index.
+- **CSP and HSTS are present but commented out.** A hardcoded CSP breaks the env switcher (the API/Reverb hosts vary per environment and per browser override); HSTS belongs wherever TLS terminates.
 
-`README.md` still links to `docs/en/00-index.md` and `docs/it/00-index.md`; **those directories do not exist** — the chapter docs were replaced by the architecture map above.
+The container runs as `nginx` (uid 101) on port 8080, with a read-only rootfs (all writable nginx paths live under `/tmp`). `pnpm install --frozen-lockfile` means **a `pnpm-lock.yaml` out of sync with `package.json` fails the build** — that is intentional, fix the lockfile rather than the flag.
+
+### AWS Amplify Hosting
+
+Static. **There is no `amplify.yml` in this repo** (it was removed) — the build spec lives in the Amplify console, along with:
+
+- the build-time environment variables (a change needs a redeploy; for a one-off repoint without a rebuild use the runtime override above);
+- the `/index.html` rewrite described above.
+
+## Architecture map (`/architecture` route) — currently broken
+
+**`docs/` does not exist.** It was deleted in commit `1747ad5` (`chore(docs): removed`) and is not tracked. It used to hold a generated pair produced by the `repo-architecture-map` skill: `docs/architecture.json` (agent-readable graph) and `docs/architecture.html` (interactive diagram).
+
+Consequence: **`app/pages/architecture.vue` still imports `~~/docs/architecture.html?raw`, a file that is no longer there.** Verified by running `nuxt dev` and hitting the route:
+
+```
+ERROR  Internal server error: Failed to resolve import "~~/docs/architecture.html?raw"
+       from "app/pages/architecture.vue". Does the file exist?
+```
+
+Production builds are unaffected only because the page is spliced out before Vite ever resolves the import. Either re-run the skill to regenerate `docs/`, or delete the page and its dev-only module — do not leave it half-wired.
+
+The `/architecture` route is **dev-only**. An inline module in `nuxt.config.ts` hooks `pages:extend` and, outside `nuxt dev`, splices out any page whose file ends in `pages/architecture.vue` — matching by _file_ rather than path, because i18n has already added the `/en/` variant by then. So neither the URL nor the diagram's contents reach the published bundle (verified: the built image contains no `architecture` route). If you add another dev-only page, follow that same by-file pattern.
+
+`README.md` also links to `docs/en/00-index.md` and `docs/it/00-index.md`; **those do not exist either.**
 
 ## End of session
 

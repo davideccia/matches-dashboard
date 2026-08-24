@@ -1,0 +1,57 @@
+# ── Dipendenze e artefatti di build (ricostruiti nell'immagine) ───────────────
+node_modules
+**/node_modules
+.nuxt
+.output
+.cache
+
+# `dist` è un SYMLINK ROTTO verso .../matches-dashboard/.output/public (con il
+# trattino: cartella diversa da questo repo). Escluderlo è obbligatorio.
+dist
+
+# ── Lockfile estraneo ────────────────────────────────────────────────────────
+# Stantio da giugno: escluderlo evita che qualunque tool scelga yarn al posto di pnpm.
+yarn.lock
+package-lock.json
+
+# ── Git e VCS ────────────────────────────────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+
+# ── Segreti e configurazione locale ──────────────────────────────────────────
+# Nessun file .env deve finire nell'immagine: i NUXT_* passano da --build-arg.
+.env
+.env.*
+*.pem
+*.key
+
+# ── Tooling editor / agent ───────────────────────────────────────────────────
+.idea
+.vscode
+.claude
+.agents
+.codegraph
+skills-lock.json
+.DS_Store
+**/.DS_Store
+
+# ── Documentazione e materiale non necessario al build ───────────────────────
+*.md
+docs
+postman
+Makefile
+DB.md
+
+# ── Docker ───────────────────────────────────────────────────────────────────
+# NB: docker/production/*.conf NON va escluso — il Dockerfile li COPIA dal
+# context nello stage di runtime.
+docker/production/Dockerfile
+docker/production/Dockerfile.dockerignore
+docker/production/README.md
+
+# ── Log e temporanei ─────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+pnpm-debug.log*
+coverage
