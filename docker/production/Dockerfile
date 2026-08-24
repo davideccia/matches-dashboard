@@ -58,9 +58,9 @@ RUN pnpm rebuild
 ARG NUXT_BASE_URL=https://api.matches.it
 ARG NUXT_PUBLIC_ENV_SWITCHER_PASSWORD=
 ARG NUXT_PUBLIC_REVERB_APP_KEY=
-ARG NUXT_PUBLIC_REVERB_HOST=localhost
-ARG NUXT_PUBLIC_REVERB_PORT=8080
-ARG NUXT_PUBLIC_REVERB_SCHEME=http
+ARG NUXT_PUBLIC_REVERB_HOST=reverb.matches.it
+ARG NUXT_PUBLIC_REVERB_PORT=
+ARG NUXT_PUBLIC_REVERB_SCHEME=https
 
 ENV NUXT_BASE_URL=$NUXT_BASE_URL \
     NUXT_PUBLIC_ENV_SWITCHER_PASSWORD=$NUXT_PUBLIC_ENV_SWITCHER_PASSWORD \
@@ -77,9 +77,9 @@ RUN pnpm generate
 # Pre-compressione per `gzip_static`: nginx serve il .gz già pronto, zero CPU a
 # runtime. Niente brotli: non è compilato in nginx stock.
 RUN find .output/public -type f \
-      \( -name '*.js' -o -name '*.mjs' -o -name '*.css' -o -name '*.html' \
-         -o -name '*.svg' -o -name '*.json' -o -name '*.txt' \) \
-      -size +1k -exec gzip -9 -k {} \;
+    \( -name '*.js' -o -name '*.mjs' -o -name '*.css' -o -name '*.html' \
+    -o -name '*.svg' -o -name '*.json' -o -name '*.txt' \) \
+    -size +1k -exec gzip -9 -k {} \;
 
 # ------------------------------------------------------------------------------
 # Stage 2 — runtime
@@ -88,9 +88,9 @@ FROM nginx:1.27-alpine-slim AS runtime
 
 ARG APP_VERSION=0.8.0
 LABEL org.opencontainers.image.title="matches-dashboard" \
-      org.opencontainers.image.description="Static SPA dashboard for the Matches Laravel API" \
-      org.opencontainers.image.source="https://codeberg.org/davideccia/matches-dashboard-laravel" \
-      org.opencontainers.image.version="$APP_VERSION"
+    org.opencontainers.image.description="Static SPA dashboard for the Matches Laravel API" \
+    org.opencontainers.image.source="https://codeberg.org/davideccia/matches-dashboard-laravel" \
+    org.opencontainers.image.version="$APP_VERSION"
 
 COPY docker/production/nginx.conf            /etc/nginx/nginx.conf
 COPY docker/production/security-headers.conf /etc/nginx/security-headers.conf
@@ -103,7 +103,7 @@ COPY --from=build --chown=nginx:nginx /app/.output/public /usr/share/nginx/html
 # è ciò che permette di girare con rootfs in sola lettura: in quel caso monta
 # /tmp su tmpfs (`--read-only --tmpfs /tmp:rw,noexec,nosuid,size=32m`).
 RUN mkdir -p /tmp/nginx-client-body /tmp/nginx-proxy /tmp/nginx-fastcgi \
-             /tmp/nginx-uwsgi /tmp/nginx-scgi \
+    /tmp/nginx-uwsgi /tmp/nginx-scgi \
     && chown -R nginx:nginx /tmp/nginx-* /var/cache/nginx \
     && nginx -t
 
