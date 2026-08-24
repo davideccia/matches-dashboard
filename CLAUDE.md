@@ -11,7 +11,6 @@ make dev              # dev server, exposed on 0.0.0.0 (LAN) → http://localhos
 make lint             # ESLint (no auto-fix)
 make lint-fix         # ESLint + auto-fix
 make typecheck        # nuxi typecheck — CURRENTLY BROKEN, see below
-make release V=1.2.3  # bump package.json version, commit, tag (PUSH=1 to push)
 make clean            # remove .nuxt .output dist
 pnpm generate         # static SPA build → .output/public/
 ```
