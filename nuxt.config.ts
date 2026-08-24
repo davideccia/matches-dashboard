@@ -90,7 +90,7 @@ export default defineNuxtConfig({
 
   sanctum: {
     // Default di build. A runtime può essere sovrascritto per-browser da useApiConfig().
-    baseUrl: process.env.NUXT_PUBLIC_SANCTUM_BASE_URL ?? 'https://api.matches.it',
+    baseUrl: process.env.NUXT_BASE_URL ?? 'https://api.matches.it',
     mode: 'token',
     endpoints: {
       login: '/api/admin/auth/login',
