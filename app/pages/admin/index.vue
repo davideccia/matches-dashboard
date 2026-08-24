@@ -20,7 +20,10 @@
     <template #body>
       <div class="p-6">
         <!-- Loading skeleton -->
-        <div v-if="pending" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div
+          v-if="pending"
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+        >
           <div
             v-for="i in 3"
             :key="i"
@@ -69,17 +72,24 @@
         >
           <UIcon name="i-lucide-trophy" class="size-12 opacity-40" />
           <p class="text-sm">
-            {{ t('dashboard.noTournaments') }}
+            {{ t("dashboard.noTournaments") }}
           </p>
         </div>
 
         <!-- Tournament cards -->
-        <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div
+          v-else
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+        >
           <div
             v-for="item in items"
             :key="item.tournament_id"
             class="rounded-xl border bg-elevated p-4 flex flex-col gap-4 transition-colors"
-            :class="item.status === 'in_progress' ? 'border-warning ring-2 ring-warning' : 'border-default hover:border-accented'"
+            :class="
+              item.status === 'in_progress'
+                ? 'border-warning ring-2 ring-warning'
+                : 'border-default hover:border-accented'
+            "
           >
             <!-- Card header -->
             <div class="flex items-start justify-between gap-2">
@@ -112,12 +122,21 @@
             <!-- Registrations section -->
             <div class="flex flex-col gap-3">
               <p class="text-xs font-medium uppercase tracking-wide text-muted">
-                {{ t('dashboard.registrations') }}
+                {{ t("dashboard.registrations") }}
               </p>
               <div class="grid grid-cols-1 gap-2">
-                <div v-for="stat in registrationMainStats(item)" :key="stat.key" class="flex flex-col items-center gap-1">
-                  <div class="rounded-lg bg-accented w-full py-1.5 flex items-center justify-center">
-                    <span class="text-xl font-bold tabular-nums" :class="stat.valueClass">{{ stat.value }}</span>
+                <div
+                  v-for="stat in registrationMainStats(item)"
+                  :key="stat.key"
+                  class="flex flex-col items-center gap-1"
+                >
+                  <div
+                    class="rounded-lg bg-accented w-full py-1.5 flex items-center justify-center"
+                  >
+                    <span
+                      class="text-xl font-bold tabular-nums"
+                      :class="stat.valueClass"
+                    >{{ stat.value }}</span>
                   </div>
                   <div class="text-xs text-muted leading-tight">
                     {{ stat.label }}
@@ -125,13 +144,24 @@
                 </div>
               </div>
               <div class="flex flex-col gap-2">
-                <p class="text-xs font-medium uppercase tracking-wide text-muted">
-                  {{ t('dashboard.liveManagement') }}
+                <p
+                  class="text-xs font-medium uppercase tracking-wide text-muted"
+                >
+                  {{ t("dashboard.liveManagement") }}
                 </p>
                 <div class="grid grid-cols-4 gap-2">
-                  <div v-for="stat in registrationLiveStats(item)" :key="stat.key" class="flex flex-col items-center gap-1">
-                    <div class="rounded-lg bg-accented w-full py-1.5 flex items-center justify-center">
-                      <span class="text-xl font-bold tabular-nums" :class="stat.valueClass">{{ stat.value }}</span>
+                  <div
+                    v-for="stat in registrationLiveStats(item)"
+                    :key="stat.key"
+                    class="flex flex-col items-center gap-1"
+                  >
+                    <div
+                      class="rounded-lg bg-accented w-full py-1.5 flex items-center justify-center"
+                    >
+                      <span
+                        class="text-xl font-bold tabular-nums"
+                        :class="stat.valueClass"
+                      >{{ stat.value }}</span>
                     </div>
                     <div class="text-xs text-muted leading-tight text-center">
                       {{ stat.label }}
@@ -146,12 +176,22 @@
             <!-- Matches section -->
             <div class="flex flex-col gap-2">
               <p class="text-xs font-medium uppercase tracking-wide text-muted">
-                {{ t('dashboard.matches') }}
+                {{ t("dashboard.matches") }}
               </p>
               <div class="grid grid-cols-3 gap-2">
-                <div v-for="stat in matchStats(item)" :key="stat.key" class="flex flex-col items-center gap-1">
-                  <div class="rounded-lg bg-accented w-full py-1.5 flex items-center justify-center" :class="stat.pulse ? 'animate-pulse' : ''">
-                    <span class="text-xl font-bold tabular-nums" :class="stat.valueClass">{{ stat.value }}</span>
+                <div
+                  v-for="stat in matchStats(item)"
+                  :key="stat.key"
+                  class="flex flex-col items-center gap-1"
+                >
+                  <div
+                    class="rounded-lg bg-accented w-full py-1.5 flex items-center justify-center"
+                    :class="stat.pulse ? 'animate-pulse' : ''"
+                  >
+                    <span
+                      class="text-xl font-bold tabular-nums"
+                      :class="stat.valueClass"
+                    >{{ stat.value }}</span>
                   </div>
                   <div class="text-xs text-muted leading-tight">
                     {{ stat.label }}
@@ -228,37 +268,104 @@ function statusBadgeColor(status: TournamentStatus): BadgeProps['color'] {
 }
 
 function tournamentStatusLabel(status: TournamentStatus): string {
-  if (status === 'scheduled') { return t('tournament.status.scheduled') }
-  if (status === 'registrations_opened') { return t('tournament.status.registrations_opened') }
-  if (status === 'registrations_closed') { return t('tournament.status.registrations_closed') }
-  if (status === 'in_progress') { return t('tournament.status.in_progress') }
-  if (status === 'completed') { return t('tournament.status.completed') }
-  if (status === 'cancelled') { return t('tournament.status.cancelled') }
+  if (status === 'scheduled') {
+    return t('tournament.status.scheduled')
+  }
+  if (status === 'registrations_opened') {
+    return t('tournament.status.registrations_opened')
+  }
+  if (status === 'registrations_closed') {
+    return t('tournament.status.registrations_closed')
+  }
+  if (status === 'in_progress') {
+    return t('tournament.status.in_progress')
+  }
+  if (status === 'completed') {
+    return t('tournament.status.completed')
+  }
+  if (status === 'cancelled') {
+    return t('tournament.status.cancelled')
+  }
   return status
 }
 
 function registrationMainStats(item: DashboardItem): StatEntry[] {
   return [
-    { key: 'total', value: item.total_registrations, label: t('dashboard.total'), valueClass: 'text-default' },
+    {
+      key: 'total',
+      value: item.total_registrations,
+      label: t('dashboard.total'),
+      valueClass: 'text-default',
+    },
   ]
 }
 
 function registrationLiveStats(item: DashboardItem): StatEntry[] {
   return [
-    { key: 'arrived', value: item.arrived_registrations, label: t('dashboard.arrived'), valueClass: 'text-green-500' },
-    { key: 'absent', value: item.absent_registrations, label: t('dashboard.absent'), valueClass: item.absent_registrations > 0 ? 'text-red-500' : 'text-default' },
-    { key: 'paid', value: item.paid_registrations, label: t('dashboard.paid'), valueClass: 'text-green-500' },
-    { key: 'unpaid', value: item.unpaid_registrations, label: t('dashboard.unpaid'), valueClass: item.unpaid_registrations > 0 ? 'text-amber-500' : 'text-default' },
+    {
+      key: 'arrived',
+      value: item.arrived_registrations,
+      label: t('dashboard.arrived'),
+      valueClass: 'text-green-500',
+    },
+    {
+      key: 'absent',
+      value: item.absent_registrations,
+      label: t('dashboard.absent'),
+      valueClass:
+        item.absent_registrations > 0 ? 'text-red-500' : 'text-default',
+    },
+    {
+      key: 'paid',
+      value: item.paid_registrations,
+      label: t('dashboard.paid'),
+      valueClass: 'text-green-500',
+    },
+    {
+      key: 'unpaid',
+      value: item.unpaid_registrations,
+      label: t('dashboard.unpaid'),
+      valueClass:
+        item.unpaid_registrations > 0 ? 'text-amber-500' : 'text-default',
+    },
   ]
 }
 
 function matchStats(item: DashboardItem): StatEntry[] {
   return [
-    { key: 'total', value: item.total_matches, label: t('dashboard.total'), valueClass: 'text-default' },
-    { key: 'scheduled', value: item.scheduled_matches, label: t('dashboard.scheduled'), valueClass: 'text-default' },
-    { key: 'inProgress', value: item.in_progress_matches, label: t('dashboard.inProgress'), valueClass: item.in_progress_matches > 0 ? 'text-amber-500' : 'text-default', pulse: item.in_progress_matches > 0 },
-    { key: 'completed', value: item.completed_matches, label: t('dashboard.completed'), valueClass: item.completed_matches > 0 ? 'text-green-500' : 'text-default' },
-    { key: 'cancelled', value: item.cancelled_matches, label: t('dashboard.cancelled'), valueClass: item.cancelled_matches > 0 ? 'text-red-500' : 'text-default' },
+    {
+      key: 'total',
+      value: item.total_matches,
+      label: t('dashboard.total'),
+      valueClass: 'text-default',
+    },
+    {
+      key: 'scheduled',
+      value: item.scheduled_matches,
+      label: t('dashboard.scheduled'),
+      valueClass: 'text-default',
+    },
+    {
+      key: 'inProgress',
+      value: item.in_progress_matches,
+      label: t('dashboard.inProgress'),
+      valueClass:
+        item.in_progress_matches > 0 ? 'text-amber-500' : 'text-default',
+      pulse: item.in_progress_matches > 0,
+    },
+    {
+      key: 'completed',
+      value: item.completed_matches,
+      label: t('dashboard.completed'),
+      valueClass:
+        item.completed_matches > 0 ? 'text-green-500' : 'text-default',
+    },
+    {
+      key: 'cancelled',
+      value: item.cancelled_matches,
+      label: t('dashboard.cancelled'),
+      valueClass: item.cancelled_matches > 0 ? 'text-red-500' : 'text-default',
+    },
   ]
 }
 </script>

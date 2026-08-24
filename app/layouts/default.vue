@@ -19,6 +19,34 @@
             v{{ appConfig.version }}
           </UBadge>
         </div>
+        <div
+          v-if="user?.superadmin"
+          class="flex items-center justify-center gap-1"
+          :class="collapsed ? 'flex-col' : ''"
+        >
+          <UButton
+            icon="i-lucide-activity"
+            color="primary"
+            variant="outline"
+            size="md"
+            :href="horizonUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            :title="t('nav.horizon')"
+            :aria-label="t('nav.horizon')"
+          />
+          <UButton
+            icon="i-lucide-scroll-text"
+            color="primary"
+            variant="outline"
+            size="md"
+            :href="logViewerUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            :title="t('nav.logViewer')"
+            :aria-label="t('nav.logViewer')"
+          />
+        </div>
         <UNavigationMenu
           :collapsed="collapsed"
           :items="items"
@@ -62,6 +90,12 @@ const { t } = useI18n()
 const appConfig = useAppConfig()
 const localePath = useLocalePath()
 const { user, logout } = useAuth()
+const { config } = useApiConfig()
+
+/** Le viste Horizon / Log Viewer sono servite dall'API Laravel, non da questa SPA. */
+const apiBaseUrl = computed(() => config.value.baseUrl.replace(/\/+$/, ''))
+const horizonUrl = computed(() => `${apiBaseUrl.value}/horizon`)
+const logViewerUrl = computed(() => `${apiBaseUrl.value}/log-viewer`)
 
 const items = computed<NavigationMenuItem[][]>(() => [
   [

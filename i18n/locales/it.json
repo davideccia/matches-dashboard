@@ -25,7 +25,9 @@
     "experienceTiers": "Range matchmaking",
     "logout": "Esci",
     "home": "Home",
-    "settings": "Impostazioni"
+    "settings": "Impostazioni",
+    "horizon": "Coda job (Horizon)",
+    "logViewer": "Log applicativi"
   },
   "settings": {
     "title": "Impostazioni",

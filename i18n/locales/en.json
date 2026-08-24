@@ -25,7 +25,9 @@
     "experienceTiers": "Experience ranges",
     "logout": "Logout",
     "home": "Home",
-    "settings": "Settings"
+    "settings": "Settings",
+    "horizon": "Job queue (Horizon)",
+    "logViewer": "Application logs"
   },
   "settings": {
     "title": "Settings",
