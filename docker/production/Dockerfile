@@ -84,8 +84,7 @@ FROM node:22-alpine AS runtime
 # Niente label `version`: sarebbe una copia a mano di package.json e deriverebbe al
 # primo `make release`. Se serve in CI, taggala sull'immagine (`-t …:$GIT_SHA`).
 LABEL org.opencontainers.image.title="matches-dashboard" \
-    org.opencontainers.image.description="Nuxt SPA dashboard for the Matches Laravel API" \
-    org.opencontainers.image.source="https://codeberg.org/davideccia/matches-dashboard-laravel"
+    org.opencontainers.image.description="Matches - Nuxt dashboard (Laravel REST API backend)"
 
 RUN npm install -g pm2@6 && npm cache clean --force
 
