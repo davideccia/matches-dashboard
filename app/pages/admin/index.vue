@@ -22,7 +22,7 @@
         <!-- Loading skeleton -->
         <div
           v-if="pending"
-          class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 min-[1800px]:grid-cols-3"
         >
           <div
             v-for="i in 3"
@@ -79,7 +79,7 @@
         <!-- Tournament cards -->
         <div
           v-else
-          class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+          class="grid grid-cols-1 gap-4 sm:grid-cols-2 min-[1800px]:grid-cols-3"
         >
           <div
             v-for="item in items"
