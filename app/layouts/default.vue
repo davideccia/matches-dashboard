@@ -133,7 +133,7 @@ const userMenuItems = computed(() => [
     ? [[
         {
           label: t('nav.horizon'),
-          icon: 'i-lucide-activity',
+          icon: 'i-mdi-speedometer',
           to: horizonUrl.value,
           target: '_blank',
           rel: 'noopener noreferrer',
@@ -141,7 +141,7 @@ const userMenuItems = computed(() => [
         },
         {
           label: t('nav.logViewer'),
-          icon: 'i-lucide-scroll-text',
+          icon: 'i-mdi-text-box',
           to: logViewerUrl.value,
           target: '_blank',
           rel: 'noopener noreferrer',
