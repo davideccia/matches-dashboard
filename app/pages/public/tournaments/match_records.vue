@@ -65,6 +65,22 @@
         </div>
       </div>
 
+      <!-- Back home -->
+      <div v-if="!selectedTournament" class="space-y-3">
+        <USeparator />
+        <p class="text-sm text-muted text-center">
+          {{ t('common.notWhatYouAreLookingFor') }}
+        </p>
+        <UButton
+          :label="t('common.backHome')"
+          icon="i-mdi-arrow-left"
+          block
+          variant="outline"
+          color="neutral"
+          @click="() => { navigateTo('/') }"
+        />
+      </div>
+
       <!-- ── STATE A: Tournament selector ────────────────────────────────── -->
       <div v-if="!selectedTournament" class="rounded-2xl bg-elevated border border-default p-5 space-y-3">
         <div class="space-y-0.5">
