@@ -1,172 +1,88 @@
 <template>
-  <UCard
-    variant="outline"
-    class="w-full flex flex-col ring-2 sm:ring-4"
-    :class="match.status === 'in_progress' ? 'ring-warning animate-pulse' : ''"
+  <article
+    class="flex h-full flex-col overflow-hidden rounded-2xl border-2 border-accented bg-default shadow-md transition hover:-translate-y-0.5 hover:shadow-lg"
+    :class="match.status === 'in_progress' ? 'border-amber-500 dark:border-amber-500' : ''"
   >
-    <!-- ── HEADER: context + status ─────────────────────────── -->
-    <template #header>
-      <div class="flex items-center flex-wrap gap-1">
-        <UIcon
-          :name="statusIcon[match.status]"
-          :class="statusIconClass[match.status]"
-          class="size-4 shrink-0"
-        />
-        <UBadge
-          v-if="match.discipline?.label"
-          icon="i-mdi-boxing-glove"
-          color="info"
-          variant="subtle"
-          size="md"
-        >
-          {{ match.discipline.label }}
-        </UBadge>
-        <UBadge
-          v-if="match.weight_category?.label"
-          icon="i-mdi-scale-balance"
-          color="info"
-          variant="subtle"
-          size="md"
-        >
-          {{ match.weight_category.label }}
-        </UBadge>
-        <UBadge
-          v-if="match.rounds && match.minutes_per_round"
-          icon="i-mdi-timer-outline"
-          color="neutral"
-          variant="subtle"
-          size="md"
-        >
-          {{ match.rounds }} × {{ match.minutes_per_round }}
-        </UBadge>
-      </div>
-    </template>
+    <!-- HEADER: stato + contesto -->
+    <div class="flex flex-wrap items-center gap-2 border-b-2 border-default px-4 py-3">
+      <span class="size-2 shrink-0 rounded-full" :class="statusDotClass[match.status]" />
 
-    <!-- ── BODY: athletes VS layout ─────────────────────────── -->
-    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 gap-y-2 sm:gap-x-4 sm:gap-y-3">
-      <!-- Red corner -->
-      <div
-        class="flex flex-col gap-0.5"
-        :class="isRedWinner ? 'opacity-100' : hasWinner ? 'opacity-50' : ''"
-      >
-        <div class="flex items-center gap-1.5">
-          <span class="size-2 sm:size-2.5 rounded-full bg-red-500 shrink-0" />
-          <span class="font-semibold text-highlighted text-xs sm:text-sm leading-tight truncate">
-            {{ match.red_corner?.full_name ?? '—' }}
-          </span>
-          <UIcon
-            v-if="isRedWinner"
-            name="i-mdi-medal"
-            class="size-3 sm:size-3.5 text-warning shrink-0"
-          />
+      <span v-if="match.discipline?.label" class="rounded-full border border-default px-2.5 py-1 text-xs uppercase tracking-widest">
+        {{ match.discipline.label }}
+      </span>
+      <span v-if="match.weight_category?.label" class="rounded-full border border-default px-2.5 py-1 text-xs uppercase tracking-widest">
+        {{ match.weight_category.label }}
+      </span>
+      <span v-if="match.rounds && match.minutes_per_round" class="rounded-full border border-default px-2.5 py-1 text-xs uppercase tracking-widest">
+        {{ match.rounds }} × {{ match.minutes_per_round }}'
+      </span>
+
+      <span class="ml-auto text-xs font-bold text-dimmed">#{{ match.sort }}</span>
+    </div>
+
+    <!-- BODY: rosso / vs / blu -->
+    <div class="grid flex-1 grid-cols-[1fr_auto_1fr] items-stretch">
+      <!-- Angolo rosso -->
+      <div class="flex gap-3 py-5 pr-3 pl-4" :class="hasWinner && !isRedWinner ? 'opacity-40' : ''">
+        <span class="w-1.5 shrink-0 rounded-full bg-red-500" />
+        <div class="flex min-w-0 flex-col gap-1.5">
+          <span class="text-xs uppercase tracking-widest text-red-500">{{ t('match.redCorner') }}</span>
+          <span class="text-xl font-bold leading-tight text-highlighted">{{ match.red_corner?.full_name ?? '—' }}</span>
+          <span class="text-xs leading-tight text-muted">{{ match.red_corner_team || '—' }}</span>
+          <span v-if="isRedWinner" class="text-xs font-bold uppercase tracking-widest text-red-600 dark:text-red-400">{{ t('match.winner') }}</span>
         </div>
-        <span class="pl-3.5 text-[0.625rem] sm:text-xs text-muted truncate">{{ match.red_corner_team || '—' }}</span>
       </div>
 
       <!-- VS -->
-      <div class="flex flex-col items-center gap-2">
-        <UBadge icon="i-mdi-pound" size="md" color="neutral" variant="subtle">
-          {{ match.sort }}
-        </UBadge>
-        <span class="text-xs font-bold tracking-widest uppercase text-muted select-none">vs</span>
+      <div class="flex flex-col items-center justify-center border-x border-default px-3 py-5">
+        <span class="text-sm font-bold uppercase tracking-widest text-dimmed select-none">vs</span>
       </div>
 
-      <!-- Blue corner -->
-      <div
-        class="flex flex-col gap-0.5 items-end"
-        :class="isBlueWinner ? 'opacity-100' : hasWinner ? 'opacity-50' : ''"
-      >
-        <div class="flex items-center gap-1.5">
-          <UIcon
-            v-if="isBlueWinner"
-            name="i-mdi-medal"
-            class="size-3 sm:size-3.5 text-warning shrink-0"
-          />
-          <span class="font-semibold text-highlighted text-xs sm:text-sm leading-tight truncate">
-            {{ match.blue_corner?.full_name ?? '—' }}
-          </span>
-          <span class="size-2 sm:size-2.5 rounded-full bg-blue-500 shrink-0" />
+      <!-- Angolo blu -->
+      <div class="flex flex-row-reverse gap-3 py-5 pr-4 pl-3 text-right" :class="hasWinner && !isBlueWinner ? 'opacity-40' : ''">
+        <span class="w-1.5 shrink-0 rounded-full bg-blue-500" />
+        <div class="flex min-w-0 flex-col items-end gap-1.5">
+          <span class="text-xs uppercase tracking-widest text-blue-500">{{ t('match.blueCorner') }}</span>
+          <span class="text-xl font-bold leading-tight text-highlighted">{{ match.blue_corner?.full_name ?? '—' }}</span>
+          <span class="text-xs leading-tight text-muted">{{ match.blue_corner_team || '—' }}</span>
+          <span v-if="isBlueWinner" class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">{{ t('match.winner') }}</span>
         </div>
-        <span class="pr-3.5 text-[0.625rem] sm:text-xs text-muted truncate">{{ match.blue_corner_team || '—' }}</span>
-      </div>
-
-      <!-- Result banner — always rendered, one of four states -->
-      <!-- Winner -->
-      <div
-        v-if="hasWinner"
-        class="col-span-3 flex items-center justify-center gap-1.5 rounded-lg px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-medium"
-        :class="isRedWinner ? 'bg-red-500/10 text-red-500' : 'bg-blue-500/10 text-blue-500'"
-      >
-        {{ match.end_method ? endMethodLabel(match.end_method) : t('match.winner') }}
-        <template v-if="match.end_round">
-          <span class="opacity-40">·</span>
-          <span>Round {{ match.end_round }}</span>
-        </template>
-      </div>
-
-      <!-- Draw / no contest -->
-      <div
-        v-else-if="match.status === 'completed'"
-        class="col-span-3 flex items-center justify-center gap-1.5 rounded-lg bg-muted/50 px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-medium text-muted"
-      >
-        <UIcon name="i-mdi-scale-balance" class="size-3.5" />
-        {{ match.end_method ? endMethodLabel(match.end_method) : t('match.noWinner') }}
-      </div>
-
-      <!-- Cancelled -->
-      <div
-        v-else-if="match.status === 'cancelled'"
-        class="col-span-3 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-red-400 px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-medium text-red-400"
-      >
-        <UIcon name="i-mdi-cancel" class="size-3.5" />
-        {{ t(`match.status.cancelled`) }}
-      </div>
-
-      <!-- In progress -->
-      <div
-        v-else-if="match.status === 'in_progress'"
-        class="col-span-3 flex items-center justify-center gap-1.5 rounded-lg border border-warning px-2 py-1 sm:px-3 sm:py-1.5 text-xs font-medium text-warning"
-      >
-        <span class="size-1.5 rounded-full bg-warning animate-pulse inline-block" />
-        {{ matchStatusLabel(match.status) }}
-      </div>
-
-      <!-- Scheduled -->
-      <div
-        v-else
-        class="col-span-3 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-default px-2 py-1 sm:px-3 sm:py-1.5 text-xs text-muted"
-      >
-        <UIcon name="i-mdi-clock-outline" class="size-3.5" />
-        {{ matchStatusLabel(match.status) }}
       </div>
     </div>
 
-    <!-- ── FOOTER: end method + judge points — only when showJudgesPoints ── -->
-    <template v-if="showJudgesPoints" #footer>
-      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-        <UButton
-          v-if="hasJudgePoints"
-          type="button"
-          variant="outline"
-          color="neutral"
-          size="xs"
-          icon="i-mdi-clipboard-list-outline"
-          @click="() => { judgesPointsOpen = true }"
-        >
-          {{ t('match.judgesPointsTable') }}
-        </UButton>
-        <span v-if="!hasJudgePoints" class="text-xs text-muted opacity-40">—</span>
-      </div>
-    </template>
-  </UCard>
+    <!-- BANNER esito: sempre presente, spinto in basso -->
+    <div
+      class="mt-auto flex flex-wrap items-baseline gap-2.5 border-t-2 border-default px-4 py-3"
+      :class="banner.class"
+    >
+      <span v-if="banner.kicker" class="text-xs text-default uppercase tracking-widest opacity-70">{{ banner.kicker }}</span>
+      <span class="text-sm font-bold uppercase">{{ banner.value }}</span>
+      <span v-if="banner.meta" class="ml-auto text-xs uppercase tracking-widest opacity-70">{{ banner.meta }}</span>
+    </div>
 
-  <!-- ── MODAL: judges points table (readonly) ─────────────────── -->
+    <!-- FOOTER: cartellini giudici -->
+    <div v-if="showJudgesPoints" class="flex items-center justify-between gap-3 border-t border-default px-4 py-2.5">
+      <span class="text-xs uppercase tracking-widest text-dimmed">
+        {{ hasJudgePoints ? t('match.judgesPointsRecorded') : t('match.judgesPointsEmpty') }}
+      </span>
+      <UButton
+        v-if="hasJudgePoints"
+        type="button"
+        variant="outline"
+        color="neutral"
+        size="xs"
+        class="rounded-full"
+        icon="i-mdi-clipboard-list-outline"
+        @click="judgesPointsOpen = true"
+      >
+        {{ t('match.judgesPointsTable') }}
+      </UButton>
+    </div>
+  </article>
+
   <UModal v-if="showJudgesPoints" v-model:open="judgesPointsOpen" :title="t('match.judgesPointsTable')">
     <template #body>
-      <MatchRecordJudgesPointsTable
-        :model-value="judgesPointsRows"
-        readonly
-      />
+      <MatchRecordJudgesPointsTable :model-value="judgesPointsRows" readonly />
     </template>
   </UModal>
 </template>
@@ -183,29 +99,13 @@ const props = defineProps<{
 const showJudgesPoints = computed(() => props.showJudgesPoints ?? true)
 
 const { t } = useI18n()
-
 const judgesPointsOpen = ref(false)
 
-const statusIcon: Record<MatchStatus, string> = {
-  scheduled: 'i-mdi-clock-outline',
-  in_progress: 'i-mdi-play-circle',
-  completed: 'i-mdi-check-circle',
-  cancelled: 'i-mdi-cancel',
-}
-
-const statusIconClass: Record<MatchStatus, string> = {
-  scheduled: 'text-muted',
-  in_progress: 'text-warning',
-  completed: 'text-success',
-  cancelled: 'text-error',
-}
-
-function matchStatusLabel(status: string): string {
-  if (status === 'scheduled') { return t('match.status.scheduled') }
-  if (status === 'in_progress') { return t('match.status.in_progress') }
-  if (status === 'completed') { return t('match.status.completed') }
-  if (status === 'cancelled') { return t('match.status.cancelled') }
-  return status
+const statusDotClass: Record<MatchStatus, string> = {
+  scheduled: 'bg-zinc-400 dark:bg-zinc-500',
+  in_progress: 'animate-pulse bg-amber-500',
+  completed: 'bg-emerald-500',
+  cancelled: 'bg-rose-500',
 }
 
 function endMethodLabel(method: string): string {
@@ -220,6 +120,8 @@ function endMethodLabel(method: string): string {
 }
 
 const hasWinner = computed(() => !!props.match.winner_id)
+const isRedWinner = computed(() => hasWinner.value && props.match.winner_id === props.match.red_corner_id)
+const isBlueWinner = computed(() => hasWinner.value && props.match.winner_id === props.match.blue_corner_id)
 
 const hasJudgePoints = computed(() => {
   const points = props.match.judges_points
@@ -230,12 +132,55 @@ const hasJudgePoints = computed(() => {
   )
 })
 
-const isRedWinner = computed(
-  () => hasWinner.value && props.match.winner_id === props.match.red_corner_id,
-)
-const isBlueWinner = computed(
-  () => hasWinner.value && props.match.winner_id === props.match.blue_corner_id,
-)
-
 const judgesPointsRows = computed(() => props.match.judges_points ?? [])
+
+const banner = computed(() => {
+  const m = props.match
+
+  if (hasWinner.value) {
+    return {
+      class: isRedWinner.value ? 'text-red-500' : 'text-blue-500',
+      kicker: t('match.winner'),
+      value: (isRedWinner.value ? m.red_corner?.full_name : m.blue_corner?.full_name) ?? '—',
+      meta: [
+        m.end_method ? endMethodLabel(m.end_method) : null,
+        m.end_round ? `Round ${m.end_round}` : null,
+      ].filter(Boolean).join(' · '),
+    }
+  }
+
+  if (m.status === 'completed') {
+    return {
+      class: 'text-muted',
+      kicker: t('match.result'),
+      value: m.end_method ? endMethodLabel(m.end_method) : t('match.noWinner'),
+      meta: m.end_round ? `Round ${m.end_round}` : '',
+    }
+  }
+
+  if (m.status === 'cancelled') {
+    return {
+      class: 'text-rose-600 dark:text-rose-400',
+      kicker: null,
+      value: t('match.status.cancelled'),
+      meta: '',
+    }
+  }
+
+  if (m.status === 'in_progress') {
+    return {
+      class: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+      kicker: null,
+      value: t('match.status.in_progress'),
+      meta: 'Live',
+    }
+  }
+
+  return {
+    class: 'text-muted',
+    kicker: null,
+    value: t('match.status.scheduled'),
+    meta: '',
+  }
+})
 </script>

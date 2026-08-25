@@ -218,7 +218,10 @@
     },
     "generate": "Generazione automatica",
     "generateConfirm": "Confermi la generazione automatica degli incontri? E' consigliata una revisione manuale dopo l'avvenuta generazione",
-    "generated": "Incontri generati con successo"
+    "generated": "Incontri generati con successo",
+    "result": "Esito",
+    "judgesPointsRecorded": "Cartellini registrati",
+    "judgesPointsEmpty": "Nessun cartellino"
   },
   "athlete": {
     "title": "Atleta",

@@ -218,7 +218,10 @@
     },
     "generate": "Generate matches",
     "generateConfirm": "Are you sure? Existing matches will be deleted and everything will be recalculated.",
-    "generated": "Matches generated successfully"
+    "generated": "Matches generated successfully",
+    "result": "Result",
+    "judgesPointsRecorded": "Scorecards recorded",
+    "judgesPointsEmpty": "No scorecards"
   },
   "athlete": {
     "title": "Athlete",

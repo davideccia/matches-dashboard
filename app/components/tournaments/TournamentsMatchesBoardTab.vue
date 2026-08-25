@@ -60,7 +60,7 @@
         <!-- Card grid -->
         <div
           v-else
-          class="bg-elevated rounded-xl p-2"
+          class="rounded-xl p-2"
         >
           <div class="grid grid-cols-2 xl:grid-cols-3 gap-2">
             <div
