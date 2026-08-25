@@ -43,7 +43,7 @@
         <!-- Loading skeletons -->
         <div
           v-if="status === 'pending'"
-          class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+          class="grid grid-cols-1 md:grid-cols-2 min-[1800px]:grid-cols-3 gap-4"
         >
           <USkeleton v-for="n in 10" :key="n" class="h-48 rounded-xl" />
         </div>
@@ -62,7 +62,7 @@
           v-else
           class="rounded-xl p-2"
         >
-          <div class="grid grid-cols-2 xl:grid-cols-3 gap-2">
+          <div class="grid grid-cols-2 min-[1800px]:grid-cols-3 gap-2">
             <div
               v-for="(match, index) in items"
               :key="match.id"
