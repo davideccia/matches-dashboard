@@ -1,14 +1,15 @@
 # docker/production
 
-Immagine di produzione della dashboard: **SPA statica servita da nginx**, ~15 MB.
+Immagine di produzione della dashboard: **SPA Nuxt servita da un processo Node
+supervisionato da PM2**.
 
-| File                      | Ruolo                                                                                    |
-| ------------------------- | ---------------------------------------------------------------------------------------- |
-| `Dockerfile`              | Build multi-stage: `node:22-alpine` (pnpm + `nuxt generate`) → `nginx:1.27-alpine-slim`. |
-| `Dockerfile.dockerignore` | Esclusioni del build context (BuildKit lo associa automaticamente a `Dockerfile`).       |
-| `nginx.conf`              | Contesto globale: path scrivibili sotto `/tmp`, log su stdout, `gzip_static`.            |
-| `default.conf`            | Server virtuale: fallback SPA, policy di cache, health check.                            |
-| `security-headers.conf`   | Header di sicurezza, inclusi in ogni `location` (vedi nota sotto).                       |
+| File                      | Ruolo                                                                               |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| `Dockerfile`              | Build multi-stage: `node:22-alpine` (pnpm + `nuxt build`) → `node:22-alpine` + PM2. |
+| `Dockerfile.dockerignore` | Esclusioni del build context (BuildKit lo associa automaticamente a `Dockerfile`).  |
+
+La configurazione PM2 vive in **`ecosystem.config.cjs` alla root del repo**, così è
+usabile anche fuori da Docker.
 
 ## Uso
 
@@ -22,19 +23,42 @@ docker build -f docker/production/Dockerfile -t matches-dashboard:prod \
   --build-arg NUXT_PUBLIC_REVERB_APP_KEY=... .
 
 # In produzione, con l'hardening completo:
-docker run -d -p 3000:8080 \
-  --read-only --tmpfs /tmp:rw,noexec,nosuid,size=32m \
+docker run -d -p 3000:3000 \
+  --read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m \
   --security-opt no-new-privileges:true \
-  --cap-drop ALL --cap-add CHOWN --cap-add SETGID --cap-add SETUID \
+  --cap-drop ALL \
   --restart unless-stopped \
   matches-dashboard:prod
 ```
 
-### In CI/CD
+Il container gira come utente `node` (uid 1000) sulla porta 3000. La tmpfs su `/tmp`
+è obbligatoria: ci vive `PM2_HOME` (daemon, pid, log).
 
-Il build ha bisogno di **BuildKit** (per la cache mount di pnpm e l'heredoc) e di
-un context alla root del repo. Ogni ambiente è un'immagine diversa, quindi i
-`--build-arg` vanno passati dai secret/variable della pipeline, non dal repo.
+## Il reverse proxy non è opzionale
+
+L'immagine serve **solo** l'applicazione. Tutto quello che prima faceva l'nginx
+interno va ora configurato sul proxy che termina il TLS davanti al container:
+
+- **header di sicurezza** (`X-Frame-Options`, `X-Content-Type-Options`,
+  `Referrer-Policy`, eventuale CSP/HSTS);
+- **`Cache-Control`**: `public, max-age=31536000, immutable` su `/_nuxt/`,
+  `no-cache, must-revalidate` sull'HTML — nell'HTML c'è il payload di
+  `runtimeConfig`, quindi metterlo in cache significa SPA vecchia **e** config
+  vecchia dopo un deploy;
+- **compressione** (gzip/brotli).
+
+Non serve invece alcun rewrite SPA: con il preset Nitro `node-server` il fallback su
+`index.html` per le rotte dinamiche (`/admin/tournaments/42`) è nativo. Resta
+necessario su Amplify, che serve i file statici.
+
+Il dominio del proxy deve stare nella CORS allowlist dell'API Laravel e negli origin
+consentiti da Reverb.
+
+## In CI/CD
+
+Il build ha bisogno di **BuildKit** (per la cache mount di pnpm) e di un context alla
+root del repo. Ogni ambiente è un'immagine diversa, quindi i `--build-arg` vanno
+passati dai secret/variable della pipeline, non dal repo.
 
 ```bash
 DOCKER_BUILDKIT=1 docker build \
@@ -46,7 +70,6 @@ DOCKER_BUILDKIT=1 docker build \
   --build-arg NUXT_PUBLIC_REVERB_PORT="$REVERB_PORT" \
   --build-arg NUXT_PUBLIC_REVERB_SCHEME=https \
   --build-arg NUXT_PUBLIC_REVERB_APP_KEY="$REVERB_APP_KEY" \
-  --build-arg APP_VERSION="$GIT_SHA" \
   .
 ```
 
@@ -62,28 +85,16 @@ Due avvertenze per la pipeline:
 
 ## Tre cose da sapere
 
-**1. La configurazione è compilata nel bundle.** `NUXT_BASE_URL` e i
-`NUXT_PUBLIC_*` finiscono nel payload di `index.html` in fase di build: **un'immagine
-= un ambiente**, cambiarli richiede un nuovo build. L'unico repoint a runtime resta
-l'override `localStorage` (`matches.api-override`) già presente nell'app.
-La variabile dell'API è **`NUXT_BASE_URL`** (`nuxt.config.ts:93`), non
-`NUXT_PUBLIC_SANCTUM_BASE_URL` come riportato per errore in `CLAUDE.md`.
+**1. La configurazione è compilata nel bundle.** `NUXT_BASE_URL` e i `NUXT_PUBLIC_*`
+finiscono nel payload di `index.html` in fase di build: **un'immagine = un ambiente**,
+cambiarli richiede un nuovo build. L'unico repoint a runtime resta l'override
+`localStorage` (`matches.api-override`) già presente nell'app. La variabile dell'API è
+**`NUXT_BASE_URL`** (`nuxt.config.ts:93`), non `NUXT_PUBLIC_SANCTUM_BASE_URL`.
 
-**2. Il fallback SPA è obbligatorio.** `nuxt generate` non emette nulla per le rotte
-dinamiche (`/admin/tournaments/42`), che senza `try_files … /index.html` andrebbero in
-404 al refresh. È lo stesso rewrite che su Amplify va configurato a mano.
+**2. `.output` è autosufficiente.** Nitro ci bundla dentro le dipendenze: lo stage di
+runtime non installa `node_modules` né pnpm, copia solo `.output` e
+`ecosystem.config.cjs`.
 
-**3. Gli header di sicurezza vanno ri-inclusi in ogni `location`.** In nginx un
-`add_header` dentro una `location` annulla tutti quelli ereditati dal server block:
-per questo `security-headers.conf` compare in ogni blocco che usa `add_header`.
-
-## Hardening attivo
-
-Utente `nginx` (uid 101) su porta non privilegiata 8080, rootfs in sola lettura
-(`read_only: true` + tmpfs su `/tmp`), `no-new-privileges`, tutte le capability
-eliminate tranne `CHOWN`/`SETGID`/`SETUID`, `server_tokens off`, nessun file `.env`
-nell'immagine.
-
-CSP e HSTS sono presenti ma **commentati** in `security-headers.conf`: la CSP
-romperebbe l'env switcher (host API/Reverb variabili), l'HSTS va impostato dove
-termina il TLS. Attivali per-ambiente compilando gli host reali.
+**3. `pm2-runtime`, non `pm2 start`.** `pm2-runtime` resta in foreground come PID 1 e
+inoltra i segnali, quindi `docker stop` chiude subito; `pm2 start` esce e farebbe
+morire il container. Per ispezionare: `docker exec <id> pm2 list`, `pm2 logs`.

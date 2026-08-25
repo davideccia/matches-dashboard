@@ -1,10 +1,13 @@
 # syntax=docker/dockerfile:1.7
 # ==============================================================================
-# matches-dashboard — immagine di produzione (~15 MB)
+# matches-dashboard — immagine di produzione (Node + PM2)
 #
-# L'app è una SPA statica (nuxt.config.ts → ssr: false): `pnpm generate` emette
-# solo file in .output/public, quindi a runtime non serve alcun processo Node.
-# L'immagine finale contiene nginx + gli asset, e nulla di più.
+# L'app è una SPA (nuxt.config.ts → ssr: false) servita da un processo Node:
+# `pnpm build` usa il preset Nitro `node-server`, che serve gli asset e fa da
+# solo il fallback su index.html per le rotte dinamiche.
+#
+# Header di sicurezza, Cache-Control e compressione NON sono qui: vanno sul
+# reverse proxy che termina il TLS davanti al container (vedi README.md).
 #
 # IL CONTEXT È LA ROOT DEL REPO, non questa cartella:
 #
@@ -54,7 +57,7 @@ RUN pnpm rebuild
 # I default replicano quelli di nuxt.config.ts.
 #
 # NOTA: la variabile dell'API è NUXT_BASE_URL (nuxt.config.ts:93), non
-# NUXT_PUBLIC_SANCTUM_BASE_URL come riportato per errore in CLAUDE.md.
+# NUXT_PUBLIC_SANCTUM_BASE_URL.
 ARG NUXT_BASE_URL=https://api.matches.it
 ARG NUXT_PUBLIC_ENV_SWITCHER_PASSWORD=
 ARG NUXT_PUBLIC_REVERB_APP_KEY=
@@ -70,51 +73,45 @@ ENV NUXT_BASE_URL=$NUXT_BASE_URL \
     NUXT_PUBLIC_REVERB_SCHEME=$NUXT_PUBLIC_REVERB_SCHEME \
     NODE_ENV=production
 
-# `generate`, non `build`: con ssr:false e nessun preset nitro, `nuxt build`
-# emetterebbe comunque una .output/server Node che qui non servirebbe a nulla.
-RUN pnpm generate
-
-# Pre-compressione per `gzip_static`: nginx serve il .gz già pronto, zero CPU a
-# runtime. Niente brotli: non è compilato in nginx stock.
-RUN find .output/public -type f \
-    \( -name '*.js' -o -name '*.mjs' -o -name '*.css' -o -name '*.html' \
-    -o -name '*.svg' -o -name '*.json' -o -name '*.txt' \) \
-    -size +1k -exec gzip -9 -k {} \;
+# `build`, non `generate`: serve il server Nitro da dare in pasto a PM2.
+RUN pnpm build
 
 # ------------------------------------------------------------------------------
 # Stage 2 — runtime
 # ------------------------------------------------------------------------------
-FROM nginx:1.27-alpine-slim AS runtime
+FROM node:22-alpine AS runtime
 
-ARG APP_VERSION=0.8.0
+# Niente label `version`: sarebbe una copia a mano di package.json e deriverebbe al
+# primo `make release`. Se serve in CI, taggala sull'immagine (`-t …:$GIT_SHA`).
 LABEL org.opencontainers.image.title="matches-dashboard" \
-    org.opencontainers.image.description="Static SPA dashboard for the Matches Laravel API" \
-    org.opencontainers.image.source="https://codeberg.org/davideccia/matches-dashboard-laravel" \
-    org.opencontainers.image.version="$APP_VERSION"
+    org.opencontainers.image.description="Nuxt SPA dashboard for the Matches Laravel API" \
+    org.opencontainers.image.source="https://codeberg.org/davideccia/matches-dashboard-laravel"
 
-COPY docker/production/nginx.conf            /etc/nginx/nginx.conf
-COPY docker/production/security-headers.conf /etc/nginx/security-headers.conf
-COPY docker/production/default.conf          /etc/nginx/conf.d/default.conf
+RUN npm install -g pm2@6 && npm cache clean --force
 
-# Asset statici generati nello stage precedente.
-COPY --from=build --chown=nginx:nginx /app/.output/public /usr/share/nginx/html
+WORKDIR /app
 
-# Directory temporanee pre-create e possedute da nginx. Stanno sotto /tmp perché
-# è ciò che permette di girare con rootfs in sola lettura: in quel caso monta
-# /tmp su tmpfs (`--read-only --tmpfs /tmp:rw,noexec,nosuid,size=32m`).
-RUN mkdir -p /tmp/nginx-client-body /tmp/nginx-proxy /tmp/nginx-fastcgi \
-    /tmp/nginx-uwsgi /tmp/nginx-scgi \
-    && chown -R nginx:nginx /tmp/nginx-* /var/cache/nginx \
-    && nginx -t
+# PM2_HOME sotto /tmp: PM2 vuole una dir scrivibile per daemon, pid e log, e così
+# l'immagine resta compatibile con rootfs in sola lettura
+# (`--read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m`).
+ENV NODE_ENV=production \
+    HOST=0.0.0.0 \
+    PORT=3000 \
+    PM2_HOME=/tmp/.pm2
 
-USER nginx
+# .output è autosufficiente: Nitro ci bundla dentro le dipendenze, quindi qui non
+# servono né node_modules né pnpm.
+COPY --from=build --chown=node:node /app/.output ./.output
+COPY --chown=node:node ecosystem.config.cjs ./
 
-EXPOSE 8080
+USER node
+
+EXPOSE 3000
 
 # busybox wget è già in alpine: nessun pacchetto extra da installare.
-HEALTHCHECK --interval=30s --timeout=3s --start-period=3s --retries=3 \
-    CMD wget -qO- http://127.0.0.1:8080/healthz || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget -qO- http://127.0.0.1:3000/ >/dev/null || exit 1
 
-STOPSIGNAL SIGQUIT
-
-CMD ["nginx", "-g", "daemon off;"]
+# `pm2-runtime`, non `pm2 start`: resta in foreground come PID 1 e inoltra i
+# segnali. `pm2 start` esce subito e il container morirebbe.
+CMD ["pm2-runtime", "start", "ecosystem.config.cjs"]

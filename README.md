@@ -194,6 +194,7 @@ Run `make help` to list all targets. The most common ones:
 | `make release V=x.y.z` | Bump the version, commit, and tag (`PUSH=1` to push) |
 | `make clean`           | Remove `.nuxt`, `.output`, and `dist`                |
 | `pnpm generate`        | Static SPA build → `.output/public/`                 |
+| `pnpm build`           | Nitro node-server build → `.output/server/` (Docker) |
 | `pnpm preview`         | Serve the built output locally                       |
 
 > [!TIP]
@@ -217,6 +218,10 @@ There is **no automated test suite** in this repo: no test runner, no test files
    | `</^[^.]+$\|\.(?!(css\|gif\|ico\|jpg\|js\|png\|txt\|svg\|woff\|woff2\|ttf\|map\|json\|webp)$)([^.]+$)/>` | `/index.html` | 200 (Rewrite) |
 
 The Amplify domain must also be allowed by the Laravel API's CORS configuration (and by Reverb's allowed origins).
+
+### Docker
+
+[`docker/production/`](docker/production/) builds a self-hosted image instead: `pnpm build` (Nitro `node-server` preset) served by a Node process under **PM2** (`ecosystem.config.cjs`), listening on port 3000. There the SPA fallback is native — no rewrite rule needed — but the image serves only the app: security headers, `Cache-Control`, and compression must be configured on the reverse proxy that terminates TLS in front of it. See [`docker/production/README.md`](docker/production/README.md).
 
 > [!IMPORTANT]
 > The Laravel API and the Reverb WebSocket endpoint must both be reachable **from the browser** at the configured `NUXT_PUBLIC_*` addresses for live features to work.

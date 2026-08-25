@@ -44,11 +44,9 @@ Makefile
 DB.md
 
 # ── Docker ───────────────────────────────────────────────────────────────────
-# NB: docker/production/*.conf NON va escluso — il Dockerfile li COPIA dal
-# context nello stage di runtime.
-docker/production/Dockerfile
-docker/production/Dockerfile.dockerignore
-docker/production/README.md
+# Lo stage di runtime copia dal context solo `ecosystem.config.cjs` (alla root):
+# da questa cartella non serve più nulla.
+docker/production
 
 # ── Log e temporanei ─────────────────────────────────────────────────────────
 *.log

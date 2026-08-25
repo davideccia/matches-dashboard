@@ -109,13 +109,16 @@ Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GE
 
 ## Deployment
 
-Two supported targets. Both ship the same static `.output/public`, and both need the same two things: the build-time variables, and an **SPA rewrite of every non-asset path to `/index.html` with status `200`**. Without that rewrite any deep link (`/admin/tournaments/42`, `/en/public/...`) 404s on refresh, because `nuxt generate` emits nothing for dynamic routes.
+Two supported targets, and they no longer ship the same artifact:
 
-Whatever host you use, its domain must be in the Laravel API's CORS allowlist and in Reverb's allowed origins.
+- **Docker** builds with `pnpm build` (Nitro `node-server`) and runs a Node process under PM2.
+- **Amplify** builds with `pnpm generate` and serves `.output/public` statically, so it still needs an **SPA rewrite of every non-asset path to `/index.html` with status `200`** — without it any deep link (`/admin/tournaments/42`, `/en/public/...`) 404s on refresh, because `nuxt generate` emits nothing for dynamic routes. Nitro does that fallback natively, so the Docker target does not need the rewrite.
+
+Both need the build-time variables. Whatever host you use, its domain must be in the Laravel API's CORS allowlist and in Reverb's allowed origins.
 
 ### Docker (`docker/production/`)
 
-Multi-stage build → `nginx:1.27-alpine-slim`, **~15 MB**, no Node at runtime. Meant to be driven from CI/CD — there is deliberately no compose file. The build context is the **repo root**, not the folder, and it needs BuildKit:
+Multi-stage build → `node:22-alpine` + PM2 (`pm2-runtime start ecosystem.config.cjs`), listening on port 3000 as user `node`. Meant to be driven from CI/CD — there is deliberately no compose file. The build context is the **repo root**, not the folder, and it needs BuildKit:
 
 ```bash
 docker build -f docker/production/Dockerfile -t matches-dashboard:prod \
@@ -126,13 +129,14 @@ docker build -f docker/production/Dockerfile -t matches-dashboard:prod \
 
 **One image per environment**: the `NUXT_*` values are baked into the `index.html` payload, so the pipeline must pass them as `--build-arg` from its own secrets/variables and rebuild to change them. `docker/production/README.md` has the CI-ready invocation.
 
-The nginx config is split into `nginx.conf` (global), `default.conf` (server), and `security-headers.conf`. Three non-obvious points, all of them the result of an actual failure during setup:
+Four things to know:
 
-- **`security-headers.conf` is `include`d in every `location`, not just the server block.** In nginx an `add_header` inside a `location` cancels every inherited one, so without the repetition the SPA-fallback pages come out with no security headers at all.
-- **The SPA fallback is `try_files $uri $uri/index.html /index.html`**, not `$uri/` — the latter 301-redirects to the trailing slash instead of serving the directory index.
-- **CSP and HSTS are present but commented out.** A hardcoded CSP breaks the env switcher (the API/Reverb hosts vary per environment and per browser override); HSTS belongs wherever TLS terminates.
+- **The image serves only the app.** The nginx config that used to live here is gone: security headers, `Cache-Control` (immutable on `/_nuxt/`, `no-cache` on HTML — the HTML carries the `runtimeConfig` payload), and compression now belong to the reverse proxy that terminates TLS in front of the container.
+- **`.output` is self-contained.** Nitro bundles the dependencies into it, so the runtime stage copies only `.output` and `ecosystem.config.cjs` — no `node_modules`, no pnpm.
+- **`PM2_HOME=/tmp/.pm2`.** PM2 needs a writable dir for its daemon, pid and logs; keeping it under `/tmp` preserves the read-only rootfs (`--read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m`).
+- **`pm2-runtime`, not `pm2 start`.** It stays in the foreground as PID 1 and forwards signals; `pm2 start` exits immediately and the container dies with it.
 
-The container runs as `nginx` (uid 101) on port 8080, with a read-only rootfs (all writable nginx paths live under `/tmp`). `pnpm install --frozen-lockfile` means **a `pnpm-lock.yaml` out of sync with `package.json` fails the build** — that is intentional, fix the lockfile rather than the flag.
+`pnpm install --frozen-lockfile` means **a `pnpm-lock.yaml` out of sync with `package.json` fails the build** — that is intentional, fix the lockfile rather than the flag.
 
 ### AWS Amplify Hosting
 
