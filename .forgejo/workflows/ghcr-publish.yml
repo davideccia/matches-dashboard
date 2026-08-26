@@ -1,31 +1,30 @@
 # ==============================================================================
-# Build dell'immagine di produzione e push su Docker Hub.
+# Build dell'immagine di produzione e push su GitHub Container Registry (ghcr.io).
+#
+# Gemello di docker-publish.yml (ora disattivato: solo workflow_dispatch).
 #
 # Runner: label `docker-29-cli` → il job gira in un'immagine docker:29-cli
 # (CLI + buildx, daemon raggiunto via socket dell'host). Nessuna node action
 # oltre a checkout, così il workflow non dipende da mirror di docker/*-action.
 #
-# Variables (pannello Forgejo): DOCKERHUB_USERNAME, NUXT_BASE_URL,
+# Variables (pannello Forgejo): GHCR_USERNAME, NUXT_BASE_URL,
 #   NUXT_PUBLIC_REVERB_HOST, NUXT_PUBLIC_REVERB_PORT, NUXT_PUBLIC_REVERB_SCHEME
-# Secrets: DOCKERHUB_TOKEN, NUXT_PUBLIC_REVERB_APP_KEY,
-#   NUXT_PUBLIC_ENV_SWITCHER_PASSWORD
+# Secrets: GHCR_TOKEN (PAT con scope write:packages),
+#   NUXT_PUBLIC_REVERB_APP_KEY, NUXT_PUBLIC_ENV_SWITCHER_PASSWORD
 #
 # ATTENZIONE: i NUXT_* sono compilati DENTRO il bundle. Un'immagine = un
 # ambiente: cambiare una variabile richiede un nuovo build.
-#
-# DISATTIVATO: il push automatico su main è passato a ghcr-publish.yml.
-# Resta solo l'avvio manuale (workflow_dispatch) come fallback.
 # ==============================================================================
-name: Dockerhub publish
+name: GHCR publish
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   build-push:
     runs-on: docker-29-cli
-    env:
-      IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/matches-dashboard
     steps:
       # docker:29-cli è alpine e non ha né git né node: checkout@v6 è una node
       # action, il runner la lancia con `node` dentro questo container.
@@ -39,11 +38,14 @@ jobs:
       - name: Check Docker daemon
         run: docker version
 
-      - name: Resolve tag
-        run: echo "SHORT_SHA=$(echo "$GITHUB_SHA" | cut -c1-7)" >> "$GITHUB_ENV"
+      # ghcr.io accetta solo path minuscoli, la variabile può non esserlo.
+      - name: Resolve image and tag
+        run: |
+          echo "IMAGE=ghcr.io/$(echo "${{ vars.GHCR_USERNAME }}" | tr '[:upper:]' '[:lower:]')/matches-dashboard" >> "$GITHUB_ENV"
+          echo "SHORT_SHA=$(echo "$GITHUB_SHA" | cut -c1-7)" >> "$GITHUB_ENV"
 
-      - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ vars.DOCKERHUB_USERNAME }}" --password-stdin
+      - name: Login to GHCR
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ vars.GHCR_USERNAME }}" --password-stdin
 
       # buildx (non `docker build`): il Dockerfile usa `# syntax=` e una cache
       # mount, quindi serve BuildKit. Il context è la ROOT del repo.
@@ -65,4 +67,4 @@ jobs:
 
       - name: Logout
         if: always()
-        run: docker logout
+        run: docker logout ghcr.io
