@@ -30,6 +30,10 @@ jobs:
       - name: Install git
         run: apk add --no-cache git
 
+      # docker:29-cli è alpine: senza git il checkout ripiega sul download via API.
+      - name: Install node
+        run: apk add --no-cache node
+
       - name: Checkout
         uses: https://data.forgejo.org/actions/checkout@v6
 
