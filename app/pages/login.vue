@@ -77,10 +77,33 @@
               icon="i-mdi-lock-reset"
               block
               variant="outline"
-              @click="() => { navigateTo('/forgot-password') }"
+              @click="
+                () => {
+                  navigateTo('/forgot-password');
+                }
+              "
             />
           </template>
         </UAuthForm>
+
+        <USeparator class="my-6" />
+
+        <p class="text-sm text-center mb-3">
+          {{ t("common.notWhatYouAreLookingFor") }}
+        </p>
+
+        <UButton
+          :label="t('common.backHome')"
+          icon="i-mdi-arrow-left"
+          block
+          variant="outline"
+          color="neutral"
+          @click="
+            () => {
+              navigateTo('/');
+            }
+          "
+        />
 
         <div class="grow" />
       </div>
@@ -133,7 +156,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   loading.value = true
   try {
     clear()
-    await useAuth().login({ email: event.data.email, password: event.data.password })
+    await useAuth().login({
+      email: event.data.email,
+      password: event.data.password,
+    })
     await navigateTo('/admin')
   } catch {
     errorMsg.value = t('login.error')
