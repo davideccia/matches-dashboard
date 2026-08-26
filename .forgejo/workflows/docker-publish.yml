@@ -26,13 +26,10 @@ jobs:
     env:
       IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/matches-dashboard
     steps:
-      # docker:29-cli è alpine: senza git il checkout ripiega sul download via API.
-      - name: Install git
-        run: apk add --no-cache git
-
-      # docker:29-cli è alpine: senza git il checkout ripiega sul download via API.
-      - name: Install node
-        run: wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -
+      # docker:29-cli è alpine e non ha né git né node: checkout@v6 è una node
+      # action, il runner la lancia con `node` dentro questo container.
+      - name: Install checkout deps
+        run: apk add --no-cache git nodejs
 
       - name: Checkout
         uses: https://data.forgejo.org/actions/checkout@v6
