@@ -32,7 +32,7 @@ jobs:
 
       # docker:29-cli è alpine: senza git il checkout ripiega sul download via API.
       - name: Install node
-        run: apk add --no-cache node
+        run: wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -
 
       - name: Checkout
         uses: https://data.forgejo.org/actions/checkout@v6
