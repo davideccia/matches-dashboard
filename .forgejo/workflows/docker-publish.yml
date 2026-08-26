@@ -1,0 +1,66 @@
+# ==============================================================================
+# Build dell'immagine di produzione e push su Docker Hub.
+#
+# Runner: label `docker-29-cli` → il job gira in un'immagine docker:29-cli
+# (CLI + buildx, daemon raggiunto via socket dell'host). Nessuna node action
+# oltre a checkout, così il workflow non dipende da mirror di docker/*-action.
+#
+# Variables (pannello Forgejo): DOCKERHUB_USERNAME, NUXT_BASE_URL,
+#   NUXT_PUBLIC_REVERB_HOST, NUXT_PUBLIC_REVERB_PORT, NUXT_PUBLIC_REVERB_SCHEME
+# Secrets: DOCKERHUB_TOKEN, NUXT_PUBLIC_REVERB_APP_KEY,
+#   NUXT_PUBLIC_ENV_SWITCHER_PASSWORD
+#
+# ATTENZIONE: i NUXT_* sono compilati DENTRO il bundle. Un'immagine = un
+# ambiente: cambiare una variabile richiede un nuovo build.
+# ==============================================================================
+name: Docker publish
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-push:
+    runs-on: docker-29-cli
+    env:
+      IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/matches-dashboard
+    steps:
+      # docker:29-cli è alpine: senza git il checkout ripiega sul download via API.
+      - name: Install git
+        run: apk add --no-cache git
+
+      - name: Checkout
+        uses: https://data.forgejo.org/actions/checkout@v6
+
+      # Preflight: fallisce subito e in chiaro se il daemon non è raggiungibile.
+      - name: Check Docker daemon
+        run: docker version
+
+      - name: Resolve tag
+        run: echo "SHORT_SHA=$(echo "$GITHUB_SHA" | cut -c1-7)" >> "$GITHUB_ENV"
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ vars.DOCKERHUB_USERNAME }}" --password-stdin
+
+      # buildx (non `docker build`): il Dockerfile usa `# syntax=` e una cache
+      # mount, quindi serve BuildKit. Il context è la ROOT del repo.
+      # I build-arg vuoti degradano sui default del Dockerfile.
+      - name: Build and push
+        run: |
+          docker buildx build \
+            -f docker/production/Dockerfile \
+            -t "$IMAGE:latest" \
+            -t "$IMAGE:$SHORT_SHA" \
+            --build-arg NUXT_BASE_URL="${{ vars.NUXT_BASE_URL }}" \
+            --build-arg NUXT_PUBLIC_REVERB_HOST="${{ vars.NUXT_PUBLIC_REVERB_HOST }}" \
+            --build-arg NUXT_PUBLIC_REVERB_PORT="${{ vars.NUXT_PUBLIC_REVERB_PORT }}" \
+            --build-arg NUXT_PUBLIC_REVERB_SCHEME="${{ vars.NUXT_PUBLIC_REVERB_SCHEME }}" \
+            --build-arg NUXT_PUBLIC_REVERB_APP_KEY="${{ secrets.NUXT_PUBLIC_REVERB_APP_KEY }}" \
+            --build-arg NUXT_PUBLIC_ENV_SWITCHER_PASSWORD="${{ secrets.NUXT_PUBLIC_ENV_SWITCHER_PASSWORD }}" \
+            --push \
+            .
+
+      - name: Logout
+        if: always()
+        run: docker logout

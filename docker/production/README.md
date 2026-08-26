@@ -56,9 +56,31 @@ consentiti da Reverb.
 
 ## In CI/CD
 
+La pipeline vive in **`.forgejo/workflows/docker-publish.yml`**: a ogni push su `main`
+(o via `workflow_dispatch`) builda questa immagine e la pubblica su Docker Hub come
+`<DOCKERHUB_USERNAME>/matches-dashboard:latest` + `:<short-sha>`. Gira sul runner con
+label `docker-29-cli`.
+
+Da configurare nel pannello Forgejo:
+
+| Nome                                | Tipo     |
+| ----------------------------------- | -------- |
+| `DOCKERHUB_USERNAME`                | Variable |
+| `DOCKERHUB_TOKEN`                   | Secret   |
+| `NUXT_BASE_URL`                     | Variable |
+| `NUXT_PUBLIC_REVERB_HOST`           | Variable |
+| `NUXT_PUBLIC_REVERB_PORT`           | Variable |
+| `NUXT_PUBLIC_REVERB_SCHEME`         | Variable |
+| `NUXT_PUBLIC_REVERB_APP_KEY`        | Secret   |
+| `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` | Secret   |
+
+Un `NUXT_*` non definito degrada sul default dell'`ARG` nel Dockerfile, non rompe il
+build. Il login usa comunque `--password-stdin`, così il token non finisce in una riga
+di comando nei log.
+
 Il build ha bisogno di **BuildKit** (per la cache mount di pnpm) e di un context alla
 root del repo. Ogni ambiente è un'immagine diversa, quindi i `--build-arg` vanno
-passati dai secret/variable della pipeline, non dal repo.
+passati dai secret/variable della pipeline, non dal repo. A mano:
 
 ```bash
 DOCKER_BUILDKIT=1 docker build \
