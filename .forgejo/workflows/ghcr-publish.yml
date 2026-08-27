@@ -3,6 +3,11 @@
 #
 # Gemello di docker-publish.yml (ora disattivato: solo workflow_dispatch).
 #
+# Trigger: SOLO alla pubblicazione di una release (non piu' su push a main).
+# Tag pubblicati: `latest` + il titolo della release (fallback: il tag della
+# release), normalizzato a caratteri validi per un tag Docker. Su avvio
+# manuale, dove la release non esiste, si ripiega sullo short SHA.
+#
 # Runner: label `docker-29-cli` → il job gira in un'immagine docker:29-cli
 # (CLI + buildx, daemon raggiunto via socket dell'host). Nessuna node action
 # oltre a checkout, così il workflow non dipende da mirror di docker/*-action.
@@ -18,8 +23,8 @@
 name: GHCR publish
 
 on:
-  push:
-    branches: [main]
+  release:
+    types: [published]
   workflow_dispatch:
 
 jobs:
@@ -40,9 +45,16 @@ jobs:
 
       # ghcr.io accetta solo path minuscoli, la variabile può non esserlo.
       - name: Resolve image and tag
+        env:
+          RELEASE_TITLE: ${{ github.event.release.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           echo "IMAGE=ghcr.io/$(echo "${{ vars.GHCR_USERNAME }}" | tr '[:upper:]' '[:lower:]')/matches-dashboard" >> "$GITHUB_ENV"
-          echo "SHORT_SHA=$(echo "$GITHUB_SHA" | cut -c1-7)" >> "$GITHUB_ENV"
+          # Un tag Docker ammette [A-Za-z0-9_.-], max 128 char, e non puo'
+          # iniziare con . o -: il titolo della release va normalizzato.
+          RAW="${RELEASE_TITLE:-${RELEASE_TAG:-$(echo "$GITHUB_SHA" | cut -c1-7)}}"
+          VERSION_TAG=$(printf '%s' "$RAW" | tr -c 'A-Za-z0-9_.-' '-' | sed 's/^[.-]*//' | cut -c1-128)
+          echo "VERSION_TAG=${VERSION_TAG:-$(echo "$GITHUB_SHA" | cut -c1-7)}" >> "$GITHUB_ENV"
 
       - name: Login to GHCR
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ vars.GHCR_USERNAME }}" --password-stdin
@@ -55,7 +67,7 @@ jobs:
           docker buildx build \
             -f docker/production/Dockerfile \
             -t "$IMAGE:latest" \
-            -t "$IMAGE:$SHORT_SHA" \
+            -t "$IMAGE:$VERSION_TAG" \
             --build-arg NUXT_BASE_URL="${{ vars.NUXT_BASE_URL }}" \
             --build-arg NUXT_PUBLIC_REVERB_HOST="${{ vars.NUXT_PUBLIC_REVERB_HOST }}" \
             --build-arg NUXT_PUBLIC_REVERB_PORT="${{ vars.NUXT_PUBLIC_REVERB_PORT }}" \
