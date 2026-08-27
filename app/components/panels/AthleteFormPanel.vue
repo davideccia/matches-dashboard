@@ -153,7 +153,7 @@ watch(open, async (val) => {
       state.birth_date = serverDateOnlyToInput(item.birth_date)
       state.gender = item.gender ?? 'male'
       state.tax_number = item.tax_number ?? ''
-      state.email = item.email ?? ''
+      state.email = item.email
       state.team_name = item.team_name ?? ''
       state.generic_match_records_count = item.generic_match_records_count ?? null
       state.registered_match_records_count = item.registered_match_records_count ?? null
@@ -208,7 +208,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     state.birth_date = serverDateOnlyToInput(saved.birth_date)
     state.gender = saved.gender ?? 'male'
     state.tax_number = saved.tax_number ?? ''
-    state.email = saved.email ?? ''
+    state.email = saved.email
     state.team_name = saved.team_name ?? ''
     state.generic_match_records_count = saved.generic_match_records_count ?? null
     state.registered_match_records_count = saved.registered_match_records_count ?? null
