@@ -425,7 +425,19 @@
     "notSelected": "—",
     "privacyLabel": "Ho letto e accetto la",
     "privacyLink": "privacy policy",
-    "privacyRequired": "Devi accettare la privacy policy per procedere"
+    "privacyRequired": "Devi accettare la privacy policy per procedere",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Inserisci la tua email",
+    "athleteNoMatch": "Nessuna corrispondenza trovata. Se sei già registrato controlla l'email inserita, altrimenti prosegui: creeremo una nuova anagrafica.",
+    "sendCode": "Invia codice",
+    "resendCode": "Rinvia codice",
+    "resendCodeIn": "Rinvia codice fra {n}s",
+    "codeSentTitle": "Codice inviato",
+    "codeSentHint": "Abbiamo inviato un codice a 6 cifre alla tua email. Scade fra 10 minuti.",
+    "codeLabel": "Codice di verifica",
+    "codePlaceholder": "000000",
+    "confirmRegistration": "Conferma iscrizione",
+    "emailInvalid": "Inserisci un indirizzo email valido"
   },
   "fileUpload": {
     "upload": "Carica file",

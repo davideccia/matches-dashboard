@@ -425,7 +425,19 @@
     "notSelected": "—",
     "privacyLabel": "I have read and accept the",
     "privacyLink": "privacy policy",
-    "privacyRequired": "You must accept the privacy policy to proceed"
+    "privacyRequired": "You must accept the privacy policy to proceed",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "athleteNoMatch": "No match found. If you are already registered, check the email you entered; otherwise continue: we will create a new profile.",
+    "sendCode": "Send code",
+    "resendCode": "Resend code",
+    "resendCodeIn": "Resend code in {n}s",
+    "codeSentTitle": "Code sent",
+    "codeSentHint": "We sent a 6-digit code to your email. It expires in 10 minutes.",
+    "codeLabel": "Verification code",
+    "codePlaceholder": "000000",
+    "confirmRegistration": "Confirm registration",
+    "emailInvalid": "Enter a valid email address"
   },
   "fileUpload": {
     "upload": "Upload file",

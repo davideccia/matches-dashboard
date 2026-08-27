@@ -66,11 +66,26 @@
             />
           </UFormField>
 
+          <UFormField
+            :label="t('register.emailLabel')"
+            required
+            :error="emailInput.trim() && !isEmailValid ? t('register.emailInvalid') : undefined"
+          >
+            <UInput
+              v-model="emailInput"
+              type="email"
+              size="lg"
+              class="w-full"
+              :placeholder="t('register.emailPlaceholder')"
+              @keydown.enter="onStep1Next"
+            />
+          </UFormField>
+
           <UButton
             size="lg"
             class="w-full"
             :loading="taxLookupLoading"
-            :disabled="!taxNumberInput.trim()"
+            :disabled="!taxNumberInput.trim() || !isEmailValid"
             trailing-icon="i-mdi-arrow-right"
             @click="onStep1Next"
           >
@@ -101,7 +116,7 @@
             color="info"
             variant="soft"
             icon="i-mdi-account-plus"
-            :description="t('register.athleteNotFound')"
+            :description="t('register.athleteNoMatch')"
           />
 
           <UForm :schema="athleteSchema" :state="athleteState" class="space-y-4" @submit="onStep2Submit">
@@ -144,6 +159,16 @@
               <UInput v-model="athleteState.team_name" size="lg" class="w-full" :disabled="!isNewAthlete" />
             </UFormField>
 
+            <UFormField name="email" :label="t('register.emailLabel')" required>
+              <UInput
+                v-model="athleteState.email"
+                type="email"
+                size="lg"
+                class="w-full"
+                :disabled="!isNewAthlete"
+              />
+            </UFormField>
+
             <div class="flex gap-3 pt-2">
               <UButton
                 size="lg"
@@ -161,7 +186,6 @@
                 class="flex-1"
                 trailing-icon="i-mdi-arrow-right"
                 type="submit"
-                :loading="step2Submitting"
               >
                 {{ t('register.next') }}
               </UButton>
@@ -358,6 +382,7 @@
               variant="solid"
               leading-icon="i-mdi-download"
               :loading="downloadingPdf"
+              :disabled="!pdfUrl"
               @click="downloadPdf"
             >
               {{ t('register.downloadRegistration') }}
@@ -435,6 +460,46 @@
             </span>
           </label>
 
+          <!-- Verifica in due fasi: invio codice → conferma -->
+          <template v-if="codeSent">
+            <UAlert
+              color="info"
+              variant="soft"
+              icon="i-mdi-email-fast-outline"
+              :title="t('register.codeSentTitle')"
+              :description="t('register.codeSentHint')"
+            />
+
+            <div class="rounded-2xl bg-elevated border border-default p-6 space-y-4">
+              <UFormField :label="t('register.codeLabel')" required>
+                <UInput
+                  :model-value="verificationCode"
+                  size="lg"
+                  class="w-full font-mono tracking-[0.5em]"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  maxlength="6"
+                  :placeholder="t('register.codePlaceholder')"
+                  @update:model-value="(v) => verificationCode = String(v).replace(/\D/g, '').slice(0, 6)"
+                  @keydown.enter="submit"
+                />
+              </UFormField>
+
+              <UButton
+                size="lg"
+                variant="link"
+                color="neutral"
+                class="px-0"
+                :disabled="resendCooldown > 0 || sendingCode"
+                :loading="sendingCode"
+                leading-icon="i-mdi-refresh"
+                @click="sendVerificationCode"
+              >
+                {{ resendCooldown > 0 ? t('register.resendCodeIn', { n: resendCooldown }) : t('register.resendCode') }}
+              </UButton>
+            </div>
+          </template>
+
           <div class="flex gap-3">
             <UButton
               size="lg"
@@ -447,14 +512,26 @@
               {{ t('register.back') }}
             </UButton>
             <UButton
+              v-if="!codeSent"
+              size="lg"
+              class="flex-1"
+              :loading="sendingCode"
+              :disabled="!privacyConsent"
+              trailing-icon="i-mdi-email-arrow-right-outline"
+              @click="sendVerificationCode"
+            >
+              {{ t('register.sendCode') }}
+            </UButton>
+            <UButton
+              v-else
               size="lg"
               class="flex-1"
               :loading="submitting"
-              :disabled="!privacyConsent"
+              :disabled="!privacyConsent || verificationCode.length !== 6"
               trailing-icon="i-mdi-send"
               @click="submit"
             >
-              {{ t('register.submit') }}
+              {{ t('register.confirmRegistration') }}
             </UButton>
           </div>
         </template>
@@ -514,6 +591,8 @@ const stepperItems = computed<StepperItem[]>(() => [
 
 // ── Step 1: Codice fiscale ───────────────────────────────────────────────────
 const taxNumberInput = ref('')
+const emailInput = ref('')
+const isEmailValid = computed(() => z.email().safeParse(emailInput.value.trim()).success)
 const taxLookupLoading = ref(false)
 
 const existingAthlete = ref<Athlete | null>(null)
@@ -526,14 +605,23 @@ const athleteState = reactive({
   gender: 'male' as Gender,
   tax_number: '',
   team_name: '',
+  email: '',
 })
 
 async function onStep1Next() {
-  if (!taxNumberInput.value.trim()) { return }
+  const taxNumber = taxNumberInput.value.trim().toUpperCase()
+  const email = emailInput.value.trim()
+  if (!taxNumber || !isEmailValid.value) { return }
+
+  // Il CF ed l'email non tornano mai nella risposta: restano quelli digitati.
+  athleteState.tax_number = taxNumber
+  athleteState.email = email
+
   taxLookupLoading.value = true
   try {
-    const res = await apiGet<{ data: Athlete }>(
-      `/api/public/registration_form/athletes/${taxNumberInput.value.trim().toUpperCase()}`,
+    const res = await apiPost<{ data: Athlete }>(
+      '/api/public/registration_form/athletes/lookup',
+      { tax_number: taxNumber, email },
     )
     existingAthlete.value = res.data
     isNewAthlete.value = false
@@ -541,16 +629,16 @@ async function onStep1Next() {
     athleteState.last_name = res.data.last_name
     athleteState.birth_date = serverDateOnlyToInput(res.data.birth_date)
     athleteState.gender = res.data.gender
-    athleteState.tax_number = res.data.tax_number ?? taxNumberInput.value.trim().toUpperCase()
     athleteState.team_name = res.data.team_name ?? ''
   } catch {
+    // Il 400 è volutamente indistinguibile fra CF sconosciuto ed email errata:
+    // si prosegue come nuova anagrafica, avvisando che potrebbe essere un typo.
     existingAthlete.value = null
     isNewAthlete.value = true
     athleteState.first_name = ''
     athleteState.last_name = ''
     athleteState.birth_date = ''
     athleteState.gender = 'male' as Gender
-    athleteState.tax_number = taxNumberInput.value.trim().toUpperCase()
     athleteState.team_name = ''
   } finally {
     taxLookupLoading.value = false
@@ -559,9 +647,6 @@ async function onStep1Next() {
 }
 
 // ── Step 2: Dati atleta ──────────────────────────────────────────────────────
-const step2Submitting = ref(false)
-const savedAthleteId = ref<string | null>(null)
-
 const athleteSchema = z.object({
   first_name: z.string().min(1),
   last_name: z.string().min(1),
@@ -569,6 +654,7 @@ const athleteSchema = z.object({
   gender: z.enum(['male', 'female', 'hybrid'] as const),
   tax_number: z.string().min(1),
   team_name: z.string().min(1),
+  email: z.email(),
 })
 
 const genderOptions = computed(() => [
@@ -576,33 +662,18 @@ const genderOptions = computed(() => [
   { label: t('athlete.gender.female'), value: 'female' },
 ])
 
-async function onStep2Submit(event: FormSubmitEvent<z.infer<typeof athleteSchema>>) {
+// Nessuna chiamata API: l'atleta viene creato (o riusato) da POST registrations.
+function onStep2Submit(event: FormSubmitEvent<z.infer<typeof athleteSchema>>) {
   athleteState.first_name = event.data.first_name
   athleteState.last_name = event.data.last_name
   athleteState.birth_date = event.data.birth_date
   athleteState.gender = event.data.gender
   athleteState.tax_number = event.data.tax_number
   athleteState.team_name = event.data.team_name ?? ''
+  athleteState.email = event.data.email
 
-  step2Submitting.value = true
-  try {
-    const res = await apiPost<{ data: { id: string } }>('/api/public/registration_form/athletes', {
-      first_name: athleteState.first_name,
-      last_name: athleteState.last_name,
-      birth_date: athleteState.birth_date,
-      gender: athleteState.gender,
-      tax_number: athleteState.tax_number,
-      team_name: athleteState.team_name || null,
-    })
-    savedAthleteId.value = res.data.id
-    stepperRef.value?.next()
-    loadStep3Data()
-  } catch (e: unknown) {
-    const message = (e as { data?: { message?: string } })?.data?.message
-    toast.add({ title: message ?? t('common.error'), color: 'error' })
-  } finally {
-    step2Submitting.value = false
-  }
+  stepperRef.value?.next()
+  loadStep3Data()
 }
 
 // ── Step 3: Torneo, Disciplina, Categoria di peso ────────────────────────────
@@ -725,21 +796,73 @@ const privacyConsent = ref(false)
 const submitting = ref(false)
 const submitted = ref(false)
 const registrationId = ref<string | null>(null)
+const pdfUrl = ref<string | null>(null)
 const downloadingPdf = ref(false)
+
+// ── Verifica via codice OTP ──────────────────────────────────────────────────
+const RESEND_COOLDOWN_S = 60
+
+const codeSent = ref(false)
+const verificationCode = ref('')
+const sendingCode = ref(false)
+const resendCooldown = ref(0)
+let resendTimer: ReturnType<typeof setInterval> | undefined
+
+function startResendCooldown() {
+  clearInterval(resendTimer)
+  resendCooldown.value = RESEND_COOLDOWN_S
+  resendTimer = setInterval(() => {
+    resendCooldown.value--
+    if (resendCooldown.value <= 0) { clearInterval(resendTimer) }
+  }, 1000)
+}
+
+/**
+ * Risponde sempre 204: non sappiamo (e non dobbiamo dire) se il codice sia
+ * stato davvero inviato, né a quale indirizzo — per un atleta già registrato
+ * il codice va all'email a DB, che può differire da quella digitata.
+ */
+async function sendVerificationCode() {
+  sendingCode.value = true
+  try {
+    await apiPost<void>('/api/public/registration_form/verification_code', {
+      tax_number: athleteState.tax_number,
+      email: athleteState.email,
+    })
+    codeSent.value = true
+    startResendCooldown()
+  } catch (e: unknown) {
+    const message = (e as { data?: { message?: string } })?.data?.message
+    toast.add({ title: message ?? t('common.error'), color: 'error' })
+  } finally {
+    sendingCode.value = false
+  }
+}
 
 async function submit() {
   submitting.value = true
   try {
-    const regRes = await apiPost<{ data: { id: string } }>('/api/public/registration_form/registrations', {
-      athlete_id: savedAthleteId.value,
-      tournament_id: selectedTournamentId.value,
-      discipline_id: selectedDisciplineId.value,
-      weight_category_id: selectedWeightCategoryId.value,
-      notes: null,
-    })
+    const regRes = await apiPost<{ data: { id: string, pdf_url: string } }>(
+      '/api/public/registration_form/registrations',
+      {
+        tax_number: athleteState.tax_number,
+        email: athleteState.email,
+        code: verificationCode.value,
+        first_name: athleteState.first_name,
+        last_name: athleteState.last_name,
+        birth_date: athleteState.birth_date,
+        gender: athleteState.gender,
+        team_name: athleteState.team_name || null,
+        tournament_id: selectedTournamentId.value,
+        discipline_id: selectedDisciplineId.value,
+        weight_category_id: selectedWeightCategoryId.value,
+      },
+    )
     registrationId.value = regRes.data.id
+    pdfUrl.value = regRes.data.pdf_url
     submitted.value = true
   } catch (e: unknown) {
+    // Niente reset: il codice può essere sbagliato e va lasciato ricorreggibile.
     const message = (e as { data?: { message?: string } })?.data?.message
     toast.add({ title: message ?? t('common.error'), color: 'error' })
   } finally {
@@ -748,13 +871,12 @@ async function submit() {
 }
 
 async function downloadPdf() {
-  if (!registrationId.value) { return }
+  if (!pdfUrl.value) { return }
   downloadingPdf.value = true
   try {
-    const blob = await $fetch<Blob>(
-      `/api/public/registration_form/registrations/${registrationId.value}/pdf`,
-      { baseURL: apiConfig.value.baseUrl, responseType: 'blob', headers: apiHeaders() },
-    )
+    // URL assoluto e già firmato: aggiungere baseURL o ricostruire il path
+    // invaliderebbe la firma (403).
+    const blob = await $fetch<Blob>(pdfUrl.value, { responseType: 'blob' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -773,12 +895,17 @@ function resetForm() {
   submitted.value = false
   privacyConsent.value = false
   registrationId.value = null
-  savedAthleteId.value = null
+  pdfUrl.value = null
+  codeSent.value = false
+  verificationCode.value = ''
+  clearInterval(resendTimer)
+  resendCooldown.value = 0
   currentStep.value = 0
   taxNumberInput.value = ''
+  emailInput.value = ''
   existingAthlete.value = null
   isNewAthlete.value = false
-  Object.assign(athleteState, { first_name: '', last_name: '', birth_date: '', gender: 'male' as Gender, tax_number: '', team_name: '' })
+  Object.assign(athleteState, { first_name: '', last_name: '', birth_date: '', gender: 'male' as Gender, tax_number: '', team_name: '', email: '' })
   selectedTournamentId.value = null
   selectedDisciplineId.value = null
   selectedWeightCategoryId.value = null
@@ -791,5 +918,6 @@ onBeforeUnmount(() => {
   clearTimeout(tournamentSearchTimer)
   clearTimeout(disciplineSearchTimer)
   clearTimeout(weightCategorySearchTimer)
+  clearInterval(resendTimer)
 })
 </script>
