@@ -231,6 +231,7 @@
     "lastName": "Cognome",
     "birthDate": "Data di nascita",
     "taxNumber": "Codice fiscale",
+    "email": "Indirizzo email",
     "team": "Team",
     "teamName": "Team",
     "genericMatchRecordsCount": "Match pregressi (§MP)",

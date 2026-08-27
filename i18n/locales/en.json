@@ -231,6 +231,7 @@
     "lastName": "Last name",
     "birthDate": "Date of birth",
     "taxNumber": "Tax number",
+    "email": "Email address",
     "team": "Team",
     "teamName": "Team",
     "genericMatchRecordsCount": "Prior matches (§PM)",

@@ -31,6 +31,10 @@
           <UInput v-model="state.tax_number" class="w-full" />
         </UFormField>
 
+        <UFormField name="email" :label="t('athlete.email')" required>
+          <UInput v-model="state.email" type="email" class="w-full" />
+        </UFormField>
+
         <UFormField name="team_name" :label="t('athlete.teamName')">
           <UInput v-model="state.team_name" class="w-full" />
         </UFormField>
@@ -118,6 +122,7 @@ const schema = z.object({
   birth_date: z.string().min(1),
   gender: z.enum(GENDERS),
   tax_number: z.string().min(1),
+  email: z.email(),
   team_name: z.string().optional(),
   generic_match_records_count: z.coerce.number().int().min(0).nullable().optional(),
 })
@@ -128,6 +133,7 @@ const state = reactive({
   birth_date: '',
   gender: 'male' as Gender,
   tax_number: '',
+  email: '',
   team_name: '',
   generic_match_records_count: null as number | null,
   registered_match_records_count: null as number | null,
@@ -147,6 +153,7 @@ watch(open, async (val) => {
       state.birth_date = serverDateOnlyToInput(item.birth_date)
       state.gender = item.gender ?? 'male'
       state.tax_number = item.tax_number ?? ''
+      state.email = item.email ?? ''
       state.team_name = item.team_name ?? ''
       state.generic_match_records_count = item.generic_match_records_count ?? null
       state.registered_match_records_count = item.registered_match_records_count ?? null
@@ -163,6 +170,7 @@ watch(open, async (val) => {
     state.birth_date = ''
     state.gender = 'male'
     state.tax_number = ''
+    state.email = ''
     state.team_name = ''
     state.generic_match_records_count = null
     state.registered_match_records_count = null
@@ -181,6 +189,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       birth_date: event.data.birth_date,
       gender: event.data.gender,
       tax_number: event.data.tax_number,
+      email: event.data.email,
       team_name: event.data.team_name || null,
       generic_match_records_count: event.data.generic_match_records_count ?? null,
     }
@@ -199,6 +208,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     state.birth_date = serverDateOnlyToInput(saved.birth_date)
     state.gender = saved.gender ?? 'male'
     state.tax_number = saved.tax_number ?? ''
+    state.email = saved.email ?? ''
     state.team_name = saved.team_name ?? ''
     state.generic_match_records_count = saved.generic_match_records_count ?? null
     state.registered_match_records_count = saved.registered_match_records_count ?? null
