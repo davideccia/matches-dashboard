@@ -17,6 +17,14 @@
 # Secrets: GHCR_TOKEN (PAT con scope write:packages),
 #   NUXT_PUBLIC_REVERB_APP_KEY, NUXT_PUBLIC_ENV_SWITCHER_PASSWORD
 #
+# NB: NUXT_PUBLIC_REVERB_APP_KEY e NUXT_PUBLIC_ENV_SWITCHER_PASSWORD stanno fra i
+# secrets solo per comodità di gestione: NON sono confidenziali. Essendo NUXT_PUBLIC_*
+# finiscono in chiaro nel payload di index.html, leggibili da chiunque apra il sorgente.
+# La app key di Reverb è un identificativo pubblico by design (l'autorizzazione dei canali
+# privati passa dall'API); la password dell'env-switcher è offuscamento, non un controllo
+# d'accesso. Non riusarle altrove e non fondarci nessuna assunzione di riservatezza.
+# Vedi docs/security-issues/README.md #11 e #6.
+#
 # ATTENZIONE: i NUXT_* sono compilati DENTRO il bundle. Un'immagine = un
 # ambiente: cambiare una variabile richiede un nuovo build.
 # ==============================================================================

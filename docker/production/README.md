@@ -73,15 +73,15 @@ add_header X-Robots-Tag "noindex, nofollow" always;
 
 Cosa fa ognuno, e perché serve **a questa** app:
 
-| Header | Dice al browser | Impedisce |
-| --- | --- | --- |
-| `Content-Security-Policy` | da dove può caricare script e verso chi può connettersi | l'esecuzione di JavaScript iniettato (XSS) — vedi la nota sul token qui sotto |
-| `frame-ancestors 'none'` (dentro la CSP) | nessun sito può incorporare la dashboard in un iframe | clickjacking: un sito terzo che sovrappone la dashboard invisibile e fa cliccare azioni admin |
-| `X-Content-Type-Options: nosniff` | fidati del `Content-Type` dichiarato, non indovinarlo | un upload servito come immagine ma eseguito come script |
-| `Referrer-Policy` | non rivelare l'URL di partenza uscendo verso altri domini | fuga di URL interni (`/admin/tournaments/42`) verso siti terzi |
-| `Strict-Transport-Security` | da adesso parlami solo in https | il downgrade a http su una rete non fidata |
-| `Permissions-Policy` | niente camera, microfono, geolocalizzazione | uso di API sensibili che l'app non chiede mai |
-| `X-Robots-Tag` | non indicizzare nulla di questo sito | i nomi degli atleti (anche minori) nei risultati di ricerca — vedi `docs/security-issues` #7. Ridondante con `public/robots.txt` e col `noindex` in `nuxt.config.ts`, ma è il solo presidio che non dipende da un file servito o dall'HTML |
+| Header                                   | Dice al browser                                           | Impedisce                                                                                                                                                                                                                                  |
+| ---------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Content-Security-Policy`                | da dove può caricare script e verso chi può connettersi   | l'esecuzione di JavaScript iniettato (XSS) — vedi la nota sul token qui sotto                                                                                                                                                              |
+| `frame-ancestors 'none'` (dentro la CSP) | nessun sito può incorporare la dashboard in un iframe     | clickjacking: un sito terzo che sovrappone la dashboard invisibile e fa cliccare azioni admin                                                                                                                                              |
+| `X-Content-Type-Options: nosniff`        | fidati del `Content-Type` dichiarato, non indovinarlo     | un upload servito come immagine ma eseguito come script                                                                                                                                                                                    |
+| `Referrer-Policy`                        | non rivelare l'URL di partenza uscendo verso altri domini | fuga di URL interni (`/admin/tournaments/42`) verso siti terzi                                                                                                                                                                             |
+| `Strict-Transport-Security`              | da adesso parlami solo in https                           | il downgrade a http su una rete non fidata                                                                                                                                                                                                 |
+| `Permissions-Policy`                     | niente camera, microfono, geolocalizzazione               | uso di API sensibili che l'app non chiede mai                                                                                                                                                                                              |
+| `X-Robots-Tag`                           | non indicizzare nulla di questo sito                      | i nomi degli atleti (anche minori) nei risultati di ricerca — vedi `docs/security-issues` #7. Ridondante con `public/robots.txt` e col `noindex` in `nuxt.config.ts`, ma è il solo presidio che non dipende da un file servito o dall'HTML |
 
 **Perché la CSP è la più importante.** Il token Bearer sta in un cookie leggibile da
 JavaScript, e non è evitabile: in `mode: 'token'` il client deve leggerlo per comporre
@@ -95,7 +95,7 @@ Due scelte deliberate nello snippet sopra:
 - **`connect-src 'self' https: wss:` è volutamente permissivo.** L'app permette di
   ripuntare il base URL a runtime (override `matches.api-override`, requisito operativo:
   ambienti di test, tunnel, IP in LAN). Elencare gli host noti — `connect-src 'self'
-  https://api.matches.it wss://reverb.matches.it` — romperebbe quella funzione. Il prezzo
+https://api.matches.it wss://reverb.matches.it` — romperebbe quella funzione. Il prezzo
   è che la CSP non blocca l'esfiltrazione verso un server arbitrario; resta intatta la
   parte che conta di più, cioè impedire allo script ostile di esistere. Se un giorno
   l'override libero non servisse più, stringere questa direttiva è il primo upgrade.
