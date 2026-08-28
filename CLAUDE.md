@@ -34,7 +34,7 @@ The build is static, so these values are baked into the bundle at **build time**
 | `NUXT_PUBLIC_REVERB_SCHEME`         | `http`                   | `http` or `https`                                                                                                                          |
 | `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` | —                        | Plaintext password unlocking the API environment switcher from `/login`. **Empty ⇒ the gesture is disabled.**                              |
 
-Those six are the **only** environment variables the code reads (`nuxt.config.ts:56-60,93`). `.env.example` also lists `PORT`, which nothing in the app consumes — it is only there for whatever serves the built files.
+Those six are the **only** environment variables the code reads (`nuxt.config.ts:83-87,120`). `.env.example` is out of sync in two ways: it lists `PORT` (nothing in the app consumes it — it is only there for whatever serves the built files) and a comment mentioning `NUXT_PUBLIC_API_BASE`, which no longer exists. `nuxt.config.ts` is the tiebreaker.
 
 ### Runtime override (`useApiConfig`)
 
@@ -70,8 +70,9 @@ The root `/` is **not a redirect** — `app/pages/index.vue` is a landing page w
 
 ### Key composables
 
-- **`useApi()`** — wraps `useSanctumClient()` to add `Accept-Language`. Returns `get`, `post`, `put`, `del`, `upload`, `download`. All admin pages use this. Two things to know: `download()` **bypasses** the Sanctum client (uses `$fetch` with a blob response, reading the token manually from the `sanctum.token.cookie`); and the exported `getApiErrorMessage(e)` extracts the backend's error message and is used in every `catch` block to feed a toast.
+- **`useApi()`** — wraps `useSanctumClient()` to add `Accept-Language`. Returns `get`, `post`, `put`, `del`, `upload`, `download`. All admin pages use this. Two things to know: `download()` **bypasses** the Sanctum client (uses `$fetch` with a blob response, reading the token manually via `useAuthTokenCookie()`); and the exported `getApiErrorMessage(e)` extracts the backend's error message and is used in every `catch` block to feed a toast.
 - **`useAuth()`** — wraps `useSanctumAuth<{ data: User }>()`, unwrapping `{ data }` to expose `user`. Exposes `isAuthenticated`, `login`, `logout`, `fetchUser`. `plugins/auth.ts` hooks `sanctum:logout` → `useUser().clear()` (which calls `refreshNuxtData()`).
+- **`app/utils/authToken.ts`** — replaces `nuxt-auth-sanctum`'s default token storage (wired in `app/app.config.ts` → `sanctum.tokenStorage`). Same cookie name (`sanctum.token.cookie`), but hardened: `sameSite: 'strict'`, explicit `path`, `secure` when the page is https, and `maxAge` pinned to the API's 1-week token TTL. The cookie **cannot** be `httpOnly` — JS has to read it to build the `Authorization` header. Change the cookie's options here, not at the call sites.
 
 ### Admin CRUD pattern
 
@@ -101,7 +102,20 @@ Italian (`it`) is the default locale (no URL prefix); English uses `/en/`. Keys 
 
 ### Domain enums & models
 
-Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GENDERS`, `CLIENT_TYPES`) are typed as `as const` arrays in `app/utils/constants.ts` — import from there instead of hardcoding strings. Domain interfaces are in `app/types/models.ts`; relations (e.g. `red_corner?`, `tournament?`) are optional and present only when the request includes `?with=...` (Laravel eager loading). The authoritative DB schema is `DB.md` (DBML).
+Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GENDERS`, `CLIENT_TYPES`) are typed as `as const` arrays in `app/utils/constants.ts` — import from there instead of hardcoding strings. Domain interfaces are in `app/types/models.ts`; relations (e.g. `red_corner?`, `tournament?`) are optional and present only when the request includes `?with=...` (Laravel eager loading). There is **no `DB.md` in this repo** (an older note claimed one); the authoritative schema lives in the Laravel API repo.
+
+### Security headers & CSP
+
+Split across two places, and **both are Nitro-only** — they run on the Docker target and are absent from a `pnpm generate` build:
+
+- **`nuxt.config.ts` → `routeRules['/**'].headers`** — the static ones: `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, HSTS, `X-Robots-Tag`, and `Cache-Control: no-cache` on HTML (the HTML carries the `runtimeConfig` payload, so caching it means a stale SPA *and* stale config; `/_nuxt/` keeps its own `immutable`).
+- **`server/plugins/csp.ts`** — the CSP, and *only* there. It hooks Nitro's `render:html`, sha256-hashes the three inline scripts Nuxt injects (importmap, color-mode snippet, `window.__NUXT__.config`) and emits `script-src 'self' <hashes>`. Fixed hashes in config would break on every build; `'unsafe-inline'` would void the point. Skipped in dev (Vite needs eval + HMR websocket).
+
+Two consequences worth remembering: **Amplify ships no CSP or headers at all** unless they are replicated in the console; and `app/plugins/zod.ts` exists solely because of this CSP — it sets `z.config({ jitless: true })` so Zod skips its `Function('')` probe and stops logging an `unsafe-eval` violation on every load. `connect-src` is deliberately wide open (`https: wss: http: ws:`) because the runtime API override can repoint the app at any host.
+
+### Shared utils
+
+Before writing a formatting or derivation helper, look in `app/utils/`: `matchRecord.ts` (`cornerInfo()` and friends — corner/athlete/team display, `MISSING_VALUE`), `experienceTier.ts` (`formatTierRange()`), `date.ts`, `constants.ts` (enums + palettes), `authToken.ts`. Most of the "-"-when-missing and half-bout display logic already lives there.
 
 ### Theming
 
@@ -131,7 +145,7 @@ docker build -f docker/production/Dockerfile -t matches-dashboard:prod \
 
 Four things to know:
 
-- **The image serves only the app.** The nginx config that used to live here is gone. Only **TLS** and **compression** belong to the reverse proxy in front of the container; **security headers and `Cache-Control` are sent by Nitro**, declared in `nuxt.config.ts` → `routeRules['/**'].headers` (CSP, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, HSTS, `X-Robots-Tag`, `no-cache` on HTML — `/_nuxt/` keeps its own `immutable`). Kept in the repo on purpose so they are versioned and reviewable. **Do not also set them on the proxy**: nginx `add_header` appends, and a browser given two CSPs applies the intersection, which breaks the app in hard-to-diagnose ways. `docker/production/README.md` has the table of what to switch off on an NPMplus-style panel. Amplify serves static files with no Nitro, so there the headers must be replicated in the console.
+- **The image serves only the app.** The nginx config that used to live here is gone. Only **TLS** and **compression** belong to the reverse proxy in front of the container; the security headers come from Nitro (see [Security headers & CSP](#security-headers--csp)). **Do not also set them on the proxy**: nginx `add_header` appends, and a browser given two CSPs applies the intersection, which breaks the app in hard-to-diagnose ways. `docker/production/README.md` has the table of what to switch off on an NPMplus-style panel.
 - **`.output` is self-contained.** Nitro bundles the dependencies into it, so the runtime stage copies only `.output` and `ecosystem.config.cjs` — no `node_modules`, no pnpm.
 - **`PM2_HOME=/tmp/.pm2`.** PM2 needs a writable dir for its daemon, pid and logs; keeping it under `/tmp` preserves the read-only rootfs (`--read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m`).
 - **`pm2-runtime`, not `pm2 start`.** It stays in the foreground as PID 1 and forwards signals; `pm2 start` exits immediately and the container dies with it.
@@ -147,7 +161,7 @@ Static. **There is no `amplify.yml` in this repo** (it was removed) — the buil
 
 ## Architecture map (`/architecture` route) — currently broken
 
-**`docs/` does not exist.** It was deleted in commit `1747ad5` (`chore(docs): removed`) and is not tracked. It used to hold a generated pair produced by the `repo-architecture-map` skill: `docs/architecture.json` (agent-readable graph) and `docs/architecture.html` (interactive diagram).
+**`docs/` is an empty, untracked directory.** Its contents were deleted in commit `1747ad5` (`chore(docs): removed`) and is not tracked. It used to hold a generated pair produced by the `repo-architecture-map` skill: `docs/architecture.json` (agent-readable graph) and `docs/architecture.html` (interactive diagram).
 
 Consequence: **`app/pages/architecture.vue` still imports `~~/docs/architecture.html?raw`, a file that is no longer there.** Verified by running `nuxt dev` and hitting the route:
 
@@ -165,3 +179,19 @@ The `/architecture` route is **dev-only**. An inline module in `nuxt.config.ts` 
 ## End of session
 
 After every code session run `make lint-fix` (or `pnpm eslint . --fix`) and report any remaining non-auto-fixable errors to the user.
+
+## CI (`.forgejo/workflows/`)
+
+Forgejo Actions, both jobs on the `docker-29-cli` runner label (Docker CLI + buildx, host daemon over the socket; no `docker/*-action` mirrors needed):
+
+- **`ghcr-publish.yml`** — the live one. Triggers on **release published** (plus manual). Tags `latest` + the release title (fallback: release tag, normalised; short SHA on a manual run).
+- **`docker-publish.yml`** — the Docker Hub twin, **disabled**: `workflow_dispatch` only, kept as a fallback.
+
+Both pass the six build-time `NUXT_*` values as `--build-arg` from Forgejo variables/secrets. `NUXT_PUBLIC_REVERB_APP_KEY` and `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` sit in *secrets* for convenience only — being `NUXT_PUBLIC_*` they land in `index.html` in the clear. Don't build any confidentiality assumption on them.
+
+## Repo hygiene notes
+
+- **Code comments are in Italian** (see `server/plugins/csp.ts`, `app/utils/authToken.ts`, `nuxt.config.ts`). Match the surrounding language when editing a file; UI strings always go through i18n keys.
+- **`yarn.lock` is tracked but stale** — pnpm is the package manager (`pnpm-lock.yaml`, `pnpm-workspace.yaml`, `--frozen-lockfile` in the Dockerfile). Never update `yarn.lock`.
+- **`postman/`** holds a collection + environment for the Laravel API — the quickest way to check an endpoint's real shape.
+- **Many files point into the missing `docs/`**: `README.md`, and comments in `nuxt.config.ts`, `server/plugins/csp.ts`, `app/utils/authToken.ts` and both CI workflows cite `docs/security-issues/README.md` for the rationale behind the CSP, the JS-readable token and the public-by-design env vars. That reasoning now exists only in those comments — read them before "fixing" any of it. See also [Architecture map](#architecture-map-architecture-route--currently-broken).
