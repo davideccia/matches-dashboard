@@ -58,7 +58,8 @@ Gli header di sicurezza sono righe che il server allega alla risposta e che il *
 usa per autolimitarsi.
 
 **Li manda l'app, non il proxy.** Stanno in `nuxt.config.ts` → `routeRules['/**'].headers`,
-e Nitro li applica a ogni risposta. La scelta è deliberata: così sono nel repo, versionati
+e Nitro li applica a ogni risposta. **Tranne la CSP**, che è calcolata a runtime da
+`server/plugins/csp.ts` — vedi «La CSP ha bisogno degli hash» qui sotto. La scelta è deliberata: così sono nel repo, versionati
 e rivedibili in code review, invece di vivere solo in una config di infrastruttura che
 nessuno può controllare guardando il codice — che era il rilievo del punto #3 dell'audit.
 
@@ -96,6 +97,50 @@ https://api.matches.it wss://reverb.matches.it` — romperebbe quella funzione. 
 - **`style-src 'unsafe-inline'` è debito, non un default.** Oggi serve a Nuxt UI /
   Tailwind. Va rimosso appena possibile, non copiato altrove.
 
+### La CSP ha bisogno degli hash
+
+Nuxt inietta nell'HTML tre `<script>` **inline** che non si possono togliere: l'importmap,
+lo snippet di `@nuxtjs/color-mode` e `window.__NUXT__.config` (il payload di
+`runtimeConfig`). Un `script-src 'self'` secco li blocca e **la app non parte**:
+
+```
+CSP: blocked an inline script (script-src-elem) … violates “script-src 'self'”
+```
+
+Le due scorciatoie sono entrambe sbagliate: `'unsafe-inline'` vanifica la CSP (che è
+l'unica mitigazione del token leggibile da JS, `docs/security-issues` #1), e hash fissi in
+configurazione si rompono a ogni build, perché quegli script contengono il nome hashato
+dell'entry e i valori di ambiente.
+
+Quindi `server/plugins/csp.ts` si aggancia all'hook Nitro `render:html`, calcola lo sha256
+di ogni inline script eseguibile dell'HTML appena reso e compone `script-src` con quegli
+hash. Passano esattamente quei tre script; un `<script>` iniettato resta bloccato. Non c'è
+niente da mantenere a mano: gli hash seguono il build.
+
+**In sviluppo la CSP non viene applicata** (`import.meta.dev` → il plugin esce subito):
+Vite inietta i propri script e l'HMR ha bisogno di `eval` e websocket. Corollario: una
+violazione di CSP **non si vede con `nuxt dev`**, solo sul build. Per provarla in locale:
+
+```bash
+pnpm build && node .output/server/index.mjs   # poi apri la console del browser
+```
+
+### Due cose imparate a colpi di console
+
+- **`connect-src` include anche `http:` e `ws:`.** Sembra troppo largo, e lo è: ma l'override
+  del base URL punta host che in test o in LAN parlano http/ws, non solo https/wss.
+  Restringerlo rompe quella funzione. Questa direttiva è di fatto decorativa; il valore
+  della CSP sta in `script-src`.
+- **Zod fa una prova con `Function('')`** per decidere se può compilare gli schemi. Sotto CSP
+  la prova viene bloccata: Zod ripiega correttamente sul validatore interpretato, ma il
+  browser logga una violazione `unsafe-eval` a ogni caricamento. `app/plugins/zod.ts`
+  dichiara `jitless: true` e salta la prova — stesso comportamento, console pulita.
+  **Non aggiungere `'unsafe-eval'`**: non serviva.
+
+Leggendo la console, ricorda che **le estensioni del browser generano violazioni proprie**
+(`content.js`, `utils.js`, `background.js`, `moz-extension://…`). Sono normali e non
+riguardano l'app: prima di inseguirle, riprova in una finestra privata senza estensioni.
+
 ### Cosa NON aggiungere sul proxy
 
 Se il proxy ne aggiunge di suoi si ottengono **header duplicati** (nginx `add_header`
@@ -123,9 +168,18 @@ Se una riga appare due volte, la fonte in eccesso è il proxy: va spenta lì, no
 
 ### Amplify
 
-Amplify serve file statici: **non c'è Nitro, quindi i `routeRules` non vengono applicati**.
-Lì gli header vanno replicati a mano nella console (App settings → Custom headers), con gli
-stessi valori del `nuxt.config.ts`:
+Amplify serve file statici: **non c'è Nitro, quindi né i `routeRules` né
+`server/plugins/csp.ts` vengono applicati**. Lì gli header vanno messi a mano nella console
+(App settings → Custom headers).
+
+⚠️ **La CSP su Amplify è il punto scomodo:** senza il plugin non c'è nessuno che calcoli gli
+hash, e `pnpm generate` li cambia a ogni build. Le opzioni sono: rileggere gli hash dopo ogni
+build dall'`index.html` generato e aggiornare la console (manutenzione a mano, si rompe in
+silenzio), oppure accettare `script-src 'self' 'unsafe-inline'` **solo lì**, sapendo che su
+quel target la CSP non protegge dall'XSS. Se Amplify è un ambiente di serio utilizzo, la
+scelta pulita è servirlo dall'immagine Docker.
+
+Gli altri header, invariati rispetto al `nuxt.config.ts`:
 
 ```yaml
 customHeaders:

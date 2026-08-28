@@ -49,13 +49,14 @@ export default defineNuxtConfig({
   },
 
   // Header di sicurezza applicati da Nitro a ogni risposta (target Docker).
+  // La CSP NON è qui: ha bisogno degli hash degli inline script di Nuxt, che
+  // cambiano a ogni build — la calcola `server/plugins/csp.ts`.
   // Stanno qui e non solo sul reverse proxy così sono versionati e rivedibili:
   // vedi docs/security-issues/README.md #3. Su Amplify (build statica, nessun
   // server Nitro) vanno replicati nella console — vedi docker/production/README.md.
   routeRules: {
     '/**': {
       headers: {
-        'Content-Security-Policy': 'default-src \'self\'; base-uri \'self\'; object-src \'none\'; frame-ancestors \'none\'; script-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:; font-src \'self\' data:; connect-src \'self\' https: wss:',
         'X-Content-Type-Options': 'nosniff',
         'Referrer-Policy': 'strict-origin-when-cross-origin',
         'X-Robots-Tag': 'noindex, nofollow',
