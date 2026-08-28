@@ -36,15 +36,14 @@ Il container gira come utente `node` (uid 1000) sulla porta 3000. La tmpfs su `/
 
 ## Il reverse proxy non è opzionale
 
-L'immagine serve **solo** l'applicazione. Tutto quello che prima faceva l'nginx
-interno va ora configurato sul proxy che termina il TLS davanti al container:
+L'immagine serve **solo** l'applicazione. Al proxy che termina il TLS davanti al
+container restano due cose, e **solo** due:
 
-- **header di sicurezza** — la configurazione attesa è nella sezione qui sotto;
-- **`Cache-Control`**: `public, max-age=31536000, immutable` su `/_nuxt/`,
-  `no-cache, must-revalidate` sull'HTML — nell'HTML c'è il payload di
-  `runtimeConfig`, quindi metterlo in cache significa SPA vecchia **e** config
-  vecchia dopo un deploy;
-- **compressione** (gzip/brotli).
+- **il TLS** (certificato, redirect http → https);
+- **la compressione** (gzip/brotli).
+
+Gli **header di sicurezza** e il **`Cache-Control`** non sono più roba sua: li manda
+Nitro, configurati in `nuxt.config.ts` → `routeRules`. Vedi la sezione qui sotto.
 
 Non serve invece alcun rewrite SPA: con il preset Nitro `node-server` il fallback su
 `index.html` per le rotte dinamiche (`/admin/tournaments/42`) è nativo. Resta
@@ -53,25 +52,20 @@ necessario su Amplify, che serve i file statici.
 Il dominio del proxy deve stare nella CORS allowlist dell'API Laravel e negli origin
 consentiti da Reverb.
 
-## Header di sicurezza attesi
+## Header di sicurezza
 
-Gli header di sicurezza sono righe che il proxy allega alla risposta e che il **browser**
-usa per autolimitarsi. Non sono codice applicativo: non stanno in Nuxt, stanno qui. Sono
-documentati in questo file proprio perché il repo, da solo, non permette di verificare se
-sul proxy ci siano o no.
+Gli header di sicurezza sono righe che il server allega alla risposta e che il **browser**
+usa per autolimitarsi.
 
-Configurazione di riferimento (nginx; su un altro proxy cambia solo la sintassi):
+**Li manda l'app, non il proxy.** Stanno in `nuxt.config.ts` → `routeRules['/**'].headers`,
+e Nitro li applica a ogni risposta. La scelta è deliberata: così sono nel repo, versionati
+e rivedibili in code review, invece di vivere solo in una config di infrastruttura che
+nessuno può controllare guardando il codice — che era il rilievo del punto #3 dell'audit.
 
-```nginx
-add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https: wss:" always;
-add_header X-Content-Type-Options "nosniff" always;
-add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
-add_header X-Robots-Tag "noindex, nofollow" always;
-```
-
-Cosa fa ognuno, e perché serve **a questa** app:
+Verificato sul build (`node .output/server/index.mjs`): presenti su `/`, `/login` e sui
+deep link tipo `/admin/tournaments/42`. Gli asset in `/_nuxt/` ricevono la CSP e
+**conservano** il proprio `Cache-Control: public, max-age=31536000, immutable`, che ha la
+precedenza su quello dei `routeRules` — quindi non serve nessuna eccezione per path.
 
 | Header                                   | Dice al browser                                           | Impedisce                                                                                                                                                                                                                                  |
 | ---------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -90,7 +84,7 @@ finisca nella pagina — un XSS, una dipendenza npm compromessa — esfiltra il 
 riga. `script-src 'self'` è la sola misura che impedisce a quello script di partire.
 Dettagli in `docs/security-issues/README.md` (punto 1 e punto 3).
 
-Due scelte deliberate nello snippet sopra:
+Due scelte deliberate:
 
 - **`connect-src 'self' https: wss:` è volutamente permissivo.** L'app permette di
   ripuntare il base URL a runtime (override `matches.api-override`, requisito operativo:
@@ -102,14 +96,56 @@ https://api.matches.it wss://reverb.matches.it` — romperebbe quella funzione. 
 - **`style-src 'unsafe-inline'` è debito, non un default.** Oggi serve a Nuxt UI /
   Tailwind. Va rimosso appena possibile, non copiato altrove.
 
-Per verificare che il proxy li stia davvero mandando:
+### Cosa NON aggiungere sul proxy
+
+Se il proxy ne aggiunge di suoi si ottengono **header duplicati** (nginx `add_header`
+accoda, non sostituisce) e il browser, davanti a due CSP, applica l'**intersezione** delle
+due: il risultato è più restrittivo di entrambe e l'app si rompe in modi difficili da
+diagnosticare.
+
+Su un pannello tipo **NPMplus / Nginx Proxy Manager** questo è concreto, perché manda già
+header di sicurezza propri:
+
+| Opzione del pannello                      | Cosa fare      | Perché                                                      |
+| ----------------------------------------- | -------------- | ----------------------------------------------------------- |
+| HSTS                                      | **on** va bene | duplicato innocuo, il browser tiene il `max-age` più alto   |
+| «Send noindex header / block user agents» | **off**        | ridondante: `X-Robots-Tag` arriva già dall'app              |
+| X-Frame-Options                           | **`upstream`** | lascia passare quello dell'app; la CSP ha `frame-ancestors` |
+| Advanced / custom nginx config            | **vuoto**      | niente `add_header`, li manda già Nitro                     |
+
+Verifica dopo il deploy che ogni header compaia **una volta sola**:
 
 ```bash
-curl -sI https://dashboard.matches.it/ | grep -iE 'content-security|x-content-type|referrer|strict-transport|permissions'
+curl -sI https://dashboard.matches.it/ | grep -iE 'content-security|x-content-type|referrer|strict-transport|permissions|x-robots|cache-control'
 ```
 
-Su **Amplify** questi header non li mette nessun proxy: vanno replicati a mano nella
-console (Custom headers), insieme al rewrite SPA su `/index.html`.
+Se una riga appare due volte, la fonte in eccesso è il proxy: va spenta lì, non nell'app.
+
+### Amplify
+
+Amplify serve file statici: **non c'è Nitro, quindi i `routeRules` non vengono applicati**.
+Lì gli header vanno replicati a mano nella console (App settings → Custom headers), con gli
+stessi valori del `nuxt.config.ts`:
+
+```yaml
+customHeaders:
+  - pattern: '**'
+    headers:
+      - key: Content-Security-Policy
+        value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https: wss:"
+      - key: X-Content-Type-Options
+        value: nosniff
+      - key: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - key: X-Robots-Tag
+        value: 'noindex, nofollow'
+      - key: Permissions-Policy
+        value: 'camera=(), microphone=(), geolocation=()'
+      - key: Strict-Transport-Security
+        value: max-age=31536000; includeSubDomains
+```
+
+È un duplicato da tenere in sync a mano: se cambi i `routeRules`, cambia anche qui.
 
 ## In CI/CD
 

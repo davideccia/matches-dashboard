@@ -48,6 +48,27 @@ export default defineNuxtConfig({
     },
   },
 
+  // Header di sicurezza applicati da Nitro a ogni risposta (target Docker).
+  // Stanno qui e non solo sul reverse proxy così sono versionati e rivedibili:
+  // vedi docs/security-issues/README.md #3. Su Amplify (build statica, nessun
+  // server Nitro) vanno replicati nella console — vedi docker/production/README.md.
+  routeRules: {
+    '/**': {
+      headers: {
+        'Content-Security-Policy': 'default-src \'self\'; base-uri \'self\'; object-src \'none\'; frame-ancestors \'none\'; script-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:; font-src \'self\' data:; connect-src \'self\' https: wss:',
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'X-Robots-Tag': 'noindex, nofollow',
+        'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+        // L'HTML porta il payload di runtimeConfig: metterlo in cache significa
+        // SPA vecchia E config vecchia dopo un deploy. Gli asset in /_nuxt/ hanno
+        // l'hash nel nome e conservano il loro `immutable` (verificato).
+        'Cache-Control': 'no-cache, must-revalidate',
+      },
+    },
+  },
+
   eslint: {
     config: {
       standalone: false,
