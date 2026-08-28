@@ -65,7 +65,7 @@
             {{ blueCorner.name ?? t('match.missingCorner') }}
           </span>
           <span class="text-xs leading-tight text-muted">{{ blueCorner.team }}</span>
-          <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-amber-500" :class="isBlueWinner && match.end_method ? '' : 'invisible'">
+          <span class="inline-flex flex-row-reverse items-center gap-1 text-xs font-bold uppercase tracking-widest text-amber-500" :class="isBlueWinner && match.end_method ? '' : 'invisible'">
             <UIcon name="i-mdi-trophy" class="size-3.5" />
             {{ isBlueWinner && match.end_method ? endMethodLabel(match.end_method) : '' }}
           </span>
