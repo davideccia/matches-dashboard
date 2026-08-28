@@ -297,8 +297,6 @@
   "user": {
     "username": "Username",
     "email": "Email",
-    "password": "Password",
-    "passwordHint": "Lascia vuoto per non modificare",
     "createTitle": "Nuovo utente",
     "editTitle": "Modifica utente",
     "deleteConfirm": "Sei sicuro di voler eliminare questo utente?",

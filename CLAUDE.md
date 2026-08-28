@@ -108,8 +108,8 @@ Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GE
 
 Split across two places, and **both are Nitro-only** — they run on the Docker target and are absent from a `pnpm generate` build:
 
-- **`nuxt.config.ts` → `routeRules['/**'].headers`** — the static ones: `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, HSTS, `X-Robots-Tag`, and `Cache-Control: no-cache` on HTML (the HTML carries the `runtimeConfig` payload, so caching it means a stale SPA *and* stale config; `/_nuxt/` keeps its own `immutable`).
-- **`server/plugins/csp.ts`** — the CSP, and *only* there. It hooks Nitro's `render:html`, sha256-hashes the three inline scripts Nuxt injects (importmap, color-mode snippet, `window.__NUXT__.config`) and emits `script-src 'self' <hashes>`. Fixed hashes in config would break on every build; `'unsafe-inline'` would void the point. Skipped in dev (Vite needs eval + HMR websocket).
+- **`nuxt.config.ts` → `routeRules['/**'].headers`** — the static ones: `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, HSTS, `X-Robots-Tag`, and `Cache-Control: no-cache` on HTML (the HTML carries the `runtimeConfig` payload, so caching it means a stale SPA _and_ stale config; `/_nuxt/` keeps its own `immutable`).
+- **`server/plugins/csp.ts`** — the CSP, and _only_ there. It hooks Nitro's `render:html`, sha256-hashes the three inline scripts Nuxt injects (importmap, color-mode snippet, `window.__NUXT__.config`) and emits `script-src 'self' <hashes>`. Fixed hashes in config would break on every build; `'unsafe-inline'` would void the point. Skipped in dev (Vite needs eval + HMR websocket).
 
 Two consequences worth remembering: **Amplify ships no CSP or headers at all** unless they are replicated in the console; and `app/plugins/zod.ts` exists solely because of this CSP — it sets `z.config({ jitless: true })` so Zod skips its `Function('')` probe and stops logging an `unsafe-eval` violation on every load. `connect-src` is deliberately wide open (`https: wss: http: ws:`) because the runtime API override can repoint the app at any host.
 
@@ -187,7 +187,7 @@ Forgejo Actions, both jobs on the `docker-29-cli` runner label (Docker CLI + bui
 - **`ghcr-publish.yml`** — the live one. Triggers on **release published** (plus manual). Tags `latest` + the release title (fallback: release tag, normalised; short SHA on a manual run).
 - **`docker-publish.yml`** — the Docker Hub twin, **disabled**: `workflow_dispatch` only, kept as a fallback.
 
-Both pass the six build-time `NUXT_*` values as `--build-arg` from Forgejo variables/secrets. `NUXT_PUBLIC_REVERB_APP_KEY` and `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` sit in *secrets* for convenience only — being `NUXT_PUBLIC_*` they land in `index.html` in the clear. Don't build any confidentiality assumption on them.
+Both pass the six build-time `NUXT_*` values as `--build-arg` from Forgejo variables/secrets. `NUXT_PUBLIC_REVERB_APP_KEY` and `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` sit in _secrets_ for convenience only — being `NUXT_PUBLIC_*` they land in `index.html` in the clear. Don't build any confidentiality assumption on them.
 
 ## Repo hygiene notes
 

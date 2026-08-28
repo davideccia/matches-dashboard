@@ -33,20 +33,6 @@
           />
         </UFormField>
 
-        <UFormField
-          name="password"
-          :label="t('user.password')"
-          :required="!isEdit"
-          :hint="isEdit ? t('user.passwordHint') : undefined"
-        >
-          <UInput
-            v-model="state.password"
-            type="password"
-            class="w-full"
-            autocomplete="new-password"
-          />
-        </UFormField>
-
         <UFormField v-if="currentUser?.superadmin" name="superadmin" :label="t('user.superadmin')">
           <USwitch v-model="state.superadmin" />
         </UFormField>
@@ -90,14 +76,12 @@ const isEdit = computed(() => props.user !== null)
 const schema = z.object({
   username: z.string().min(1),
   email: z.email(),
-  password: z.union([z.string().min(6), z.literal('')]),
   superadmin: z.boolean().optional(),
 })
 
 const state = reactive({
   username: '',
   email: '',
-  password: '',
   superadmin: false,
 })
 
@@ -111,7 +95,6 @@ watch(open, async (val) => {
       const { data: user } = await api.get<{ data: User }>(`/api/admin/users/${props.user!.id}`)
       state.username = user.username
       state.email = user.email
-      state.password = ''
       state.superadmin = user.superadmin
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
@@ -122,7 +105,6 @@ watch(open, async (val) => {
   } else {
     state.username = ''
     state.email = ''
-    state.password = ''
   }
 })
 
@@ -135,7 +117,6 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       username: event.data.username,
       email: event.data.email,
     }
-    if (event.data.password) { body.password = event.data.password }
     if (currentUser.value?.superadmin) { body.superadmin = event.data.superadmin }
 
     let saved: User
@@ -149,7 +130,6 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
 
     state.username = saved.username
     state.email = saved.email
-    state.password = ''
     state.superadmin = saved.superadmin
 
     emit('saved')
