@@ -135,6 +135,7 @@ export interface MatchRecord {
   rounds: number
   minutes_per_round: string | null
   judges_points: JudgesPointsRow[] | null
+  notes: string | null
   created_at: string
   updated_at: string
   // relazioni opzionali

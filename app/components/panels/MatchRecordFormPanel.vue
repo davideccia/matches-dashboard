@@ -325,6 +325,10 @@
                   />
                 </div>
               </UFormField>
+
+              <UFormField name="notes" :label="t('match.notes')">
+                <UTextarea v-model="state.notes" :rows="3" autoresize class="w-full" />
+              </UFormField>
             </div>
           </template>
 
@@ -533,6 +537,7 @@ const state = reactive({
   minutes_per_round: undefined as string | undefined,
   end_round: undefined as string | undefined,
   judges_points: [] as JudgesPointsRow[],
+  notes: '' as string,
 })
 
 // ── Gender filter (mandatory, defaults to MALE) ───────────────────────────────
@@ -599,6 +604,7 @@ const schema = z.object({
   minutes_per_round: z.string().optional().nullable(),
   end_round: z.string().optional().nullable(),
   judges_points: z.any().optional().nullable(),
+  notes: z.string().optional().nullable(),
 }).superRefine((data, ctx) => {
   if (data.red_corner_id || data.blue_corner_id) { return }
   for (const path of ['red_corner_id', 'blue_corner_id'] as const) {
@@ -635,6 +641,7 @@ watch(open, async (val) => {
       state.rounds = item.rounds ?? null
       state.minutes_per_round = item.minutes_per_round ?? undefined
       state.end_round = item.end_round ?? undefined
+      state.notes = item.notes ?? ''
       syncJudgesPointsRows()
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
@@ -661,6 +668,7 @@ watch(open, async (val) => {
     state.minutes_per_round = undefined
     state.end_round = undefined
     state.judges_points = []
+    state.notes = ''
   }
   await nextTick()
   initializing.value = false
@@ -810,6 +818,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       forced: forceEntry.value,
       gender: genderFilter.value,
       judges_points,
+      notes: event.data.notes || null,
     }
 
     let saved: MatchRecord
@@ -840,6 +849,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     state.minutes_per_round = saved.minutes_per_round ?? undefined
     state.end_round = saved.end_round ?? undefined
     state.judges_points = (saved.judges_points as JudgesPointsRow[] | null) ?? []
+    state.notes = saved.notes ?? ''
     await nextTick()
     initializing.value = false
 

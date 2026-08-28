@@ -228,7 +228,8 @@
     "cornerRequired": "Indica almeno un angolo",
     "result": "Esito",
     "judgesPointsRecorded": "Cartellini registrati",
-    "judgesPointsEmpty": "Nessun cartellino"
+    "judgesPointsEmpty": "Nessun cartellino",
+    "notes": "Note"
   },
   "athlete": {
     "title": "Atleta",

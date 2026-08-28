@@ -228,7 +228,8 @@
     "cornerRequired": "At least one corner is required",
     "result": "Result",
     "judgesPointsRecorded": "Scorecards recorded",
-    "judgesPointsEmpty": "No scorecards"
+    "judgesPointsEmpty": "No scorecards",
+    "notes": "Notes"
   },
   "athlete": {
     "title": "Athlete",

@@ -95,6 +95,17 @@
         {{ t('match.judgesPointsTable') }}
       </UButton>
     </div>
+
+    <!-- FOOTER: note -->
+    <div v-if="notes" class="flex items-start gap-2 border-t border-default bg-elevated/50 px-4 py-2.5">
+      <UIcon name="i-mdi-note-text-outline" class="mt-px size-3.5 shrink-0 text-dimmed" />
+      <div class="min-w-0">
+        <span class="block text-xs uppercase tracking-widest text-dimmed">{{ t('match.notes') }}</span>
+        <p class="mt-0.5 text-sm leading-snug whitespace-pre-line text-toned">
+          {{ notes }}
+        </p>
+      </div>
+    </div>
   </article>
 
   <UModal v-if="showJudgesPoints" v-model:open="judgesPointsOpen" :title="t('match.judgesPointsTable')">
@@ -153,6 +164,8 @@ const hasJudgePoints = computed(() => {
 })
 
 const judgesPointsRows = computed(() => props.match.judges_points ?? [])
+
+const notes = computed(() => props.match.notes?.trim() || null)
 
 const banner = computed(() => {
   const m = props.match
