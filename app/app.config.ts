@@ -1,3 +1,4 @@
+import { authTokenStorage } from '~/utils/authToken'
 import pkg from '../package.json'
 
 export default defineAppConfig({
@@ -8,6 +9,9 @@ export default defineAppConfig({
       neutral: 'mist',
     },
 
+  },
+  sanctum: {
+    tokenStorage: authTokenStorage,
   },
   version: pkg.version,
 })

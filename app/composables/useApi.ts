@@ -32,7 +32,7 @@ export function useApi() {
   const download = async (path: string, filename = 'document.pdf') => {
     if (!import.meta.client) { return }
     const { config } = useApiConfig()
-    const token = useCookie('sanctum.token.cookie')
+    const token = useAuthTokenCookie()
     const blob = await $fetch<Blob>(path, {
       method: 'GET',
       responseType: 'blob',
