@@ -130,6 +130,7 @@ export interface MatchRecord {
   end_round: string | null
   end_method: EndMethod | null
   status: MatchStatus
+  unpaired: boolean
   rounds: number
   minutes_per_round: string | null
   judges_points: JudgesPointsRow[] | null
@@ -137,9 +138,9 @@ export interface MatchRecord {
   updated_at: string
   // relazioni opzionali
   tournament?: Tournament
-  red_corner?: Athlete
-  blue_corner?: Athlete
-  winner?: Athlete
+  red_corner?: Athlete | null
+  blue_corner?: Athlete | null
+  winner?: Athlete | null
   weight_category?: WeightCategory
   discipline?: Discipline
 }

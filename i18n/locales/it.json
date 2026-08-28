@@ -221,6 +221,9 @@
     "generate": "Generazione automatica",
     "generateConfirm": "Confermi la generazione automatica degli incontri? E' consigliata una revisione manuale dopo l'avvenuta generazione",
     "generated": "Incontri generati con successo",
+    "unpaired": "Spaiato",
+    "missingCorner": "Da assegnare",
+    "cornerRequired": "Indica almeno un angolo",
     "result": "Esito",
     "judgesPointsRecorded": "Cartellini registrati",
     "judgesPointsEmpty": "Nessun cartellino"

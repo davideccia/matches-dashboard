@@ -221,6 +221,9 @@
     "generate": "Generate matches",
     "generateConfirm": "Are you sure? Existing matches will be deleted and everything will be recalculated.",
     "generated": "Matches generated successfully",
+    "unpaired": "Unpaired",
+    "missingCorner": "To be assigned",
+    "cornerRequired": "At least one corner is required",
     "result": "Result",
     "judgesPointsRecorded": "Scorecards recorded",
     "judgesPointsEmpty": "No scorecards"

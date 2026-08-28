@@ -148,7 +148,7 @@ function tournamentStatusLabel(status: string): string {
 
 const columns = computed(() => [
   { accessorKey: 'name', header: t('tournament.name') },
-  { accessorKey: 'date', header: t('tournament.date') },
+  /* { accessorKey: 'date', header: t('tournament.date') }, */
   { accessorKey: 'location_city', header: t('tournament.city') },
   { accessorKey: 'status', header: t('tournament.status.label') },
   { id: 'actions', header: '' },

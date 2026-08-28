@@ -175,6 +175,13 @@
               </div>
 
               <!-- Section 2: Athletes -->
+              <UAlert
+                color="neutral"
+                variant="subtle"
+                icon="i-mdi-information-outline"
+                :description="t('match.cornerRequired')"
+              />
+
               <div class="rounded-xl border border-default overflow-hidden">
                 <!-- Corner header -->
                 <div class="grid grid-cols-[1fr_auto_1fr]">
@@ -197,7 +204,7 @@
                 <div class="grid grid-cols-[1fr_auto_1fr]">
                   <!-- Red corner fields -->
                   <div class="flex flex-col gap-3 p-4 bg-red-500/4">
-                    <UFormField name="red_corner_id" :label="t('match.athlete')" :required="!isEdit">
+                    <UFormField name="red_corner_id" :label="t('match.athlete')">
                       <div class="flex items-center gap-1.5">
                         <ApiSelectMenu
                           v-model="state.red_corner_id"
@@ -233,12 +240,12 @@
                           color="neutral"
                           size="xs"
                           :aria-label="t('common.cancel')"
-                          @click="() => { state.red_corner_id = null }"
+                          @click="clearCorner('red')"
                         />
                       </div>
                     </UFormField>
 
-                    <UFormField name="red_corner_team" :label="t('match.team')" :required="!isEdit">
+                    <UFormField name="red_corner_team" :label="t('match.team')">
                       <UInput v-model="state.red_corner_team" class="w-full" size="sm" />
                     </UFormField>
                   </div>
@@ -248,7 +255,7 @@
 
                   <!-- Blue corner fields -->
                   <div class="flex flex-col gap-3 p-4 bg-blue-500/4">
-                    <UFormField name="blue_corner_id" :label="t('match.athlete')" :required="!isEdit">
+                    <UFormField name="blue_corner_id" :label="t('match.athlete')">
                       <div class="flex items-center gap-1.5">
                         <ApiSelectMenu
                           v-model="state.blue_corner_id"
@@ -284,12 +291,12 @@
                           color="neutral"
                           size="xs"
                           :aria-label="t('common.cancel')"
-                          @click="() => { state.blue_corner_id = null }"
+                          @click="clearCorner('blue')"
                         />
                       </div>
                     </UFormField>
 
-                    <UFormField name="blue_corner_team" :label="t('match.team')" :required="!isEdit">
+                    <UFormField name="blue_corner_team" :label="t('match.team')">
                       <UInput v-model="state.blue_corner_team" class="w-full" size="sm" />
                     </UFormField>
                   </div>
@@ -344,7 +351,7 @@
                         class="size-3.5 text-warning shrink-0"
                       />
                     </div>
-                    <span class="pl-4 text-xs text-muted truncate">{{ state.red_corner_team || '—' }}</span>
+                    <span class="pl-4 text-xs text-muted truncate">{{ state.red_corner_team || MISSING_VALUE }}</span>
                   </div>
 
                   <!-- VS -->
@@ -366,7 +373,7 @@
                       </span>
                       <span class="size-2.5 rounded-full bg-blue-500 shrink-0" />
                     </div>
-                    <span class="pr-4 text-xs text-muted truncate">{{ state.blue_corner_team || '—' }}</span>
+                    <span class="pr-4 text-xs text-muted truncate">{{ state.blue_corner_team || MISSING_VALUE }}</span>
                   </div>
                 </div>
 
@@ -592,6 +599,11 @@ const schema = z.object({
   minutes_per_round: z.string().optional().nullable(),
   end_round: z.string().optional().nullable(),
   judges_points: z.any().optional().nullable(),
+}).superRefine((data, ctx) => {
+  if (data.red_corner_id || data.blue_corner_id) { return }
+  for (const path of ['red_corner_id', 'blue_corner_id'] as const) {
+    ctx.addIssue({ code: 'custom', path: [path], message: t('match.cornerRequired') })
+  }
 })
 
 // ── Populate state when slideover opens ─────────────────────────────────────
@@ -719,6 +731,16 @@ function setWinner(value: string | null) {
   state.winner_id = value
 }
 
+function clearCorner(side: 'red' | 'blue') {
+  if (side === 'red') {
+    state.red_corner_id = null
+    state.red_corner_team = ''
+    return
+  }
+  state.blue_corner_id = null
+  state.blue_corner_team = ''
+}
+
 // ── Auto-fill rounds/minutes_per_round from selected discipline ───────────────
 function onDisciplineSelect(item: Record<string, unknown>) {
   if (initializing.value) { return }
@@ -737,12 +759,14 @@ function onBlueCornerSelect(item: Record<string, unknown>) {
 
 // ── Corner display labels (resolved from props.item in edit, placeholder in create) ──
 const redCornerLabel = computed(() => {
+  if (!state.red_corner_id) { return t('match.missingCorner') }
   if (props.item?.red_corner?.full_name) { return props.item.red_corner.full_name }
-  return state.red_corner_id ? `#${state.red_corner_id.slice(0, 6)}` : t('match.redCorner')
+  return `#${state.red_corner_id.slice(0, 6)}`
 })
 const blueCornerLabel = computed(() => {
+  if (!state.blue_corner_id) { return t('match.missingCorner') }
   if (props.item?.blue_corner?.full_name) { return props.item.blue_corner.full_name }
-  return state.blue_corner_id ? `#${state.blue_corner_id.slice(0, 6)}` : t('match.blueCorner')
+  return `#${state.blue_corner_id.slice(0, 6)}`
 })
 const winnerLabel = computed(() => {
   if (!state.winner_id) { return null }

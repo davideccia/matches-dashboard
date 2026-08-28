@@ -24,14 +24,31 @@
           {{ t('match.generate') }}
         </UButton>
       </template>
+      <template #sort-cell="{ row }">
+        <span class="inline-flex items-center gap-1.5">
+          <UIcon
+            v-if="(row.original as unknown as MatchRecord).unpaired"
+            name="i-mdi-alert-outline"
+            class="size-4 text-warning"
+            :title="t('match.unpaired')"
+          />
+          {{ (row.original as unknown as MatchRecord).sort }}
+        </span>
+      </template>
       <template #red_corner-cell="{ row }">
-        <span class="border-b-2 border-red-500">
-          {{ (row.original as unknown as MatchRecord).red_corner?.full_name }}
+        <span v-if="cornerInfo(row.original as unknown as MatchRecord, 'red').missing" class="text-warning">
+          {{ t('match.missingCorner') }}
+        </span>
+        <span v-else class="border-b-2 border-red-500">
+          {{ cornerInfo(row.original as unknown as MatchRecord, 'red').name }}
         </span>
       </template>
       <template #blue_corner-cell="{ row }">
-        <span class="border-b-2 border-blue-500">
-          {{ (row.original as unknown as MatchRecord).blue_corner?.full_name }}
+        <span v-if="cornerInfo(row.original as unknown as MatchRecord, 'blue').missing" class="text-warning">
+          {{ t('match.missingCorner') }}
+        </span>
+        <span v-else class="border-b-2 border-blue-500">
+          {{ cornerInfo(row.original as unknown as MatchRecord, 'blue').name }}
         </span>
       </template>
       <template #status-cell="{ row }">
@@ -145,7 +162,7 @@ const confirmOpen = ref(false)
 const deleteTarget = ref<MatchRecord | null>(null)
 const deleting = ref(false)
 
-const matchRecordsUrl = computed(() => `/api/admin/tournaments/${props.tournamentId}/match_records?with=tournament,redCorner,blueCorner,weightCategory,discipline`)
+const matchRecordsUrl = computed(() => `/api/admin/tournaments/${props.tournamentId}/match_records?with=tournament,red_corner,blue_corner,winner,weight_category,discipline`)
 
 const STATUS_COLORS: Record<string, BadgeProps['color']> = {
   scheduled: 'info',

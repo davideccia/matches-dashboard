@@ -17,6 +17,11 @@
         {{ match.rounds }} × {{ match.minutes_per_round }}'
       </span>
 
+      <span v-if="match.unpaired" class="inline-flex items-center gap-1 rounded-full border border-amber-500/50 bg-amber-500/10 px-2.5 py-1 text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400">
+        <UIcon name="i-mdi-alert-outline" class="size-3.5" />
+        {{ t('match.unpaired') }}
+      </span>
+
       <span class="ml-auto text-xs font-bold text-dimmed">#{{ match.sort }}</span>
     </div>
 
@@ -27,8 +32,14 @@
         <span class="w-1.5 shrink-0 rounded-full bg-red-500" />
         <div class="flex min-w-0 flex-col gap-1.5">
           <span class="text-xs uppercase tracking-widest text-red-500">{{ t('match.redCorner') }}</span>
-          <span class="text-xl font-bold leading-tight text-highlighted">{{ match.red_corner?.full_name ?? '—' }}</span>
-          <span class="text-xs leading-tight text-muted">{{ match.red_corner_team || '—' }}</span>
+          <span
+            class="text-xl font-bold leading-tight"
+            :class="redCorner.missing ? 'text-amber-600 dark:text-amber-400' : 'text-highlighted'"
+          >
+            <UIcon v-if="redCorner.missing" name="i-mdi-alert-outline" class="size-4 align-[-2px]" />
+            {{ redCorner.name ?? t('match.missingCorner') }}
+          </span>
+          <span class="text-xs leading-tight text-muted">{{ redCorner.team }}</span>
           <span v-if="isRedWinner" class="text-xs font-bold uppercase tracking-widest text-red-600 dark:text-red-400">{{ t('match.winner') }}</span>
         </div>
       </div>
@@ -43,8 +54,14 @@
         <span class="w-1.5 shrink-0 rounded-full bg-blue-500" />
         <div class="flex min-w-0 flex-col items-end gap-1.5">
           <span class="text-xs uppercase tracking-widest text-blue-500">{{ t('match.blueCorner') }}</span>
-          <span class="text-xl font-bold leading-tight text-highlighted">{{ match.blue_corner?.full_name ?? '—' }}</span>
-          <span class="text-xs leading-tight text-muted">{{ match.blue_corner_team || '—' }}</span>
+          <span
+            class="text-xl font-bold leading-tight"
+            :class="blueCorner.missing ? 'text-amber-600 dark:text-amber-400' : 'text-highlighted'"
+          >
+            <UIcon v-if="blueCorner.missing" name="i-mdi-alert-outline" class="size-4 align-[-2px]" />
+            {{ blueCorner.name ?? t('match.missingCorner') }}
+          </span>
+          <span class="text-xs leading-tight text-muted">{{ blueCorner.team }}</span>
           <span v-if="isBlueWinner" class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">{{ t('match.winner') }}</span>
         </div>
       </div>
@@ -119,6 +136,9 @@ function endMethodLabel(method: string): string {
   return method
 }
 
+const redCorner = computed(() => cornerInfo(props.match, 'red'))
+const blueCorner = computed(() => cornerInfo(props.match, 'blue'))
+
 const hasWinner = computed(() => !!props.match.winner_id)
 const isRedWinner = computed(() => hasWinner.value && props.match.winner_id === props.match.red_corner_id)
 const isBlueWinner = computed(() => hasWinner.value && props.match.winner_id === props.match.blue_corner_id)
@@ -141,7 +161,7 @@ const banner = computed(() => {
     return {
       class: isRedWinner.value ? 'text-red-500' : 'text-blue-500',
       kicker: t('match.winner'),
-      value: (isRedWinner.value ? m.red_corner?.full_name : m.blue_corner?.full_name) ?? '—',
+      value: (isRedWinner.value ? redCorner.value.name : blueCorner.value.name) ?? t('match.missingCorner'),
       meta: [
         m.end_method ? endMethodLabel(m.end_method) : null,
         m.end_round ? `Round ${m.end_round}` : null,
