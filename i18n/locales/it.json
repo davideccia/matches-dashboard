@@ -229,7 +229,8 @@
     "result": "Esito",
     "judgesPointsRecorded": "Cartellini registrati",
     "judgesPointsEmpty": "Nessun cartellino",
-    "notes": "Note"
+    "notes": "Note",
+    "notesEmpty": "Nessuna nota"
   },
   "athlete": {
     "title": "Atleta",

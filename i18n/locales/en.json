@@ -229,7 +229,8 @@
     "result": "Result",
     "judgesPointsRecorded": "Scorecards recorded",
     "judgesPointsEmpty": "No scorecards",
-    "notes": "Notes"
+    "notes": "Notes",
+    "notesEmpty": "No notes"
   },
   "athlete": {
     "title": "Athlete",

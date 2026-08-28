@@ -40,7 +40,10 @@
             {{ redCorner.name ?? t('match.missingCorner') }}
           </span>
           <span class="text-xs leading-tight text-muted">{{ redCorner.team }}</span>
-          <span v-if="isRedWinner" class="text-xs font-bold uppercase tracking-widest text-red-600 dark:text-red-400">{{ t('match.winner') }}</span>
+          <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-amber-500" :class="isRedWinner && match.end_method ? '' : 'invisible'">
+            <UIcon name="i-mdi-trophy" class="size-3.5" />
+            {{ isRedWinner && match.end_method ? endMethodLabel(match.end_method) : '' }}
+          </span>
         </div>
       </div>
 
@@ -62,7 +65,10 @@
             {{ blueCorner.name ?? t('match.missingCorner') }}
           </span>
           <span class="text-xs leading-tight text-muted">{{ blueCorner.team }}</span>
-          <span v-if="isBlueWinner" class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">{{ t('match.winner') }}</span>
+          <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-amber-500" :class="isBlueWinner && match.end_method ? '' : 'invisible'">
+            <UIcon name="i-mdi-trophy" class="size-3.5" />
+            {{ isBlueWinner && match.end_method ? endMethodLabel(match.end_method) : '' }}
+          </span>
         </div>
       </div>
     </div>
@@ -97,12 +103,15 @@
     </div>
 
     <!-- FOOTER: note -->
-    <div v-if="notes" class="flex items-start gap-2 border-t border-default bg-elevated/50 px-4 py-2.5">
+    <div class="flex items-start gap-2 border-t border-default bg-elevated/50 px-4 py-2.5">
       <UIcon name="i-mdi-note-text-outline" class="mt-px size-3.5 shrink-0 text-dimmed" />
       <div class="min-w-0">
         <span class="block text-xs uppercase tracking-widest text-dimmed">{{ t('match.notes') }}</span>
-        <p class="mt-0.5 text-sm leading-snug whitespace-pre-line text-toned">
+        <p v-if="notes" class="mt-0.5 text-sm leading-snug whitespace-pre-line text-toned">
           {{ notes }}
+        </p>
+        <p v-else class="mt-0.5 text-sm leading-snug text-dimmed italic">
+          {{ t('match.notesEmpty') }}
         </p>
       </div>
     </div>
@@ -170,23 +179,11 @@ const notes = computed(() => props.match.notes?.trim() || null)
 const banner = computed(() => {
   const m = props.match
 
-  if (hasWinner.value) {
-    return {
-      class: isRedWinner.value ? 'text-red-500' : 'text-blue-500',
-      kicker: t('match.winner'),
-      value: (isRedWinner.value ? redCorner.value.name : blueCorner.value.name) ?? t('match.missingCorner'),
-      meta: [
-        m.end_method ? endMethodLabel(m.end_method) : null,
-        m.end_round ? `Round ${m.end_round}` : null,
-      ].filter(Boolean).join(' · '),
-    }
-  }
-
   if (m.status === 'completed') {
     return {
-      class: 'text-muted',
-      kicker: t('match.result'),
-      value: m.end_method ? endMethodLabel(m.end_method) : t('match.noWinner'),
+      class: 'text-emerald-600 dark:text-emerald-400',
+      kicker: null,
+      value: t('match.status.completed'),
       meta: m.end_round ? `Round ${m.end_round}` : '',
     }
   }
