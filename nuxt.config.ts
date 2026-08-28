@@ -33,6 +33,11 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      // L'intera app è fuori dai motori di ricerca: area admin + dati personali di
+      // atleti (anche minori) sulle pagine pubbliche. Vedi docs/security-issues #7.
+      meta: [
+        { name: 'robots', content: 'noindex, nofollow' },
+      ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },

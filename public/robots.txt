@@ -1,2 +1,5 @@
+# L'intera applicazione è fuori dai motori di ricerca: l'area admin non ha nulla da
+# indicizzare e le pagine pubbliche mostrano nome, cognome e società degli atleti,
+# inclusi minori. Vedi docs/security-issues/README.md #7.
 User-Agent: *
-Disallow:
+Disallow: /
