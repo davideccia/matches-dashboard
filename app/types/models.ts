@@ -73,7 +73,8 @@ export interface Tournament {
   location_name: string
   location_address: string
   location_city: string
-  date: string // "YYYY-MM-DD"
+  date_from: string // "YYYY-MM-DD"
+  date_to: string // "YYYY-MM-DD"
   status: TournamentStatus
   matchmaking_issues: MatchmakingIssue[] | null
   created_at: string

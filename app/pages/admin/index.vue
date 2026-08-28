@@ -115,7 +115,7 @@
                 </UBadge>
               </div>
               <span class="text-xs text-muted shrink-0 mt-0.5">
-                {{ formatServerDateOnly(item.date, locale) }}
+                {{ formatServerDateRange(item.date_from, item.date_to, locale) }}
               </span>
             </div>
 
@@ -209,7 +209,7 @@
 <script setup lang="ts">
 import type { BadgeProps } from '@nuxt/ui'
 import type { TournamentStatus } from '~/utils/constants'
-import { formatServerDateOnly } from '~/utils/date'
+import { formatServerDateRange } from '~/utils/date'
 
 definePageMeta({ layout: 'default' })
 
@@ -220,7 +220,8 @@ interface DashboardItem {
   tournament_id: string
   tournament_name: string
   status: TournamentStatus
-  date: string
+  date_from: string
+  date_to: string
   total_registrations: number
   arrived_registrations: number
   absent_registrations: number

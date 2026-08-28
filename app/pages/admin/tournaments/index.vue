@@ -22,9 +22,6 @@
           empty-icon="i-mdi-trophy"
           :bulk-actions="[{ endpoint: '/api/admin/tournaments/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
-          <template #date-cell="{ row }">
-            {{ formatServerDateOnly(((row.original as unknown as Tournament)).date, locale) }}
-          </template>
           <template #status-cell="{ row }">
             <UBadge
               :color="statusBadgeColor((row.original as unknown as Tournament).status)"
@@ -105,7 +102,7 @@ import type { Tournament } from '~/types/models'
 
 definePageMeta({ layout: 'default' })
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const api = useApi()
 const toast = useToast()
 const localePath = useLocalePath()
@@ -148,7 +145,6 @@ function tournamentStatusLabel(status: string): string {
 
 const columns = computed(() => [
   { accessorKey: 'name', header: t('tournament.name') },
-  /* { accessorKey: 'date', header: t('tournament.date') }, */
   { accessorKey: 'location_city', header: t('tournament.city') },
   { accessorKey: 'status', header: t('tournament.status.label') },
   { id: 'actions', header: '' },
