@@ -22,11 +22,8 @@
           empty-icon="i-mdi-trophy"
           :bulk-actions="[{ endpoint: '/api/admin/tournaments/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
-          <template #date_from-cell="{ row }">
-            {{ formatServerDateOnly((row.original as unknown as Tournament).date_from, locale) }}
-          </template>
-          <template #date_to-cell="{ row }">
-            {{ formatServerDateOnly((row.original as unknown as Tournament).date_to, locale) }}
+          <template #date-cell="{ row }">
+            {{ formatServerDateOnly(((row.original as unknown as Tournament)).date, locale) }}
           </template>
           <template #status-cell="{ row }">
             <UBadge
@@ -151,9 +148,8 @@ function tournamentStatusLabel(status: string): string {
 
 const columns = computed(() => [
   { accessorKey: 'name', header: t('tournament.name') },
+  { accessorKey: 'date', header: t('tournament.date') },
   { accessorKey: 'location_city', header: t('tournament.city') },
-  { accessorKey: 'date_from', header: t('tournament.dateFrom') },
-  { accessorKey: 'date_to', header: t('tournament.dateTo') },
   { accessorKey: 'status', header: t('tournament.status.label') },
   { id: 'actions', header: '' },
 ] as TableColumn<Record<string, unknown>>[])

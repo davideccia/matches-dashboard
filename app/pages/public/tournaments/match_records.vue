@@ -39,7 +39,7 @@
                 {{ selectedTournament.name }}
               </p>
               <p class="text-xs text-muted truncate">
-                {{ formatServerDateRange(selectedTournament.date_from, selectedTournament.date_to, locale) }} · {{ selectedTournament.location_city }}
+                {{ formatServerDateOnly(selectedTournament.date, locale) }} · {{ selectedTournament.location_city }}
               </p>
               <UBadge
                 :color="selectedTournament.status === 'in_progress' ? 'warning' : 'success'"
@@ -119,7 +119,7 @@
               {{ tournament.name }}
             </p>
             <p class="text-sm text-muted mt-1">
-              {{ formatServerDateRange(tournament.date_from, tournament.date_to, locale) }}
+              {{ formatServerDateOnly(tournament.date, locale) }}
             </p>
             <p class="text-sm text-muted">
               {{ tournament.location_city }}

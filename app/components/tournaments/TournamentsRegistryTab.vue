@@ -23,12 +23,8 @@
               <UInput v-model="state.name" class="w-full" />
             </UFormField>
 
-            <UFormField name="date_from" :label="t('tournament.dateFrom')" required>
-              <UInput v-model="state.date_from" type="date" class="w-full" />
-            </UFormField>
-
-            <UFormField name="date_to" :label="t('tournament.dateTo')" required>
-              <UInput v-model="state.date_to" type="date" class="w-full" />
+            <UFormField name="date" :label="t('tournament.date')" required>
+              <UInput v-model="state.date" type="date" class="w-full" />
             </UFormField>
           </div>
         </div>
@@ -186,26 +182,21 @@ const statusOptions = computed(() => [
   { label: t('tournament.status.cancelled'), value: 'cancelled' },
 ])
 
-const schema = computed(() => z.object({
+const schema = z.object({
   name: z.string().min(1),
   location_name: z.string().min(1),
   location_address: z.string().min(1),
   location_city: z.string().min(1),
-  date_from: z.string().min(1),
-  date_to: z.string().min(1),
+  date: z.string().min(1),
   status: z.enum(TOURNAMENT_STATUSES),
-}).refine(data => data.date_to >= data.date_from, {
-  path: ['date_to'],
-  message: t('tournament.dateRangeInvalid'),
-}))
+})
 
 const state = reactive({
   name: tournament.name,
   location_name: tournament.location_name,
   location_address: tournament.location_address,
   location_city: tournament.location_city,
-  date_from: serverDateOnlyToInput(tournament.date_from),
-  date_to: serverDateOnlyToInput(tournament.date_to),
+  date: serverDateOnlyToInput(tournament.date),
   status: tournament.status as TournamentStatus,
 })
 
@@ -214,14 +205,13 @@ watch(() => tournament.id, () => {
   state.location_name = tournament.location_name
   state.location_address = tournament.location_address
   state.location_city = tournament.location_city
-  state.date_from = serverDateOnlyToInput(tournament.date_from)
-  state.date_to = serverDateOnlyToInput(tournament.date_to)
+  state.date = serverDateOnlyToInput(tournament.date)
   state.status = tournament.status
 })
 
 const saving = ref(false)
 
-async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema.value>>) {
+async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   saving.value = true
   try {
     const body = {
@@ -229,8 +219,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema.value>>) {
       location_name: event.data.location_name,
       location_address: event.data.location_address,
       location_city: event.data.location_city,
-      date_from: event.data.date_from,
-      date_to: event.data.date_to,
+      date: event.data.date,
       status: event.data.status,
     }
 

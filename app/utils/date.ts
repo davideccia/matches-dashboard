@@ -40,15 +40,3 @@ export function formatServerDateOnly(value: string | null | undefined, locale: s
   const fmt = locale === 'it' ? 'DD/MM/YYYY' : 'YYYY-MM-DD'
   return dayjs(value).format(fmt)
 }
-
-/**
- * Formats a date-only range for display; collapses to a single date when
- * both ends are the same day.
- */
-export function formatServerDateRange(from: string | null | undefined, to: string | null | undefined, locale: string): string {
-  const start = formatServerDateOnly(from, locale)
-  const end = formatServerDateOnly(to, locale)
-  if (!start) { return end }
-  if (!end || start === end) { return start }
-  return `${start} – ${end}`
-}

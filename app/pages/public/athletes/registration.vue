@@ -241,7 +241,7 @@
                 />
               </div>
               <p class="text-sm text-muted mt-1">
-                {{ formatServerDateRange(tournament.date_from, tournament.date_to, locale) }}
+                {{ formatServerDateOnly(tournament.date, locale) }}
               </p>
               <p class="text-sm text-muted">
                 {{ tournament.location_city }}
@@ -425,7 +425,7 @@
                 <dd class="text-sm font-medium text-right">
                   {{ selectedTournament?.name ?? t('register.notSelected') }}
                   <span v-if="selectedTournament" class="block text-xs text-muted">
-                    {{ formatServerDateRange(selectedTournament.date_from, selectedTournament.date_to, locale) }} · {{ selectedTournament.location_city }}
+                    {{ formatServerDateOnly(selectedTournament.date, locale) }} · {{ selectedTournament.location_city }}
                   </span>
                 </dd>
               </div>
