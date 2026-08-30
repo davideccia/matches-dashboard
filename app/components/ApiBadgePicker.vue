@@ -93,9 +93,10 @@
       <span>
         {{ modelValue.length }}<template v-if="max"> / {{ max }}</template>
         {{ t("common.selected") }}
-        <span v-if="isMaxReached" class="text-warning"
-          >— {{ t("common.maxSelectionReached") }}</span
-        >
+        <span
+          v-if="isMaxReached"
+          class="text-warning"
+        >— {{ t("common.maxSelectionReached") }}</span>
       </span>
       <UButton
         v-if="!isDisabled"
@@ -120,52 +121,52 @@
 </template>
 
 <script setup lang="ts">
-import type { PaginatedResponse } from "~/types/models";
+import type { PaginatedResponse } from '~/types/models'
 
-type Item = Record<string, unknown>;
+type Item = Record<string, unknown>
 
 const props = withDefaults(
   defineProps<{
-    endpoint: string;
-    valueKey?: string;
-    labelKey?: string;
-    placeholder?: string;
-    disabled?: boolean;
-    paginated?: boolean;
-    searchable?: boolean;
+    endpoint: string
+    valueKey?: string
+    labelKey?: string
+    placeholder?: string
+    disabled?: boolean
+    paginated?: boolean
+    searchable?: boolean
     /** Altezza fissa dell'area scrollabile (classe Tailwind). */
-    height?: string;
+    height?: string
     /** Numero massimo di elementi selezionabili. */
-    max?: number;
+    max?: number
     /**
      * Elementi già noti al parent (relazioni eager-loaded in modifica): servono a
      * risolvere le label degli id selezionati che non sono nella pagina corrente.
      */
-    initialItems?: Item[];
-    queryParams?: Record<string, string | number | boolean | undefined>;
+    initialItems?: Item[]
+    queryParams?: Record<string, string | number | boolean | undefined>
   }>(),
   {
-    valueKey: "id",
-    labelKey: "label",
+    valueKey: 'id',
+    labelKey: 'label',
     placeholder: undefined,
     disabled: false,
     paginated: true,
     searchable: true,
-    height: "h-30",
+    height: 'h-30',
     max: undefined,
     initialItems: undefined,
     queryParams: undefined,
   },
-);
+)
 
 const emit = defineEmits<{
-  change: [items: Item[]];
-}>();
+  change: [items: Item[]]
+}>()
 
-const modelValue = defineModel<string[]>({ default: () => [] });
+const modelValue = defineModel<string[]>({ default: () => [] })
 
-const { t } = useI18n();
-const api = useApi();
+const { t } = useI18n()
+const api = useApi()
 
 // ── Form field integration (pulisce gli errori di validazione al toggle) ────
 const {
@@ -174,185 +175,190 @@ const {
   emitFormFocus,
   disabled: isDisabled,
   highlight,
-} = useFormField(props);
+} = useFormField(props)
 
 // ── State ──────────────────────────────────────────────────────────────────
-const search = ref("");
-const items = ref<Item[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-const currentPage = ref(1);
-const hasMore = ref(false);
+const search = ref('')
+const items = ref<Item[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
+const currentPage = ref(1)
+const hasMore = ref(false)
 
 /**
  * Label degli elementi selezionati: con ricerca e paginazione un elemento già
  * scelto può non essere nella pagina corrente, senza cache il badge sparirebbe.
  */
-const selectedCache = ref(new Map<string, Item>());
+const selectedCache = ref(new Map<string, Item>())
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 20
 
 // ── Derived ────────────────────────────────────────────────────────────────
-const idOf = (item: Item) => String(item[props.valueKey]);
-const labelOf = (item: Item) =>
-  String(item[props.labelKey] ?? item[props.valueKey] ?? "");
+const idOf = (item: Item) => String(item[props.valueKey])
+function labelOf(item: Item) {
+  return String(item[props.labelKey] ?? item[props.valueKey] ?? '')
+}
 
-const isSelected = (item: Item) => modelValue.value.includes(idOf(item));
+const isSelected = (item: Item) => modelValue.value.includes(idOf(item))
 
 const isMaxReached = computed(
   () => props.max !== undefined && modelValue.value.length >= props.max,
-);
+)
 
-const isBlockedByMax = (item: Item) => isMaxReached.value && !isSelected(item);
+const isBlockedByMax = (item: Item) => isMaxReached.value && !isSelected(item)
 
 /** Tutto ciò che è caricato è già selezionato: il pulsante passa a "deseleziona". */
 const allLoadedSelected = computed(
   () =>
-    modelValue.value.length > 0 &&
-    items.value.every((item) => modelValue.value.includes(idOf(item))),
-);
+    modelValue.value.length > 0
+    && items.value.every(item => modelValue.value.includes(idOf(item))),
+)
 
 const canToggleAll = computed(
   () => items.value.length > 0 || modelValue.value.length > 0,
-);
+)
 
-/** Selezionati in cima (sempre visibili), poi i risultati non ancora scelti. */
+/**
+ * Ordine del server, invariato: selezionare o deselezionare non sposta i badge.
+ * In coda solo i selezionati assenti dai risultati correnti (ricerca/paginazione),
+ * altrimenti sparirebbero dalla UI.
+ */
 const displayItems = computed<Item[]>(() => {
-  const selected = modelValue.value.map(
-    (id) => selectedCache.value.get(id) ?? ({ [props.valueKey]: id } as Item),
-  );
-  const rest = items.value.filter(
-    (item) => !modelValue.value.includes(idOf(item)),
-  );
-  return [...selected, ...rest];
-});
+  const loadedIds = new Set(items.value.map(idOf))
+  const missingSelected = modelValue.value
+    .filter(id => !loadedIds.has(id))
+    .map(
+      id => selectedCache.value.get(id) ?? ({ [props.valueKey]: id } as Item),
+    )
+  return [...items.value, ...missingSelected]
+})
 
 // ── API ────────────────────────────────────────────────────────────────────
 /** Memorizza le label degli elementi selezionati che compaiono nei risultati. */
 function cacheSelected(fetched: Item[]) {
   const missing = fetched.filter(
-    (item) =>
-      modelValue.value.includes(idOf(item)) &&
-      !selectedCache.value.has(idOf(item)),
-  );
+    item =>
+      modelValue.value.includes(idOf(item))
+      && !selectedCache.value.has(idOf(item)),
+  )
   if (missing.length === 0) {
-    return;
+    return
   }
-  const next = new Map(selectedCache.value);
+  const next = new Map(selectedCache.value)
   for (const item of missing) {
-    next.set(idOf(item), item);
+    next.set(idOf(item), item)
   }
-  selectedCache.value = next;
+  selectedCache.value = next
 }
 
 /** Scarta le risposte stale: l'ultima richiesta partita è l'unica che vince. */
-let requestId = 0;
+let requestId = 0
 
 async function fetchItems(append = false) {
-  const rid = ++requestId;
-  loading.value = true;
-  error.value = null;
+  const rid = ++requestId
+  loading.value = true
+  error.value = null
   try {
     const filters = {
       ...(search.value ? { search: search.value } : {}),
       ...(props.queryParams ?? {}),
-    };
+    }
 
     if (props.paginated) {
       const res = await api.get<PaginatedResponse<Item>>(props.endpoint, {
         page: currentPage.value,
         per_page: PAGE_SIZE,
         ...filters,
-      });
+      })
       if (rid !== requestId) {
-        return;
+        return
       }
-      const fetched = res.data ?? [];
-      cacheSelected(fetched);
-      items.value = append ? [...items.value, ...fetched] : fetched;
-      hasMore.value = currentPage.value < (res.meta?.last_page ?? 1);
+      const fetched = res.data ?? []
+      cacheSelected(fetched)
+      items.value = append ? [...items.value, ...fetched] : fetched
+      hasMore.value = currentPage.value < (res.meta?.last_page ?? 1)
     } else {
       const res = await api.get<{ data: Item[] }>(props.endpoint, {
         paginate: 0,
         ...filters,
-      });
+      })
       if (rid !== requestId) {
-        return;
+        return
       }
-      const fetched = res.data ?? [];
-      cacheSelected(fetched);
-      items.value = fetched;
-      hasMore.value = false;
+      const fetched = res.data ?? []
+      cacheSelected(fetched)
+      items.value = fetched
+      hasMore.value = false
     }
   } catch (e) {
     if (rid !== requestId) {
-      return;
+      return
     }
-    error.value = getApiErrorMessage(e) ?? t("common.error");
-    hasMore.value = false;
+    error.value = getApiErrorMessage(e) ?? t('common.error')
+    hasMore.value = false
   } finally {
     if (rid === requestId) {
-      loading.value = false;
+      loading.value = false
     }
   }
 }
 
 function reset() {
-  currentPage.value = 1;
-  items.value = [];
-  hasMore.value = false;
-  return fetchItems();
+  currentPage.value = 1
+  items.value = []
+  hasMore.value = false
+  return fetchItems()
 }
 
 function reload() {
-  return reset();
+  return reset()
 }
 
 /** Pagina successiva: incrementata solo a fetch concluso, così non se ne perdono. */
 async function loadMore() {
   if (loading.value || !hasMore.value || error.value) {
-    return;
+    return
   }
-  currentPage.value += 1;
-  await fetchItems(true);
+  currentPage.value += 1
+  await fetchItems(true)
 }
 
 // ── Selection ──────────────────────────────────────────────────────────────
 function emitChange() {
   emit(
-    "change",
+    'change',
     modelValue.value.map(
-      (id) => selectedCache.value.get(id) ?? ({ [props.valueKey]: id } as Item),
+      id => selectedCache.value.get(id) ?? ({ [props.valueKey]: id } as Item),
     ),
-  );
-  emitFormChange();
+  )
+  emitFormChange()
 }
 
 function toggle(item: Item) {
   if (isDisabled.value) {
-    return;
+    return
   }
-  const id = idOf(item);
-  const selected = modelValue.value.includes(id);
+  const id = idOf(item)
+  const selected = modelValue.value.includes(id)
 
   if (!selected && isMaxReached.value) {
-    return;
+    return
   }
 
   modelValue.value = selected
-    ? modelValue.value.filter((value) => value !== id)
-    : [...modelValue.value, id];
+    ? modelValue.value.filter(value => value !== id)
+    : [...modelValue.value, id]
 
   if (!selected) {
-    selectedCache.value = new Map(selectedCache.value).set(id, item);
+    selectedCache.value = new Map(selectedCache.value).set(id, item)
   }
 
-  emitChange();
+  emitChange()
 }
 
 function clearAll() {
-  modelValue.value = [];
-  emitChange();
+  modelValue.value = []
+  emitChange()
 }
 
 /**
@@ -362,101 +368,101 @@ function clearAll() {
  */
 function selectAllLoaded() {
   const missing = items.value.filter(
-    (item) => !modelValue.value.includes(idOf(item)),
-  );
-  const room =
-    props.max === undefined
+    item => !modelValue.value.includes(idOf(item)),
+  )
+  const room
+    = props.max === undefined
       ? missing.length
-      : props.max - modelValue.value.length;
-  const toAdd = missing.slice(0, Math.max(room, 0));
+      : props.max - modelValue.value.length
+  const toAdd = missing.slice(0, Math.max(room, 0))
   if (toAdd.length === 0) {
-    return;
+    return
   }
 
-  const cache = new Map(selectedCache.value);
+  const cache = new Map(selectedCache.value)
   for (const item of toAdd) {
-    cache.set(idOf(item), item);
+    cache.set(idOf(item), item)
   }
-  selectedCache.value = cache;
+  selectedCache.value = cache
 
-  modelValue.value = [...modelValue.value, ...toAdd.map(idOf)];
-  emitChange();
+  modelValue.value = [...modelValue.value, ...toAdd.map(idOf)]
+  emitChange()
 }
 
 function toggleAll() {
   if (isDisabled.value) {
-    return;
+    return
   }
   if (allLoadedSelected.value) {
-    clearAll();
-    return;
+    clearAll()
+    return
   }
-  selectAllLoaded();
+  selectAllLoaded()
 }
 
 // ── Infinite scroll (root = il div scrollabile, non il viewport) ───────────
-const scroller = useTemplateRef("scroller");
-const sentinel = useTemplateRef("sentinel");
-let observer: IntersectionObserver | null = null;
+const scroller = useTemplateRef('scroller')
+const sentinel = useTemplateRef('sentinel')
+let observer: IntersectionObserver | null = null
 
 onMounted(() => {
   observer = new IntersectionObserver(
     (entries) => {
-      const entry = entries[0];
+      const entry = entries[0]
       if (entry?.isIntersecting) {
-        loadMore();
+        loadMore()
       }
     },
     { root: scroller.value, threshold: 0.1 },
-  );
+  )
 
   if (sentinel.value) {
-    observer.observe(sentinel.value);
+    observer.observe(sentinel.value)
   }
 
   if (props.initialItems?.length) {
-    cacheSelected(props.initialItems);
+    cacheSelected(props.initialItems)
   }
 
-  fetchItems();
-});
+  fetchItems()
+})
 
 watch(sentinel, (el) => {
-  observer?.disconnect();
+  observer?.disconnect()
   if (el) {
-    observer?.observe(el);
+    observer?.observe(el)
   }
-});
+})
 
 // ── Search debounce ────────────────────────────────────────────────────────
-let searchTimer: ReturnType<typeof setTimeout>;
+let searchTimer: ReturnType<typeof setTimeout>
 watch(search, () => {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(reset, 300);
-});
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(reset, 300)
+})
 
 // ── queryParams change → reset e re-fetch ─────────────────────────────────
 watch(
   () => props.queryParams,
   () => {
-    reset();
+    reset()
   },
   { deep: true },
-);
+)
 
 // ── initialItems arriva in modifica dopo il GET del parent ─────────────────
 watch(
   () => props.initialItems,
   (list) => {
     if (list?.length) {
-      cacheSelected(list);
+      cacheSelected(list)
     }
   },
   { deep: true },
-);
+)
 
 onBeforeUnmount(() => {
-  clearTimeout(searchTimer);
-  observer?.disconnect();
-});
+  clearTimeout(searchTimer)
+  observer?.disconnect()
+})
 </script>
