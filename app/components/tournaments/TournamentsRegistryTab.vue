@@ -51,6 +51,24 @@
           </div>
         </div>
 
+        <USeparator />
+
+        <div class="space-y-4">
+          <h4 class="flex items-center gap-2 text-sm font-medium text-muted">
+            <UIcon name="i-mdi-karate" class="size-4" />
+            {{ t('tournament.section.disciplines') }}
+          </h4>
+          <UFormField name="disciplines">
+            <ApiBadgePicker
+              v-model="state.disciplines"
+              endpoint="/api/admin/disciplines"
+              label-key="label"
+              :initial-items="tournament.disciplines"
+              class="w-full"
+            />
+          </UFormField>
+        </div>
+
         <div class="flex justify-end pt-2">
           <UButton type="submit" :loading="saving">
             {{ t('common.save') }}
@@ -189,6 +207,7 @@ const schema = z.object({
   location_city: z.string().min(1),
   date: z.string().min(1),
   status: z.enum(TOURNAMENT_STATUSES),
+  disciplines: z.array(z.string()),
 })
 
 const state = reactive({
@@ -198,6 +217,7 @@ const state = reactive({
   location_city: tournament.location_city,
   date: serverDateOnlyToInput(tournament.date),
   status: tournament.status as TournamentStatus,
+  disciplines: tournament.disciplines?.map(discipline => discipline.id) ?? [],
 })
 
 watch(() => tournament.id, () => {
@@ -207,6 +227,7 @@ watch(() => tournament.id, () => {
   state.location_city = tournament.location_city
   state.date = serverDateOnlyToInput(tournament.date)
   state.status = tournament.status
+  state.disciplines = tournament.disciplines?.map(discipline => discipline.id) ?? []
 })
 
 const saving = ref(false)
@@ -221,6 +242,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       location_city: event.data.location_city,
       date: event.data.date,
       status: event.data.status,
+      disciplines: event.data.disciplines,
     }
 
     await api.put<{ data: Tournament }>(`/api/admin/tournaments/${tournament.id}`, body)

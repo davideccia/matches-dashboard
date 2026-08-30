@@ -52,10 +52,10 @@
                 <div class="flex items-center gap-2">
                   <ApiSelectMenu
                     v-model="state.discipline_id"
-                    endpoint="/api/admin/disciplines"
+                    :endpoint="disciplinesEndpoint"
                     label-key="label"
-                    :placeholder="t('match.selectDiscipline')"
-                    :disabled="filtersLocked"
+                    :placeholder="state.tournament_id ? t('match.selectDiscipline') : t('match.selectTournamentFirst')"
+                    :disabled="filtersLocked || !state.tournament_id"
                     class="w-full"
                     @select="onDisciplineSelect"
                   />
@@ -554,6 +554,14 @@ const filtersReady = computed(() =>
   !!state.tournament_id && !!state.discipline_id && !!state.weight_category_id,
 )
 
+// Le discipline sono quelle dichiarate dal torneo: finché non se ne sceglie uno
+// il campo resta visibile ma disabilitato, e il fallback flat non è raggiungibile.
+const disciplinesEndpoint = computed(() =>
+  state.tournament_id
+    ? `/api/admin/tournaments/${state.tournament_id}/disciplines`
+    : '/api/admin/disciplines',
+)
+
 const filterParams = computed(() => {
   const gender = genderFilter.value === 'hybrid' ? undefined : genderFilter.value
   return forceEntry.value
@@ -684,6 +692,15 @@ watch(
     state.winner_id = null
   },
 )
+
+// ── Cambio torneo → la disciplina scelta può non essere più fra quelle del
+// nuovo torneo, quindi si azzera insieme ai valori che ne derivano ────────────
+watch(() => state.tournament_id, () => {
+  if (initializing.value) { return }
+  state.discipline_id = null
+  state.rounds = null
+  state.minutes_per_round = undefined
+})
 
 // ── When gender filter changes, reset athlete selections ─────────────────────
 watch(genderFilter, () => {

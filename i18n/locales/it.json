@@ -80,7 +80,10 @@
     "no": "No",
     "download": "Scarica",
     "close": "Chiudi",
-    "selected": "selezionati"
+    "selected": "selezionati",
+    "clearSelection": "Deseleziona tutto",
+    "maxSelectionReached": "Selezione massima raggiunta",
+    "selectAll": "Seleziona tutto"
   },
   "tournament": {
     "title": "Torneo",
@@ -122,7 +125,8 @@
     "section": {
       "general": "Informazioni generali",
       "location": "Location",
-      "experienceTiers": "Range matchmaking"
+      "experienceTiers": "Range matchmaking",
+      "disciplines": "Discipline"
     },
     "experienceTiers": {
       "empty": "Nessun range per questo torneo: si applicano quelli globali",
@@ -228,7 +232,8 @@
     "judgesPointsRecorded": "Cartellini registrati",
     "judgesPointsEmpty": "Nessun cartellino",
     "notes": "Note",
-    "notesEmpty": "Nessuna nota"
+    "notesEmpty": "Nessuna nota",
+    "selectTournamentFirst": "Scegli prima un torneo"
   },
   "athlete": {
     "title": "Atleta",
@@ -440,7 +445,8 @@
     "codeLabel": "Codice di verifica",
     "codePlaceholder": "000000",
     "confirmRegistration": "Conferma iscrizione",
-    "emailInvalid": "Inserisci un indirizzo email valido"
+    "emailInvalid": "Inserisci un indirizzo email valido",
+    "selectTournamentFirst": "Scegli prima un torneo"
   },
   "fileUpload": {
     "upload": "Carica file",

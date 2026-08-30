@@ -46,7 +46,7 @@
           <div class="flex items-center gap-2">
             <ApiSelectMenu
               v-model="state.discipline_id"
-              endpoint="/api/admin/disciplines"
+              :endpoint="disciplinesEndpoint"
               label-key="label"
               :placeholder="t('registration.selectDiscipline')"
               class="w-full"
@@ -223,6 +223,13 @@ const state = reactive({
   weight_in: null as number | null,
   notes: '',
 })
+
+// Le discipline sono quelle dichiarate dal torneo. Qui il torneo è sempre noto —
+// `props.tournamentId` in creazione, `item.tournament_id` in modifica — quindi
+// il campo non va mai disabilitato e la disciplina non va mai azzerata.
+const disciplinesEndpoint = computed(() =>
+  `/api/admin/tournaments/${state.tournament_id ?? props.tournamentId}/disciplines`,
+)
 
 const paidAtOpen = ref(false)
 const paidAtDate = ref<any>()

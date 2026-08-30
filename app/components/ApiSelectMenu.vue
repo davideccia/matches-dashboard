@@ -238,6 +238,18 @@ watch(
   { deep: true },
 )
 
+// ── endpoint change → reset and re-fetch ───────────────────────────────────
+// Serve agli endpoint nested che dipendono da un'altra selezione (es. le
+// discipline di un torneo): senza questo la lista resterebbe quella vecchia.
+watch(
+  () => props.endpoint,
+  () => {
+    currentPage.value = 1
+    items.value = []
+    fetchItems()
+  },
+)
+
 // ── Popover open/close ─────────────────────────────────────────────────────
 watch(open, async (isOpen) => {
   if (isOpen) {

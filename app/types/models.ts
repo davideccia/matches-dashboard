@@ -82,6 +82,7 @@ export interface Tournament {
   registrations?: Registration[]
   match_records?: MatchRecord[]
   experience_tiers?: ExperienceTier[]
+  disciplines?: Discipline[]
 }
 
 export interface Registration {

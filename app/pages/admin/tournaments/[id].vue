@@ -49,7 +49,7 @@ const tournamentId = computed(() => route.params.id as string)
 
 const { data: tournament, status, refresh } = useLazyAsyncData(
   () => `tournament-${tournamentId.value}`,
-  () => api.get<{ data: Tournament }>(`/api/admin/tournaments/${tournamentId.value}`).then(res => res.data),
+  () => api.get<{ data: Tournament }>(`/api/admin/tournaments/${tournamentId.value}?with=disciplines`).then(res => res.data),
   { watch: [tournamentId] },
 )
 

@@ -80,7 +80,10 @@
     "no": "No",
     "download": "Download",
     "close": "Close",
-    "selected": "selected"
+    "selected": "selected",
+    "clearSelection": "Clear selection",
+    "maxSelectionReached": "Maximum selection reached",
+    "selectAll": "Select all"
   },
   "tournament": {
     "title": "Tournament",
@@ -122,7 +125,8 @@
     "section": {
       "general": "General information",
       "location": "Location",
-      "experienceTiers": "Experience ranges"
+      "experienceTiers": "Experience ranges",
+      "disciplines": "Disciplines"
     },
     "experienceTiers": {
       "empty": "No range for this tournament: the global ones apply",
@@ -228,7 +232,8 @@
     "judgesPointsRecorded": "Scorecards recorded",
     "judgesPointsEmpty": "No scorecards",
     "notes": "Notes",
-    "notesEmpty": "No notes"
+    "notesEmpty": "No notes",
+    "selectTournamentFirst": "Select a tournament first"
   },
   "athlete": {
     "title": "Athlete",
@@ -440,7 +445,8 @@
     "codeLabel": "Verification code",
     "codePlaceholder": "000000",
     "confirmRegistration": "Confirm registration",
-    "emailInvalid": "Enter a valid email address"
+    "emailInvalid": "Enter a valid email address",
+    "selectTournamentFirst": "Select a tournament first"
   },
   "fileUpload": {
     "upload": "Upload file",

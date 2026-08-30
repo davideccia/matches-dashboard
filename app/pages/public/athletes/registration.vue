@@ -259,8 +259,12 @@
           </div>
         </div>
 
-        <!-- Discipline -->
-        <div class="rounded-2xl bg-elevated border border-default p-5 space-y-3">
+        <!-- Discipline: visibile sempre, disabilitata finché manca il torneo -->
+        <div
+          class="rounded-2xl bg-elevated border border-default p-5 space-y-3 transition-opacity"
+          :class="{ 'opacity-60': !selectedTournamentId }"
+          :aria-disabled="!selectedTournamentId"
+        >
           <h2 class="text-base font-semibold flex items-center gap-2">
             <UIcon name="i-mdi-sword-cross" class="size-4 text-primary" />
             {{ t('register.selectDiscipline') }}
@@ -272,9 +276,13 @@
             :placeholder="t('register.searchDiscipline')"
             size="md"
             class="w-full"
+            :disabled="!selectedTournamentId"
           />
 
-          <div v-if="disciplinesLoading" class="grid grid-cols-2 gap-2">
+          <div v-if="!selectedTournamentId" class="text-center py-6 text-sm text-muted">
+            {{ t('register.selectTournamentFirst') }}
+          </div>
+          <div v-else-if="disciplinesLoading" class="grid grid-cols-2 gap-2">
             <USkeleton v-for="n in 4" :key="n" class="h-12 rounded-xl" />
           </div>
           <div v-else-if="disciplines.length > 0" class="grid grid-cols-2 gap-2">
@@ -721,11 +729,18 @@ watch(disciplinesSearchInput, (val) => {
 })
 watch(disciplinesSearch, () => fetchDisciplines())
 
+// Le discipline sono quelle dichiarate dal torneo scelto: senza torneo non c'è
+// nulla da chiedere, la sezione resta visibile ma disabilitata.
 async function fetchDisciplines() {
+  const tournamentId = selectedTournamentId.value
+  if (!tournamentId) {
+    disciplines.value = []
+    return
+  }
   disciplinesLoading.value = true
   try {
     const res = await apiGet<PaginatedResponse<Discipline>>(
-      '/api/public/registration_form/disciplines',
+      `/api/public/registration_form/tournaments/${tournamentId}/disciplines`,
       disciplinesSearch.value ? { search: disciplinesSearch.value } : {},
     )
     disciplines.value = res.data ?? []
@@ -735,6 +750,15 @@ async function fetchDisciplines() {
     disciplinesLoading.value = false
   }
 }
+
+// Cambio torneo → la disciplina scelta può non essere fra quelle del nuovo
+// torneo: si azzera la selezione e si ricarica la lista. La ricerca digitata
+// resta: azzerarla farebbe scattare anche `watch(disciplinesSearch)`, con due
+// fetch identiche in fila.
+watch(selectedTournamentId, () => {
+  selectedDisciplineId.value = null
+  fetchDisciplines()
+})
 
 // Categorie di peso
 const weightCategories = ref<WeightCategory[]>([])
@@ -767,7 +791,6 @@ async function fetchWeightCategories() {
 
 function loadStep3Data() {
   fetchTournaments()
-  fetchDisciplines()
   fetchWeightCategories()
 }
 
