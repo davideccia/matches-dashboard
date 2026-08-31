@@ -41,6 +41,7 @@ export interface Athlete {
   gender: Gender
   tax_number: string | null
   email: string
+  phone_number: string | null
   team_name: string | null
   generic_match_records_count?: number | null
   registered_match_records_count?: number | null

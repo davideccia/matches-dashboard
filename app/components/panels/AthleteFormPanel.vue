@@ -35,6 +35,10 @@
           <UInput v-model="state.email" type="email" class="w-full" />
         </UFormField>
 
+        <UFormField name="phone_number" :label="t('athlete.phoneNumber')">
+          <UInput v-model="state.phone_number" type="tel" class="w-full" />
+        </UFormField>
+
         <UFormField name="team_name" :label="t('athlete.teamName')">
           <UInput v-model="state.team_name" class="w-full" />
         </UFormField>
@@ -123,6 +127,7 @@ const schema = z.object({
   gender: z.enum(GENDERS),
   tax_number: z.string().min(1),
   email: z.email(),
+  phone_number: z.string().optional(),
   team_name: z.string().optional(),
   generic_match_records_count: z.coerce.number().int().min(0).nullable().optional(),
 })
@@ -134,6 +139,7 @@ const state = reactive({
   gender: 'male' as Gender,
   tax_number: '',
   email: '',
+  phone_number: '',
   team_name: '',
   generic_match_records_count: null as number | null,
   registered_match_records_count: null as number | null,
@@ -154,6 +160,7 @@ watch(open, async (val) => {
       state.gender = item.gender ?? 'male'
       state.tax_number = item.tax_number ?? ''
       state.email = item.email
+      state.phone_number = item.phone_number ?? ''
       state.team_name = item.team_name ?? ''
       state.generic_match_records_count = item.generic_match_records_count ?? null
       state.registered_match_records_count = item.registered_match_records_count ?? null
@@ -171,6 +178,7 @@ watch(open, async (val) => {
     state.gender = 'male'
     state.tax_number = ''
     state.email = ''
+    state.phone_number = ''
     state.team_name = ''
     state.generic_match_records_count = null
     state.registered_match_records_count = null
@@ -190,6 +198,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       gender: event.data.gender,
       tax_number: event.data.tax_number,
       email: event.data.email,
+      phone_number: event.data.phone_number || null,
       team_name: event.data.team_name || null,
       generic_match_records_count: event.data.generic_match_records_count ?? null,
     }
@@ -209,6 +218,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     state.gender = saved.gender ?? 'male'
     state.tax_number = saved.tax_number ?? ''
     state.email = saved.email
+    state.phone_number = saved.phone_number ?? ''
     state.team_name = saved.team_name ?? ''
     state.generic_match_records_count = saved.generic_match_records_count ?? null
     state.registered_match_records_count = saved.registered_match_records_count ?? null

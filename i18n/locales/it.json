@@ -242,6 +242,7 @@
     "birthDate": "Data di nascita",
     "taxNumber": "Codice fiscale",
     "email": "Indirizzo email",
+    "phoneNumber": "Numero di telefono",
     "team": "Team",
     "teamName": "Team",
     "genericMatchRecordsCount": "Match pregressi (§MP)",

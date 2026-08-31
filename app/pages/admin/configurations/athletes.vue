@@ -168,6 +168,8 @@ const columns = computed(() => [
   { accessorKey: 'birth_date', header: t('athlete.birthDate') },
   { accessorKey: 'gender', header: t('athlete.gender.label') },
   { accessorKey: 'tax_number', header: t('athlete.taxNumber') },
+  { accessorKey: 'email', header: t('athlete.email') },
+  { accessorKey: 'phone_number', header: t('athlete.phoneNumber') },
   { accessorKey: 'team_name', header: t('athlete.teamName') },
   { id: 'actions', header: '' },
 ] as TableColumn<Record<string, unknown>>[])
