@@ -392,7 +392,9 @@
     "page": "Page {current} of {total}",
     "prev": "Previous",
     "next": "Next",
-    "liveIndicator": "Live"
+    "liveIndicator": "Live",
+    "liveIndicatorOff": "Paused",
+    "toggleRealtime": "Toggle live updates"
   },
   "register": {
     "stepTaxNumber": "Tax number",

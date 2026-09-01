@@ -392,7 +392,9 @@
     "page": "Pagina {current} di {total}",
     "prev": "Precedente",
     "next": "Successiva",
-    "liveIndicator": "In diretta"
+    "liveIndicator": "In diretta",
+    "liveIndicatorOff": "In pausa",
+    "toggleRealtime": "Attiva/disattiva aggiornamenti in tempo reale"
   },
   "register": {
     "stepTaxNumber": "Codice fiscale",

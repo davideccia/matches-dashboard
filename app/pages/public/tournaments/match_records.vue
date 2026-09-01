@@ -5,7 +5,10 @@
       <div class="sticky top-0 z-10 bg-default -mx-4 px-4 pt-2 pb-3 space-y-2 sm:space-y-3">
         <!-- Header: full on mobile (state A) / hidden on mobile (state B) -->
         <div class="flex flex-col items-center gap-2 sm:gap-3" :class="{ 'hidden sm:flex': selectedTournament }">
-          <LocaleSwitcher />
+          <div class="flex items-center gap-2">
+            <LocaleSwitcher />
+            <RealtimeToggle v-if="selectedTournament" v-model="realtimeEnabled" />
+          </div>
           <div class="size-10 sm:size-12 rounded-2xl bg-primary/10 flex items-center justify-center">
             <UIcon name="i-mdi-sword-cross" class="size-5 sm:size-6 text-primary" />
           </div>
@@ -27,7 +30,10 @@
             </div>
             <span class="text-sm font-bold text-default">{{ t('publicMatchRecords.title') }}</span>
           </div>
-          <LocaleSwitcher />
+          <div class="flex items-center gap-2">
+            <LocaleSwitcher />
+            <RealtimeToggle v-model="realtimeEnabled" />
+          </div>
         </div>
 
         <!-- Tournament bar (state B only) -->
@@ -324,11 +330,17 @@ watch(matchesData, async () => {
 })
 
 // ── WebSocket (Laravel Echo / Reverb) ────────────────────────────────────────
-const tournamentId = computed(() => selectedTournament.value?.id ?? null)
+const realtimeEnabled = ref(true)
+// null quando spento: il composable disiscrive già il canale precedente su ogni cambio.
+const tournamentId = computed(() => (realtimeEnabled.value ? (selectedTournament.value?.id ?? null) : null))
 const { lastEvent } = useTournamentMatchRecords(tournamentId)
 
 watch(lastEvent, (event) => {
   if (event?.refresh) { refreshMatchRecords() }
+})
+
+watch(realtimeEnabled, (on) => {
+  if (on) { refreshMatchRecords() }
 })
 
 onUnmounted(() => {
