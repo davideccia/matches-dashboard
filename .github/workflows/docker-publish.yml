@@ -3,6 +3,9 @@
 #
 # Traduzione di .forgejo/workflows/docker-publish.yml per GitHub Actions.
 #
+# Tag pubblicati: `latest` + la versione letta da package.json (non piu' lo
+# short SHA), cosi' i tag rispecchiano il pattern di ghcr-publish.yml.
+#
 # Runner: `ubuntu-latest` (hosted) → Docker e buildx sono gia' preinstallati,
 # quindi a differenza del gemello Forgejo non serve `apk add git nodejs`.
 #
@@ -45,7 +48,7 @@ jobs:
         run: docker version
 
       - name: Resolve tag
-        run: echo "SHORT_SHA=$(echo "$GITHUB_SHA" | cut -c1-7)" >> "$GITHUB_ENV"
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
 
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ vars.DOCKERHUB_USERNAME }}" --password-stdin
@@ -58,7 +61,7 @@ jobs:
           docker buildx build \
             -f docker/production/Dockerfile \
             -t "$IMAGE:latest" \
-            -t "$IMAGE:$SHORT_SHA" \
+            -t "$IMAGE:$VERSION" \
             --build-arg NUXT_BASE_URL="${{ vars.NUXT_BASE_URL }}" \
             --build-arg NUXT_PUBLIC_REVERB_HOST="${{ vars.NUXT_PUBLIC_REVERB_HOST }}" \
             --build-arg NUXT_PUBLIC_REVERB_PORT="${{ vars.NUXT_PUBLIC_REVERB_PORT }}" \
