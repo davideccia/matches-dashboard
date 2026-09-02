@@ -15,10 +15,14 @@
         />
       </div>
       <ApiEnvironmentUnlock>
-        <UIcon
-          name="i-mdi-mixed-martial-arts"
-          class="size-20 text-primary drop-shadow-lg relative z-10"
-        />
+        <div
+          class="aspect-square w-fit mx-auto flex items-center justify-center p-4 rounded-4xl border-4 border-primary relative z-10"
+        >
+          <UIcon
+            name="i-mdi-mixed-martial-arts"
+            class="size-20 text-primary drop-shadow-lg"
+          />
+        </div>
       </ApiEnvironmentUnlock>
     </div>
 
@@ -42,10 +46,14 @@
           />
         </div>
         <ApiEnvironmentUnlock>
-          <UIcon
-            name="i-mdi-mixed-martial-arts"
-            class="size-48 text-primary drop-shadow-2xl relative z-10"
-          />
+          <div
+            class="aspect-square w-fit mx-auto flex items-center justify-center p-4 rounded-4xl border-4 border-primary relative z-10"
+          >
+            <UIcon
+              name="i-mdi-mixed-martial-arts"
+              class="size-48 text-primary drop-shadow-2xl"
+            />
+          </div>
         </ApiEnvironmentUnlock>
       </div>
 

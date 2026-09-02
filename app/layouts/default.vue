@@ -3,10 +3,12 @@
     <UDashboardSidebar collapsible resizable>
       <template #default="{ collapsed }">
         <ApiEnvironmentUnlock>
-          <div class="text-center p-4 rounded-4xl border-4 border-primary">
+          <div
+            class="aspect-square w-fit mx-auto flex items-center justify-center p-4 rounded-4xl border-4 border-primary"
+          >
             <UIcon
               name="i-mdi-mixed-martial-arts"
-              :class="collapsed ? 'size-10 mx-auto' : 'size-24 mx-auto'"
+              :class="collapsed ? 'size-10' : 'size-24'"
               class="text-primary"
             />
           </div>
