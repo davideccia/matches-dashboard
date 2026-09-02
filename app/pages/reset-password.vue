@@ -10,11 +10,10 @@
         <div class="absolute -top-8 -left-8 w-40 h-40 rounded-full bg-white/30" />
         <div class="absolute -bottom-10 -right-10 w-48 h-48 rounded-full bg-white/20" />
       </div>
-      <img
-        :src="logoSrc"
-        alt="Logo"
-        class="w-20 h-20 drop-shadow-lg relative z-10 rounded-2xl border-4 border-primary"
-      >
+      <UIcon
+        name="i-mdi-mixed-martial-arts"
+        class="size-20 text-primary drop-shadow-lg relative z-10"
+      />
     </div>
 
     <div
@@ -29,11 +28,10 @@
           <div class="absolute top-1/3 -right-16 w-48 h-48 rounded-full bg-white/8" />
           <div class="absolute -bottom-16 left-1/4 w-64 h-64 rounded-full bg-white/6" />
         </div>
-        <img
-          :src="logoSrc"
-          alt="Logo"
-          class="w-48 h-48 drop-shadow-2xl relative z-10 rounded-3xl border-4 border-primary"
-        >
+        <UIcon
+          name="i-mdi-mixed-martial-arts"
+          class="size-48 text-primary drop-shadow-2xl relative z-10"
+        />
       </div>
 
       <!-- Right panel -->
@@ -99,7 +97,6 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
 import * as z from 'zod'
-import logoSrc from '~/assets/logo.png'
 
 definePageMeta({
   layout: false,

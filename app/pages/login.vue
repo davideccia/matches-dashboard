@@ -15,11 +15,10 @@
         />
       </div>
       <ApiEnvironmentUnlock>
-        <img
-          :src="logoSrc"
-          alt="Logo"
-          class="w-20 h-20 drop-shadow-lg relative z-10 rounded-2xl"
-        >
+        <UIcon
+          name="i-mdi-mixed-martial-arts"
+          class="size-20 text-primary drop-shadow-lg relative z-10"
+        />
       </ApiEnvironmentUnlock>
     </div>
 
@@ -43,11 +42,10 @@
           />
         </div>
         <ApiEnvironmentUnlock>
-          <img
-            :src="logoSrc"
-            alt="Logo"
-            class="w-48 h-48 drop-shadow-2xl relative z-10 rounded-3xl border-4 border-primary"
-          >
+          <UIcon
+            name="i-mdi-mixed-martial-arts"
+            class="size-48 text-primary drop-shadow-2xl relative z-10"
+          />
         </ApiEnvironmentUnlock>
       </div>
 
@@ -114,7 +112,6 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
 import * as z from 'zod'
-import logoSrc from '~/assets/logo.png'
 
 definePageMeta({
   layout: false,

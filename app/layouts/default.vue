@@ -3,22 +3,14 @@
     <UDashboardSidebar collapsible resizable>
       <template #default="{ collapsed }">
         <ApiEnvironmentUnlock>
-          <img
-            src="~/assets/logo.png"
-            :class="
-              collapsed
-                ? 'size-10 mx-auto rounded-xl'
-                : 'h-24 w-auto mx-auto rounded-xl border-4'
-            "
-            class="object-contain border-primary"
-            alt="logo"
-          >
+          <div class="text-center p-4 rounded-4xl border-4 border-primary">
+            <UIcon
+              name="i-mdi-mixed-martial-arts"
+              :class="collapsed ? 'size-10 mx-auto' : 'size-24 mx-auto'"
+              class="text-primary"
+            />
+          </div>
         </ApiEnvironmentUnlock>
-        <div v-if="!collapsed" class="text-center">
-          <UBadge variant="outline">
-            v{{ appConfig.version }}
-          </UBadge>
-        </div>
         <UNavigationMenu
           :collapsed="collapsed"
           :items="items"
@@ -51,7 +43,17 @@
       </template>
     </UDashboardSidebar>
 
-    <slot />
+    <div class="relative flex-1 min-w-0 flex flex-col">
+      <slot />
+
+      <div
+        class="absolute bottom-0 inset-x-0 z-50 h-10 flex items-center justify-end px-4 bg-default border-t border-default"
+      >
+        <UBadge variant="outline" size="sm">
+          v{{ appConfig.version }}
+        </UBadge>
+      </div>
+    </div>
   </UDashboardGroup>
 </template>
 
@@ -130,24 +132,26 @@ const userInitials = computed(() => {
 
 const userMenuItems = computed(() => [
   ...(user.value?.superadmin
-    ? [[
-        {
-          label: t('nav.horizon'),
-          icon: 'i-mdi-speedometer',
-          to: horizonUrl.value,
-          target: '_blank',
-          rel: 'noopener noreferrer',
-          color: 'primary' as const,
-        },
-        {
-          label: t('nav.logViewer'),
-          icon: 'i-mdi-text-box',
-          to: logViewerUrl.value,
-          target: '_blank',
-          rel: 'noopener noreferrer',
-          color: 'primary' as const,
-        },
-      ]]
+    ? [
+        [
+          {
+            label: t('nav.horizon'),
+            icon: 'i-mdi-speedometer',
+            to: horizonUrl.value,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            color: 'primary' as const,
+          },
+          {
+            label: t('nav.logViewer'),
+            icon: 'i-mdi-text-box',
+            to: logViewerUrl.value,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            color: 'primary' as const,
+          },
+        ],
+      ]
     : []),
   [
     {

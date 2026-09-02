@@ -3,11 +3,10 @@
     <LocaleSwitcher />
 
     <div class="flex flex-col items-center gap-3 text-center">
-      <img
-        :src="logoSrc"
-        alt="Logo"
-        class="w-40 h-40 drop-shadow-lg rounded-xl border-4 border-primary"
-      >
+      <UIcon
+        name="i-mdi-mixed-martial-arts"
+        class="size-40 text-primary drop-shadow-lg"
+      />
     </div>
 
     <div class="w-full max-w-3xl space-y-6">
@@ -92,8 +91,6 @@
 </template>
 
 <script setup lang="ts">
-import logoSrc from '~/assets/logo.png'
-
 definePageMeta({
   layout: false,
   sanctum: { guestOnly: true },
