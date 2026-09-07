@@ -379,7 +379,14 @@
     "active": "Attivo",
     "inactive": "Non attivo",
     "rangePreview": "Rientrano in questo range gli atleti con {range} incontri disputati.",
-    "globalHint": "Questi range valgono per tutti i tornei che non ne definiscono di propri."
+    "globalHint": "Questi range valgono per tutti i tornei che non ne definiscono di propri.",
+    "batchCreateTitle": "Aggiungi livelli di esperienza",
+    "addRow": "Aggiungi riga",
+    "removeRow": "Rimuovi riga",
+    "importDefaults": "Importa default",
+    "importDefaultsEmpty": "Nessun livello globale da importare",
+    "batchCreated": "Livelli di esperienza creati",
+    "batchEmpty": "Aggiungi almeno una riga"
   },
   "publicMatchRecords": {
     "title": "Incontri dal vivo",

@@ -44,25 +44,25 @@ Browser (Nuxt SPA)  ──REST + Sanctum token──►  Laravel API  ──► 
 The app splits into two route namespaces:
 
 | Namespace | URL prefix            | Auth                   | Purpose                                  |
-| --------- | ---------------------- | ----------------------- | ----------------------------------------- |
-| Admin     | `/admin/**`, `/login`  | Sanctum token (cookie)  | Full tournament management                |
-| Public    | `/public/**`           | none                    | Athlete registration and live scoreboard  |
+| --------- | --------------------- | ---------------------- | ---------------------------------------- |
+| Admin     | `/admin/**`, `/login` | Sanctum token (cookie) | Full tournament management               |
+| Public    | `/public/**`          | none                   | Athlete registration and live scoreboard |
 
 Sanctum's global middleware protects every route by default; public pages opt out with `definePageMeta({ sanctum: { excluded: true } })`. The root `/` is a **landing page** offering the three entry points (admin sign-in, athlete registration, live scoreboard); it is marked `guestOnly`, so an already-authenticated admin is redirected straight to `/admin`.
 
 ## Tech stack
 
 | Layer             | Technology                                                                                           |
-| ----------------- | ------------------------------------------------------------------------------------------------------ |
-| Framework         | [Nuxt 4](https://nuxt.com) (`ssr: false` — static SPA output)                                          |
-| Component library | [@nuxt/ui v4](https://ui.nuxt.com) — 125+ accessible Vue components                                    |
-| Styling           | [Tailwind CSS v4](https://tailwindcss.com)                                                             |
-| Auth              | [nuxt-auth-sanctum](https://github.com/manchenkoff/nuxt-auth-sanctum) (Laravel Sanctum, token mode)    |
-| Realtime          | [Laravel Echo](https://laravel.com/docs/broadcasting) + Reverb (via [pusher-js](https://pusher.com))   |
-| i18n              | [@nuxtjs/i18n](https://i18n.nuxtjs.org)                                                                |
-| Form validation   | [Zod v4](https://zod.dev)                                                                              |
-| Package manager   | [pnpm](https://pnpm.io)                                                                                |
-| Backend           | Laravel API (separate repository)                                                                      |
+| ----------------- | ---------------------------------------------------------------------------------------------------- |
+| Framework         | [Nuxt 4](https://nuxt.com) (`ssr: false` — static SPA output)                                        |
+| Component library | [@nuxt/ui v4](https://ui.nuxt.com) — 125+ accessible Vue components                                  |
+| Styling           | [Tailwind CSS v4](https://tailwindcss.com)                                                           |
+| Auth              | [nuxt-auth-sanctum](https://github.com/manchenkoff/nuxt-auth-sanctum) (Laravel Sanctum, token mode)  |
+| Realtime          | [Laravel Echo](https://laravel.com/docs/broadcasting) + Reverb (via [pusher-js](https://pusher.com)) |
+| i18n              | [@nuxtjs/i18n](https://i18n.nuxtjs.org)                                                              |
+| Form validation   | [Zod v4](https://zod.dev)                                                                            |
+| Package manager   | [pnpm](https://pnpm.io)                                                                              |
+| Backend           | Laravel API (separate repository)                                                                    |
 
 ## Getting started
 
@@ -91,14 +91,14 @@ NUXT_BASE_URL=http://localhost:8081 pnpm dev
 
 ## Configuration
 
-| Variable                            | Default                  | Purpose                                                                                              |
-| ------------------------------------ | ------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `NUXT_BASE_URL`                      | `https://api.matches.it`  | Laravel API base URL. **Not** a `NUXT_PUBLIC_*` name — read directly into `sanctum.baseUrl`.           |
-| `NUXT_PUBLIC_REVERB_APP_KEY`         | —                          | Laravel Reverb app key                                                                                 |
-| `NUXT_PUBLIC_REVERB_HOST`            | `localhost`                | Reverb WebSocket host                                                                                   |
-| `NUXT_PUBLIC_REVERB_PORT`            | `8080`                     | Reverb WebSocket port                                                                                   |
-| `NUXT_PUBLIC_REVERB_SCHEME`          | `http`                     | `http` or `https`                                                                                       |
-| `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD`  | —                          | Unlocks the runtime API switcher from `/login`. Empty ⇒ the gesture is disabled (fails closed).         |
+| Variable                            | Default                  | Purpose                                                                                         |
+| ----------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------- |
+| `NUXT_BASE_URL`                     | `https://api.matches.it` | Laravel API base URL. **Not** a `NUXT_PUBLIC_*` name — read directly into `sanctum.baseUrl`.    |
+| `NUXT_PUBLIC_REVERB_APP_KEY`        | —                        | Laravel Reverb app key                                                                          |
+| `NUXT_PUBLIC_REVERB_HOST`           | `localhost`              | Reverb WebSocket host                                                                           |
+| `NUXT_PUBLIC_REVERB_PORT`           | `8080`                   | Reverb WebSocket port                                                                           |
+| `NUXT_PUBLIC_REVERB_SCHEME`         | `http`                   | `http` or `https`                                                                               |
+| `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` | —                        | Unlocks the runtime API switcher from `/login`. Empty ⇒ the gesture is disabled (fails closed). |
 
 These six are the **only** environment variables the app reads. See [`.env.example`](.env.example) for a starting point.
 
@@ -113,22 +113,22 @@ The override is reachable through a deliberate gesture: **five clicks on the log
 
 ## Routes
 
-| URL                                        | Audience | Description                                                              |
-| ------------------------------------------- | --------- | --------------------------------------------------------------------------- |
-| `/`                                         | Everyone  | Landing page — links to sign-in, registration, and the scoreboard          |
-| `/login`                                    | Admin     | Sign-in page                                                                 |
-| `/forgot-password`, `/reset-password`       | Admin     | Password recovery flow                                                      |
-| `/admin`                                    | Admin     | Dashboard home                                                               |
-| `/admin/tournaments`                        | Admin     | Tournament list, bulk delete, PDF exports                                   |
-| `/admin/tournaments/{id}`                   | Admin     | Tournament workspace — registry, registrations, matches list, and board     |
-| `/admin/configurations/athletes`            | Admin     | Manage athletes                                                              |
-| `/admin/configurations/disciplines`         | Admin     | Manage disciplines                                                          |
-| `/admin/configurations/weight_categories`   | Admin     | Manage weight categories                                                     |
-| `/admin/configurations/experience_tiers`    | Admin     | Manage experience tiers                                                     |
-| `/admin/configurations/users`               | Admin     | Manage admin users                                                          |
-| `/admin/settings`                           | Admin     | Theme colour, light/dark mode, and locale preferences                       |
-| `/public/athletes/registration`             | Public    | Athlete registration form                                                   |
-| `/public/tournaments/match_records`         | Public    | Live scoreboard with realtime updates                                       |
+| URL                                       | Audience | Description                                                             |
+| ----------------------------------------- | -------- | ----------------------------------------------------------------------- |
+| `/`                                       | Everyone | Landing page — links to sign-in, registration, and the scoreboard       |
+| `/login`                                  | Admin    | Sign-in page                                                            |
+| `/forgot-password`, `/reset-password`     | Admin    | Password recovery flow                                                  |
+| `/admin`                                  | Admin    | Dashboard home                                                          |
+| `/admin/tournaments`                      | Admin    | Tournament list, bulk delete, PDF exports                               |
+| `/admin/tournaments/{id}`                 | Admin    | Tournament workspace — registry, registrations, matches list, and board |
+| `/admin/configurations/athletes`          | Admin    | Manage athletes                                                         |
+| `/admin/configurations/disciplines`       | Admin    | Manage disciplines                                                      |
+| `/admin/configurations/weight_categories` | Admin    | Manage weight categories                                                |
+| `/admin/configurations/experience_tiers`  | Admin    | Manage experience tiers                                                 |
+| `/admin/configurations/users`             | Admin    | Manage admin users                                                      |
+| `/admin/settings`                         | Admin    | Theme colour, light/dark mode, and locale preferences                   |
+| `/public/athletes/registration`           | Public   | Athlete registration form                                               |
+| `/public/tournaments/match_records`       | Public   | Live scoreboard with realtime updates                                   |
 
 Every path above also exists under `/en/` for the English locale.
 
@@ -138,14 +138,14 @@ Every path above also exists under `/en/` for the English locale.
 ## Domain model
 
 | Entity              | Description                                                                                                                              |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Tournament**       | A scheduled event. Status: `scheduled` → `registrations_opened` → `registrations_closed` → `in_progress` → `completed` (or `cancelled`).       |
-| **Athlete**          | A person record, identified by tax number.                                                                                                     |
-| **Registration**     | An athlete's entry into a tournament with a discipline and weight category, reviewed by an admin.                                              |
-| **Match record**     | A single bout between two athletes — tracks corners, judge scores, end method, and winner.                                                     |
-| **Discipline**       | A fighting style (rounds, minutes per round).                                                                                                  |
-| **Weight category**  | A weight bracket.                                                                                                                             |
-| **Experience tier**  | A skill bracket defined by a match-count range (`min–max`, `∞` when open-ended), used to pair comparable opponents.                             |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tournament**      | A scheduled event. Status: `scheduled` → `registrations_opened` → `registrations_closed` → `in_progress` → `completed` (or `cancelled`). |
+| **Athlete**         | A person record, identified by tax number.                                                                                               |
+| **Registration**    | An athlete's entry into a tournament with a discipline and weight category, reviewed by an admin.                                        |
+| **Match record**    | A single bout between two athletes — tracks corners, judge scores, end method, and winner.                                               |
+| **Discipline**      | A fighting style (rounds, minutes per round).                                                                                            |
+| **Weight category** | A weight bracket.                                                                                                                        |
+| **Experience tier** | A skill bracket defined by a match-count range (`min–max`, `∞` when open-ended), used to pair comparable opponents.                      |
 
 Backend enum values (`TOURNAMENT_STATUSES`, `MATCH_STATUSES`, `END_METHODS`, `GENDERS`, `CLIENT_TYPES`) are mirrored as `as const` arrays in [`app/utils/constants.ts`](app/utils/constants.ts) — import from there instead of hardcoding strings. Domain interfaces live in [`app/types/models.ts`](app/types/models.ts). The authoritative schema lives in the Laravel API repository.
 
@@ -186,16 +186,16 @@ Two conventions worth knowing before adding code: components under `components/p
 
 Run `make help` to list all targets. The most common ones:
 
-| Command          | Description                                                       |
-| ------------------ | --------------------------------------------------------------------- |
-| `make dev`        | Dev server exposed on `0.0.0.0` (LAN)                                |
-| `make lint`       | Run ESLint (no auto-fix)                                             |
-| `make lint-fix`   | Run ESLint with auto-fix                                             |
-| `make typecheck`  | Type-check via `nuxi` — currently broken, see below                  |
-| `make clean`      | Remove `.nuxt`, `.output`, and `dist`                                |
-| `pnpm generate`   | Static SPA build → `.output/public/`                                 |
-| `pnpm build`      | Nitro node-server build → `.output/server/` (Docker)                 |
-| `pnpm preview`    | Serve the built output locally                                       |
+| Command          | Description                                          |
+| ---------------- | ---------------------------------------------------- |
+| `make dev`       | Dev server exposed on `0.0.0.0` (LAN)                |
+| `make lint`      | Run ESLint (no auto-fix)                             |
+| `make lint-fix`  | Run ESLint with auto-fix                             |
+| `make typecheck` | Type-check via `nuxi` — currently broken, see below  |
+| `make clean`     | Remove `.nuxt`, `.output`, and `dist`                |
+| `pnpm generate`  | Static SPA build → `.output/public/`                 |
+| `pnpm build`     | Nitro node-server build → `.output/server/` (Docker) |
+| `pnpm preview`   | Serve the built output locally                       |
 
 > [!TIP]
 > Run `make lint-fix` after every coding session. The repo enforces `@antfu/eslint-config` (single quotes, no semicolons, sorted imports).

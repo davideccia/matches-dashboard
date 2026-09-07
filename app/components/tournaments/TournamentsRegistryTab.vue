@@ -152,6 +152,12 @@
         @saved="() => tiersTable?.refresh()"
       />
 
+      <ExperienceTierBatchFormPanel
+        v-model="tierBatchPanelOpen"
+        :tournament-id="tournament.id"
+        @saved="() => tiersTable?.refresh()"
+      />
+
       <UModal v-model:open="tierConfirmOpen" :title="t('common.confirm')">
         <template #body>
           <p class="text-sm text-muted">
@@ -274,14 +280,14 @@ const tierColumns = computed(() => [
 const hasEnabledTier = computed(() => tiersTable.value?.items?.some(tier => tier.enabled) ?? false)
 
 const tierPanelOpen = ref(false)
+const tierBatchPanelOpen = ref(false)
 const editingTier = ref<ExperienceTier | null>(null)
 const tierConfirmOpen = ref(false)
 const tierDeleteTarget = ref<ExperienceTier | null>(null)
 const deletingTier = ref(false)
 
 function openTierCreate() {
-  editingTier.value = null
-  tierPanelOpen.value = true
+  tierBatchPanelOpen.value = true
 }
 
 function openTierEdit(tier: ExperienceTier) {

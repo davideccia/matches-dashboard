@@ -379,7 +379,14 @@
     "active": "Active",
     "inactive": "Inactive",
     "rangePreview": "Athletes with {range} matches fought fall into this range.",
-    "globalHint": "These ranges apply to every tournament that does not define its own."
+    "globalHint": "These ranges apply to every tournament that does not define its own.",
+    "batchCreateTitle": "Add experience tiers",
+    "addRow": "Add row",
+    "removeRow": "Remove row",
+    "importDefaults": "Import defaults",
+    "importDefaultsEmpty": "No global tiers to import",
+    "batchCreated": "Experience tiers created",
+    "batchEmpty": "Add at least one row"
   },
   "publicMatchRecords": {
     "title": "Live matches",
