@@ -8,6 +8,24 @@ import * as z from 'zod'
  *
  * Dichiarare `jitless` salta la prova: stesso comportamento, console pulita.
  */
-export default defineNuxtPlugin(() => {
-  z.config({ jitless: true })
+
+const ZOD_LOCALES = {
+  it: z.locales.it,
+  en: z.locales.en,
+} as const
+
+function applyZodLocale(locale: string): void {
+  const localeFactory = ZOD_LOCALES[locale as keyof typeof ZOD_LOCALES] ?? ZOD_LOCALES.it
+
+  z.config({ jitless: true, localeError: localeFactory().localeError })
+}
+
+export default defineNuxtPlugin((nuxtApp) => {
+  const locale = nuxtApp.$i18n.locale
+
+  applyZodLocale(locale.value)
+
+  watch(locale, (newLocale) => {
+    applyZodLocale(newLocale)
+  })
 })
