@@ -1,112 +1,56 @@
 <template>
-  <div
-    class="fixed inset-0 flex flex-col lg:items-center lg:justify-center bg-default"
-  >
-    <!-- Mobile top strip -->
+  <AuthSplitLayout logo-variant="bare">
+    <!-- Success state -->
     <div
-      class="h-35 w-full shrink-0 bg-default flex items-center justify-center lg:hidden relative overflow-hidden rounded-b-10"
+      v-if="sent"
+      class="flex flex-col gap-6"
     >
-      <div class="absolute inset-0 opacity-10">
-        <div
-          class="absolute -top-8 -left-8 w-40 h-40 rounded-full bg-white/30"
-        />
-        <div
-          class="absolute -bottom-10 -right-10 w-48 h-48 rounded-full bg-white/20"
-        />
-      </div>
-      <AppLogo
-        variant="bare"
-        size="size-20"
-        icon-class="drop-shadow-lg"
-        root-class="relative z-10"
+      <UAlert
+        color="success"
+        variant="soft"
+        :title="t('forgotPassword.successTitle')"
+        :description="t('forgotPassword.successDescription')"
+        icon="i-mdi-email-check-outline"
+      />
+      <UButton
+        :label="t('forgotPassword.backToLogin')"
+        icon="i-mdi-arrow-left"
+        block
+        variant="ghost"
+        @click="() => { navigateTo('/login') }"
       />
     </div>
 
-    <div
-      class="flex flex-col lg:flex-row w-full max-w-370 grow lg:grow-0 overflow-hidden rounded-t-10 lg:rounded-10 lg:min-h-187.5 lg:mx-6"
+    <!-- Form state -->
+    <UAuthForm
+      v-else
+      :schema="schema"
+      :fields="fields"
+      :title="t('forgotPassword.title')"
+      :description="t('forgotPassword.description')"
+      :submit="{ label: t('forgotPassword.submit'), loading }"
+      @submit="onSubmit"
     >
-      <!-- Left panel -->
-      <div
-        class="hidden lg:flex lg:w-1/2 bg-default rounded-3xl m-10 items-center justify-center relative overflow-hidden border-2 border-accented"
-      >
-        <div class="absolute inset-0">
-          <div
-            class="absolute -top-12 -left-12 w-56 h-56 rounded-full bg-white/10"
-          />
-          <div
-            class="absolute top-1/3 -right-16 w-48 h-48 rounded-full bg-white/8"
-          />
-          <div
-            class="absolute -bottom-16 left-1/4 w-64 h-64 rounded-full bg-white/6"
-          />
-        </div>
-        <AppLogo
-          variant="bare"
-          size="size-48"
-          icon-class="drop-shadow-2xl"
-          root-class="relative z-10"
+      <template v-if="errorMsg" #validation>
+        <UAlert
+          color="error"
+          variant="soft"
+          :title="errorMsg"
+          icon="i-mdi-alert-circle"
         />
-      </div>
-
-      <!-- Right panel: form -->
-      <div
-        class="flex flex-col w-full lg:w-1/2 bg-default px-10 pt-8 pb-6 lg:px-25 lg:pt-25 lg:pb-10 overflow-y-auto"
-      >
-        <!-- Success state -->
-        <div
-          v-if="sent"
-          class="flex flex-col gap-6"
-        >
-          <UAlert
-            color="success"
-            variant="soft"
-            :title="t('forgotPassword.successTitle')"
-            :description="t('forgotPassword.successDescription')"
-            icon="i-mdi-email-check-outline"
-          />
-          <UButton
-            :label="t('forgotPassword.backToLogin')"
-            icon="i-mdi-arrow-left"
-            block
-            variant="ghost"
-            @click="() => { navigateTo('/login') }"
-          />
-        </div>
-
-        <!-- Form state -->
-        <UAuthForm
-          v-else
-          :schema="schema"
-          :fields="fields"
-          :title="t('forgotPassword.title')"
-          :description="t('forgotPassword.description')"
-          :submit="{ label: t('forgotPassword.submit'), loading }"
-          @submit="onSubmit"
-        >
-          <template v-if="errorMsg" #validation>
-            <UAlert
-              color="error"
-              variant="soft"
-              :title="errorMsg"
-              icon="i-mdi-alert-circle"
-            />
-          </template>
-          <template #footer>
-            <USeparator class="mb-4" />
-            <UButton
-              :label="t('forgotPassword.backToLogin')"
-              icon="i-mdi-arrow-left"
-              block
-              variant="ghost"
-              @click="() => { navigateTo('/login') }"
-            />
-          </template>
-        </UAuthForm>
-
-        <div class="grow" />
-      </div>
-    </div>
-  </div>
+      </template>
+      <template #footer>
+        <USeparator class="mb-4" />
+        <UButton
+          :label="t('forgotPassword.backToLogin')"
+          icon="i-mdi-arrow-left"
+          block
+          variant="ghost"
+          @click="() => { navigateTo('/login') }"
+        />
+      </template>
+    </UAuthForm>
+  </AuthSplitLayout>
 </template>
 
 <script setup lang="ts">
