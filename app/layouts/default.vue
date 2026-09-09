@@ -4,12 +4,12 @@
       <template #default="{ collapsed }">
         <ApiEnvironmentUnlock>
           <div
-            class="aspect-square w-fit mx-auto flex items-center justify-center p-4 rounded-4xl border-4 border-primary"
+            :class="collapsed ? '' : 'aspect-square w-fit mx-auto flex items-center justify-center p-4 rounded-4xl border-4 border-primary'"
           >
             <UIcon
+              v-if="!collapsed"
               name="i-mdi-mixed-martial-arts"
-              :class="collapsed ? 'size-10' : 'size-24'"
-              class="text-primary"
+              class="size-24 text-primary"
             />
           </div>
         </ApiEnvironmentUnlock>
