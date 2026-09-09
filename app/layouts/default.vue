@@ -5,7 +5,7 @@
         <ApiEnvironmentUnlock>
           <div
             v-if="!collapsed && sidebarLogoUrl"
-            class="w-full bg-primary rounded-4xl overflow-hidden flex items-center justify-center"
+            class="w-full bg-primary-300 rounded-4xl overflow-hidden flex items-center justify-center"
           >
             <img
               :src="sidebarLogoUrl"
