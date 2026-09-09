@@ -4,8 +4,8 @@ import pkg from '../package.json'
 export default defineAppConfig({
   ui: {
     colors: {
-      primary: 'amber',
-      secondary: 'yellow',
+      primary: 'neutral',
+      secondary: 'neutral',
       neutral: 'neutral',
     },
 

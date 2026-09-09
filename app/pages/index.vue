@@ -3,14 +3,11 @@
     <LocaleSwitcher />
 
     <div class="flex flex-col items-center gap-3 text-center">
-      <div
-        class="aspect-square w-fit mx-auto flex items-center justify-center p-4 rounded-4xl border-4 border-primary"
-      >
-        <UIcon
-          name="i-mdi-mixed-martial-arts"
-          class="size-40 text-primary drop-shadow-lg"
-        />
-      </div>
+      <AppLogo
+        variant="boxed"
+        size="size-40"
+        icon-class="drop-shadow-lg"
+      />
     </div>
 
     <div class="w-full max-w-3xl space-y-6">

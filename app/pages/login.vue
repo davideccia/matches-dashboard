@@ -14,16 +14,13 @@
           class="absolute -bottom-10 -right-10 w-48 h-48 rounded-full bg-white/20"
         />
       </div>
-      <ApiEnvironmentUnlock>
-        <div
-          class="aspect-square w-fit mx-auto flex items-center justify-center p-4 rounded-4xl border-4 border-primary relative z-10"
-        >
-          <UIcon
-            name="i-mdi-mixed-martial-arts"
-            class="size-20 text-primary drop-shadow-lg"
-          />
-        </div>
-      </ApiEnvironmentUnlock>
+      <AppLogo
+        unlockable
+        variant="boxed"
+        size="size-20"
+        icon-class="drop-shadow-lg"
+        root-class="relative z-10"
+      />
     </div>
 
     <!-- Card: grows full height on mobile, fixed max-width centered on desktop -->
@@ -45,16 +42,13 @@
             class="absolute -bottom-16 left-1/4 w-64 h-64 rounded-full bg-white/6"
           />
         </div>
-        <ApiEnvironmentUnlock>
-          <div
-            class="aspect-square w-fit mx-auto flex items-center justify-center p-4 rounded-4xl border-4 border-primary relative z-10"
-          >
-            <UIcon
-              name="i-mdi-mixed-martial-arts"
-              class="size-48 text-primary drop-shadow-2xl"
-            />
-          </div>
-        </ApiEnvironmentUnlock>
+        <AppLogo
+          unlockable
+          variant="boxed"
+          size="size-48"
+          icon-class="drop-shadow-2xl"
+          root-class="relative z-10"
+        />
       </div>
 
       <!-- Right panel: form -->

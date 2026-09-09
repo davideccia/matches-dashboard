@@ -14,9 +14,11 @@
           class="absolute -bottom-10 -right-10 w-48 h-48 rounded-full bg-white/20"
         />
       </div>
-      <UIcon
-        name="i-mdi-mixed-martial-arts"
-        class="size-20 text-primary drop-shadow-lg relative z-10"
+      <AppLogo
+        variant="bare"
+        size="size-20"
+        icon-class="drop-shadow-lg"
+        root-class="relative z-10"
       />
     </div>
 
@@ -38,9 +40,11 @@
             class="absolute -bottom-16 left-1/4 w-64 h-64 rounded-full bg-white/6"
           />
         </div>
-        <UIcon
-          name="i-mdi-mixed-martial-arts"
-          class="size-48 text-primary drop-shadow-2xl relative z-10"
+        <AppLogo
+          variant="bare"
+          size="size-48"
+          icon-class="drop-shadow-2xl"
+          root-class="relative z-10"
         />
       </div>
 

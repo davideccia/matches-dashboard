@@ -2,28 +2,12 @@
   <UDashboardGroup>
     <UDashboardSidebar collapsible resizable>
       <template #default="{ collapsed }">
-        <ApiEnvironmentUnlock>
-          <div
-            v-if="!collapsed && sidebarLogoUrl"
-            class="w-full bg-primary-300 rounded-4xl overflow-hidden flex items-center justify-center"
-          >
-            <img
-              :src="sidebarLogoUrl"
-              alt=""
-              class="w-full h-auto object-contain"
-            >
-          </div>
-          <div
-            v-else
-            :class="collapsed ? '' : 'aspect-square w-fit mx-auto flex items-center justify-center p-4 rounded-4xl border-4 border-primary'"
-          >
-            <UIcon
-              v-if="!collapsed"
-              name="i-mdi-mixed-martial-arts"
-              class="size-24 text-primary"
-            />
-          </div>
-        </ApiEnvironmentUnlock>
+        <AppLogo
+          unlockable
+          variant="fill"
+          size="size-24"
+          :collapsed="collapsed"
+        />
         <UNavigationMenu
           :collapsed="collapsed"
           :items="items"
@@ -78,13 +62,6 @@ const appConfig = useAppConfig()
 const localePath = useLocalePath()
 const { user, logout } = useAuth()
 const { config } = useApiConfig()
-
-/** Logo custom opzionale: se presente un file "sidebar_logo.*" in app/assets/, sostituisce l'icona. */
-const sidebarLogoModules = import.meta.glob<string>('~/assets/sidebar_logo.*', {
-  eager: true,
-  import: 'default',
-})
-const sidebarLogoUrl = Object.values(sidebarLogoModules)[0]
 
 /** Le viste Horizon / Log Viewer sono servite dall'API Laravel, non da questa SPA. */
 const apiBaseUrl = computed(() => config.value.baseUrl.replace(/\/+$/, ''))
