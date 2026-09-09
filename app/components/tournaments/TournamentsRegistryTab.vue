@@ -101,7 +101,7 @@
 
       <DataTable
         ref="tiersTable"
-        url="/api/admin/experience_tiers"
+        :url="experienceTiersUrl"
         :columns="tierColumns"
         :params="{ tournament_id: tournament.id }"
         empty-icon="i-mdi-stairs"
@@ -196,6 +196,8 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const api = useApi()
 const toast = useToast()
+
+const experienceTiersUrl = computed(() => `/api/admin/tournaments/${tournament.id}/experience_tiers`)
 
 const statusOptions = computed(() => [
   { label: t('tournament.status.scheduled'), value: 'scheduled' },
