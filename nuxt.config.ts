@@ -5,25 +5,26 @@ export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: true },
   modules: [
+    /**
+     * Stampa un alias comodo in console per `nuxt dev` (127.0.0.1 → matches.localhost).
+     * Richiede una riga in /etc/hosts: `127.0.0.1 matches.localhost`.
+     * Va prima di 'nuxt-auth-sanctum' nell'array e logga in modo sincrono nel setup
+     * (non nell'hook `listen`, che spara solo a fine avvio) per uscire prima del suo
+     * "Sanctum module initialized...".
+     */
+    (_options, nuxt) => {
+      if (!nuxt.options.dev) { return }
+      const port = nuxt.options.devServer.port ?? 3000
+      // Stessi colori ANSI usati da Nitro/listhen per le sue righe Local/Network,
+      // così l'output resta coerente; i terminali linkificano un URL testuale da soli.
+      // eslint-disable-next-line no-console
+      console.log(`\n  \x1B[32m➜\x1B[39m  \x1B[2mAlias:   \x1B[22m \x1B[36m\x1B[1mhttp://matches.localhost:${port}/\x1B[22m\x1B[39m\n`)
+    },
+
     '@nuxt/ui',
     '@nuxtjs/i18n',
     '@nuxt/eslint',
     'nuxt-auth-sanctum',
-
-    /**
-     * /architecture (mappa dell'architettura) è uno strumento di sviluppo:
-     * fuori da `nuxt dev` la rotta viene rimossa, così né l'URL né il contenuto
-     * di docs/architecture.html finiscono nel bundle statico pubblicato.
-     */
-    (_options, nuxt) => {
-      if (nuxt.options.dev) { return }
-      nuxt.hook('pages:extend', (pages) => {
-        // Per file, non per path: i18n può già aver aggiunto le varianti /en/.
-        for (let i = pages.length - 1; i >= 0; i--) {
-          if (pages[i]?.file?.endsWith('pages/architecture.vue')) { pages.splice(i, 1) }
-        }
-      })
-    },
   ],
 
   components: [
