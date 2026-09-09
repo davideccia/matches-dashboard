@@ -220,13 +220,18 @@
                           <template #label="{ item: slotItem }">
                             <span class="flex items-center gap-2 min-w-0 w-full">
                               <span class="truncate flex-1">{{ slotItem.full_name }}</span>
-                              <UBadge v-if="slotItem.is_adult" color="success" variant="subtle" size="sm">{{ t('athlete.adult') }}</UBadge>
-                              <UBadge v-else color="warning" variant="subtle" size="sm">{{ t('athlete.minor') }}</UBadge>
+                              <UBadge
+                                v-if="slotItem.age !== undefined"
+                                color="primary"
+                                variant="subtle"
+                                size="md"
+                                icon="i-mdi-cake-variant-outline"
+                              >{{ slotItem.age }}</UBadge>
                               <span
                                 v-if="slotItem.match_records_count != null"
                                 class="inline-flex items-center gap-1 shrink-0 rounded-full border border-muted bg-elevated px-1.5 py-px text-[11px] font-medium text-muted"
                               >
-                                <UIcon name="i-mdi-boxing-glove" class="size-4 opacity-70 bg-red-400" />
+                                <UIcon name="i-mdi-boxing-glove" size="md" class="size-4 opacity-70 bg-amber-400" />
                                 {{ slotItem.match_records_count }}
                               </span>
                             </span>
@@ -271,13 +276,18 @@
                           <template #label="{ item: slotItem }">
                             <span class="flex items-center gap-2 min-w-0 w-full">
                               <span class="truncate flex-1">{{ slotItem.full_name }}</span>
-                              <UBadge v-if="slotItem.is_adult" color="success" variant="subtle" size="xs">{{ t('athlete.adult') }}</UBadge>
-                              <UBadge v-else color="warning" variant="subtle" size="xs">{{ t('athlete.minor') }}</UBadge>
+                              <UBadge
+                                v-if="slotItem.age !== undefined"
+                                color="primary"
+                                variant="subtle"
+                                size="md"
+                                icon="i-mdi-cake-variant-outline"
+                              >{{ slotItem.age }}</UBadge>
                               <span
                                 v-if="slotItem.match_records_count != null"
                                 class="inline-flex items-center gap-1 shrink-0 rounded-full border border-muted bg-elevated px-1.5 py-px text-[11px] font-medium text-muted"
                               >
-                                <UIcon name="i-mdi-boxing-glove" class="size-4 opacity-70 bg-blue-400" />
+                                <UIcon name="i-mdi-boxing-glove" size="md" class="size-4 opacity-70 bg-amber-400" />
                                 {{ slotItem.match_records_count }}
                               </span>
                             </span>
