@@ -41,7 +41,13 @@
       <template #athlete_full_name-cell="{ row }">
         <span class="flex items-center gap-2">
           {{ ((row.original as unknown as Registration)).athlete?.full_name }}
-          <UBadge v-if="((row.original as unknown as Registration)).athlete?.age !== undefined" color="primary" variant="subtle" size="md" icon="i-mdi-cake-variant-outline">
+          <UBadge
+            v-if="((row.original as unknown as Registration)).athlete?.age !== undefined"
+            color="primary"
+            variant="subtle"
+            size="md"
+            icon="i-mdi-cake-variant-outline"
+          >
             {{ ((row.original as unknown as Registration)).athlete?.age }}
           </UBadge>
         </span>
