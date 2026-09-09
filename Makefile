@@ -1,8 +1,11 @@
-.PHONY: dev lint lint-fix typecheck clean help
+.PHONY: dev dev-host lint lint-fix typecheck clean help
 
 # ── Dev ───────────────────────────────────────────────────────────────────────
 
 dev:
+	pnpm dev
+
+dev-host:
 	pnpm dev --host 0.0.0.0
 
 # ── Code quality ──────────────────────────────────────────────────────────────
