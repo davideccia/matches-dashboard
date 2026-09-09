@@ -395,13 +395,25 @@
     "noTournaments": "No tournaments available",
     "noTournamentsHint": "There are no tournaments available at the moment",
     "noMatchRecords": "No matches available",
+    "rateLimited": "Too many requests right now: the data may be out of date. Please try again in a few seconds.",
     "changeTournament": "Change tournament",
     "page": "Page {current} of {total}",
     "prev": "Previous",
     "next": "Next",
     "liveIndicator": "Live",
     "liveIndicatorOff": "Paused",
-    "toggleRealtime": "Toggle live updates"
+    "toggleRealtime": "Toggle live updates",
+    "viewGrid": "Grid",
+    "viewWindow": "Live window",
+    "changeView": "Change view",
+    "window": {
+      "previous": "Previous",
+      "current": "Current",
+      "next": "Next",
+      "noPrevious": "No previous match",
+      "noCurrent": "No match in progress",
+      "noNext": "No next match"
+    }
   },
   "register": {
     "stepTaxNumber": "Tax number",

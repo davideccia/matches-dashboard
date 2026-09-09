@@ -37,37 +37,41 @@
         </div>
 
         <!-- Tournament bar (state B only) -->
-        <div v-if="selectedTournament" class="flex items-center justify-between gap-2 sm:gap-4 rounded-2xl bg-elevated border border-default px-3 sm:px-5 py-3 sm:py-4">
+        <div v-if="selectedTournament" class="flex items-center justify-between gap-2 sm:gap-4 rounded-2xl bg-elevated border border-default px-3 sm:px-5 py-1.5 sm:py-2">
           <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-            <UIcon name="i-mdi-trophy" class="size-4 sm:size-5 text-warning shrink-0" />
-            <div class="min-w-0 space-y-0.5 sm:space-y-1">
-              <p class="font-semibold text-sm truncate">
+            <UButton
+              size="sm"
+              variant="ghost"
+              color="neutral"
+              icon="i-mdi-arrow-left"
+              :aria-label="t('publicMatchRecords.changeTournament')"
+              :title="t('publicMatchRecords.changeTournament')"
+              class="shrink-0"
+              @click="clearTournament"
+            />
+            <UIcon name="i-mdi-trophy" class="size-4 text-warning shrink-0" />
+            <div class="min-w-0 flex items-center gap-1.5 flex-wrap">
+              <p class="font-semibold text-sm truncate min-w-0">
                 {{ selectedTournament.name }}
               </p>
-              <p class="text-xs text-muted truncate">
+              <span class="text-xs text-muted shrink-0">
                 {{ formatServerDateOnly(selectedTournament.date, locale) }} · {{ selectedTournament.location_city }}
-              </p>
+              </span>
               <UBadge
                 :color="selectedTournament.status === 'in_progress' ? 'warning' : 'success'"
                 variant="subtle"
-                size="md"
-                class="w-fit flex items-center gap-1"
+                size="sm"
+                class="w-fit flex items-center gap-1 shrink-0"
               >
                 <span v-if="selectedTournament.status === 'in_progress'" class="size-1.5 rounded-full bg-current animate-pulse inline-block" />
                 {{ tournamentStatusLabel(selectedTournament.status) }}
               </UBadge>
             </div>
           </div>
-          <UButton
-            size="sm"
-            variant="ghost"
-            color="neutral"
-            leading-icon="i-mdi-arrow-left"
-            class="shrink-0"
-            @click="clearTournament"
-          >
-            <span class="hidden sm:inline">{{ t('publicMatchRecords.changeTournament') }}</span>
-          </UButton>
+        </div>
+
+        <div v-if="selectedTournament" class="flex justify-center">
+          <ViewModeToggle v-model="viewMode" />
         </div>
       </div>
 
@@ -166,41 +170,24 @@
         </div>
       </div>
 
-      <!-- ── STATE B: MatchRecord grid ──────────────────────────────────────────── -->
+      <!-- ── STATE B: MatchRecord grid or window view ────────────────────────── -->
       <template v-else>
-        <!-- Loading skeletons -->
-        <div v-if="matchesLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-          <USkeleton v-for="n in 6" :key="n" class="h-48 rounded-xl" />
-        </div>
-
-        <!-- Empty state -->
-        <div v-else-if="matches.length === 0" class="flex flex-col items-center gap-2 py-16 text-muted">
-          <UIcon name="i-mdi-sword-cross" class="size-10 opacity-40" />
-          <span class="text-sm">{{ t('publicMatchRecords.noMatchRecords') }}</span>
-        </div>
-
-        <!-- MatchRecord cards -->
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-          <div
-            v-for="(match, index) in matches"
-            :key="match.id"
-            :ref="(el) => { if (el) matchCardEls[index] = el as HTMLElement }"
-          >
-            <MatchRecordCardReadOnly :match="match" :show-judges-points="true" />
-          </div>
-        </div>
+        <TournamentsMatchRecordsGridView v-if="viewMode === 'grid'" :tournament-id="selectedTournament.id" :last-event="lastEvent" />
+        <TournamentsMatchRecordsWindowView v-else :tournament-id="selectedTournament.id" :last-event="lastEvent" />
       </template>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { MatchRecord, Tournament } from '~/types/models'
+import type { MatchRecordChangedPayload } from '~/composables/useTournamentMatchRecords'
+import type { Tournament } from '~/types/models'
 
 definePageMeta({ layout: false, sanctum: { excluded: true } })
 
 const { config: apiConfig } = useApiConfig()
 const { t, locale } = useI18n()
+const toast = useToast()
 
 function tournamentStatusLabel(status: string): string {
   const map: Record<string, string> = {
@@ -248,6 +235,10 @@ async function fetchTournaments(append = false) {
     const fetched = res.data ?? []
     tournaments.value = append ? [...tournaments.value, ...fetched] : fetched
     hasMore.value = currentPage.value < (res.meta?.last_page ?? 1)
+  } catch (e) {
+    if (isRateLimitedError(e)) {
+      toast.add({ title: t('publicMatchRecords.rateLimited'), color: 'warning' })
+    }
   } finally {
     tournamentsLoading.value = false
   }
@@ -298,49 +289,47 @@ function clearTournament() {
   selectedTournament.value = null
 }
 
-// ── MatchRecords ──────────────────────────────────────────────────────────────────
-const matchCardEls = ref<HTMLElement[]>([])
+// ── View mode (grid vs window) ───────────────────────────────────────────────
+const VIEW_MODE_KEY = 'matches.public-match-records-view-mode'
+type MatchRecordsViewMode = 'grid' | 'window'
 
-const { data: matchesData, status: matchesStatus, refresh: refreshMatchRecords } = useLazyAsyncData(
-  'public-matches',
-  () => {
-    if (!selectedTournament.value) { return Promise.resolve(null) }
-    return apiGet<PageData<MatchRecord>>(
-      `/api/public/tournaments/${selectedTournament.value.id}/match_records?with=tournament,red_corner,blue_corner,winner,weight_category,discipline`,
-    )
-  },
-  { watch: [selectedTournament], default: () => null },
-)
+function readStoredViewMode(): MatchRecordsViewMode {
+  try {
+    return localStorage.getItem(VIEW_MODE_KEY) === 'grid' ? 'grid' : 'window'
+  } catch {
+    return 'window'
+  }
+}
 
-const matches = computed(() => matchesData.value?.data ?? [])
-const matchesLoading = computed(() => matchesStatus.value === 'pending')
+const viewMode = ref<MatchRecordsViewMode>(readStoredViewMode())
 
-// Keep the active (or next) match centered on every refresh, including WS pushes.
-watch(matchesData, async () => {
-  await nextTick()
-  const inProgressIdx = matches.value.findIndex(m => m.status === 'in_progress')
-  if (inProgressIdx !== -1 && matchCardEls.value[inProgressIdx]) {
-    matchCardEls.value[inProgressIdx].scrollIntoView({ behavior: 'smooth', block: 'center' })
-  } else {
-    const scheduledIdx = matches.value.findIndex(m => m.status === 'scheduled')
-    if (scheduledIdx !== -1 && matchCardEls.value[scheduledIdx]) {
-      matchCardEls.value[scheduledIdx].scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
+watch(viewMode, (mode) => {
+  try {
+    localStorage.setItem(VIEW_MODE_KEY, mode)
+  } catch {
+    // localStorage non disponibile (private browsing, ecc.): la preferenza non persiste, non blocca il toggle.
   }
 })
 
-// ── WebSocket (Laravel Echo / Reverb) ────────────────────────────────────────
+// ── WebSocket (Laravel Echo / Reverb) ─────────────────────────────────────────
+// Un'unica sottoscrizione per tutta la durata della selezione torneo: passarla come
+// prop alle viste (invece che farle sottoscrivere ciascuna per conto proprio) evita
+// il leave+rejoin dello stesso canale ad ogni switch griglia/finestra, che con Echo/
+// Reverb può lasciare il client "silenzioso" (subscribe in race con l'unsubscribe).
 const realtimeEnabled = ref(true)
-// null quando spento: il composable disiscrive già il canale precedente su ogni cambio.
 const tournamentId = computed(() => (realtimeEnabled.value ? (selectedTournament.value?.id ?? null) : null))
-const { lastEvent } = useTournamentMatchRecords(tournamentId)
+const { lastEvent: wsLastEvent } = useTournamentMatchRecords(tournamentId)
 
-watch(lastEvent, (event) => {
-  if (event?.refresh) { refreshMatchRecords() }
+// Segnale unico passato alle viste: eventi WS reali + una "spinta" sintetica quando
+// il realtime viene riattivato, per recuperare eventuali aggiornamenti persi in pausa.
+const lastEvent = ref<MatchRecordChangedPayload | null>(null)
+
+watch(wsLastEvent, (event) => {
+  lastEvent.value = event
 })
 
 watch(realtimeEnabled, (on) => {
-  if (on) { refreshMatchRecords() }
+  if (on) { lastEvent.value = { refresh: true } }
 })
 
 onUnmounted(() => {

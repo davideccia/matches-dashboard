@@ -395,13 +395,25 @@
     "noTournaments": "Nessun torneo disponibile",
     "noTournamentsHint": "Al momento non ci sono tornei disponibili",
     "noMatchRecords": "Nessun incontro disponibile",
+    "rateLimited": "Troppe richieste in questo momento: i dati potrebbero non essere aggiornati. Riprova tra qualche secondo.",
     "changeTournament": "Cambia torneo",
     "page": "Pagina {current} di {total}",
     "prev": "Precedente",
     "next": "Successiva",
     "liveIndicator": "In diretta",
     "liveIndicatorOff": "In pausa",
-    "toggleRealtime": "Attiva/disattiva aggiornamenti in tempo reale"
+    "toggleRealtime": "Attiva/disattiva aggiornamenti in tempo reale",
+    "viewGrid": "Griglia",
+    "viewWindow": "Finestra live",
+    "changeView": "Cambia vista",
+    "window": {
+      "previous": "Precedente",
+      "current": "In corso",
+      "next": "Successivo",
+      "noPrevious": "Nessun incontro precedente",
+      "noCurrent": "Nessun incontro in corso",
+      "noNext": "Nessun incontro successivo"
+    }
   },
   "register": {
     "stepTaxNumber": "Codice fiscale",

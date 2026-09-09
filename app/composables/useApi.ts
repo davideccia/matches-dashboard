@@ -9,6 +9,12 @@ export function getApiErrorMessage(e: unknown): string | undefined {
   }
 }
 
+export function isRateLimitedError(e: unknown): boolean {
+  if (!e || typeof e !== 'object') { return false }
+  const err = e as { statusCode?: number, status?: number, response?: { status?: number } }
+  return err.statusCode === 429 || err.status === 429 || err.response?.status === 429
+}
+
 export function useApi() {
   const client = useSanctumClient()
   const { $i18n } = useNuxtApp()

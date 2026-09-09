@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 
-interface MatchRecordChangedPayload {
+export interface MatchRecordChangedPayload {
   refresh: boolean
 }
 
