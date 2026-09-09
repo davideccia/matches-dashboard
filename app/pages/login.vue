@@ -34,24 +34,26 @@
       </template>
     </UAuthForm>
 
-    <USeparator class="my-6" />
+    <USeparator class="my-6" :ui="{ border: 'border-inverted' }" />
 
-    <p class="text-sm text-center mb-3">
-      {{ t("common.notWhatYouAreLookingFor") }}
-    </p>
+    <div class="rounded-xl bg-default p-4">
+      <p class="text-sm text-center mb-3">
+        {{ t("common.notWhatYouAreLookingFor") }}
+      </p>
 
-    <UButton
-      :label="t('common.backHome')"
-      icon="i-mdi-arrow-left"
-      block
-      variant="outline"
-      color="neutral"
-      @click="
-        () => {
-          navigateTo('/');
-        }
-      "
-    />
+      <UButton
+        :label="t('common.backHome')"
+        icon="i-mdi-arrow-left"
+        block
+        variant="outline"
+        color="neutral"
+        @click="
+          () => {
+            navigateTo('/');
+          }
+        "
+      />
+    </div>
   </AuthSplitLayout>
 </template>
 
