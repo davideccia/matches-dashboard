@@ -43,42 +43,108 @@
           <UInput v-model="state.team_name" class="w-full" />
         </UFormField>
 
-        <UFormField name="generic_match_records_count" :label="t('athlete.genericMatchRecordsCount')">
-          <div class="flex items-center gap-2">
-            <UInput
-              :model-value="state.generic_match_records_count !== null ? String(state.generic_match_records_count) : ''"
-              type="number"
-              min="0"
-              class="w-full"
-              @update:model-value="(v: string) => state.generic_match_records_count = v === '' ? null : Number(v)"
-            />
+        <UFormField :label="t('athlete.matchRecordsHistory')">
+          <div class="flex flex-col gap-2">
+            <div class="border border-default rounded-lg overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="bg-elevated border-b border-default">
+                    <th class="px-3 py-2 text-left font-medium text-muted">
+                      {{ t('athlete.matchRecordsHistoryDiscipline') }}
+                    </th>
+                    <th class="px-3 py-2 text-left font-medium text-muted w-32">
+                      {{ t('athlete.matchRecordsHistoryManualTotal') }}
+                    </th>
+                    <th class="px-3 py-2 text-left font-medium text-muted w-28">
+                      {{ t('athlete.matchRecordsHistoryAppTotal') }}
+                    </th>
+                    <th class="px-3 py-2 text-left font-medium text-muted w-24">
+                      {{ t('athlete.matchRecordsHistoryTotal') }}
+                    </th>
+                    <th class="w-10" />
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-if="state.match_records_history_rows.length === 0">
+                    <td colspan="5" class="px-3 py-8 text-center text-sm italic text-muted">
+                      {{ t('athlete.matchRecordsHistoryEmpty') }}
+                    </td>
+                  </tr>
+                  <tr
+                    v-for="(row, index) in state.match_records_history_rows"
+                    :key="index"
+                    class="border-t border-default/60"
+                  >
+                    <td class="px-3 py-2 align-top">
+                      <UFormField :name="`match_records_history_rows.${index}.label`">
+                        <div class="flex items-center gap-2">
+                          <ApiSelectMenu
+                            v-if="!row.useManualLabel"
+                            :model-value="row.id"
+                            endpoint="/api/admin/disciplines"
+                            label-key="label"
+                            :placeholder="t('athlete.matchRecordsHistorySelectDiscipline')"
+                            class="w-full"
+                            @update:model-value="(v: string | null) => setRowDisciplineId(index, v)"
+                            @select="(item: Record<string, unknown>) => setRowDiscipline(index, item)"
+                          />
+                          <UInput
+                            v-else
+                            v-model="row.label"
+                            size="sm"
+                            class="w-full"
+                            :placeholder="t('athlete.matchRecordsHistoryManualLabel')"
+                          />
+                          <UButton
+                            type="button"
+                            :icon="row.useManualLabel ? 'i-mdi-format-list-bulleted' : 'i-mdi-pencil-outline'"
+                            variant="ghost"
+                            color="neutral"
+                            size="sm"
+                            :aria-label="t('athlete.matchRecordsHistoryUseManualLabel')"
+                            @click="() => switchRowToManual(index, !row.useManualLabel)"
+                          />
+                        </div>
+                      </UFormField>
+                    </td>
+                    <td class="px-3 py-2 align-top">
+                      <UFormField :name="`match_records_history_rows.${index}.manual_total`">
+                        <UInputNumber v-model="row.manual_total" :min="0" size="sm" class="w-full" />
+                      </UFormField>
+                    </td>
+                    <td class="px-3 py-2 align-top tabular-nums text-muted">
+                      {{ row.app_total }}
+                    </td>
+                    <td class="px-3 py-2 align-top tabular-nums text-muted">
+                      {{ row.manual_total + row.app_total }}
+                    </td>
+                    <td class="px-3 py-2 align-top text-right">
+                      <UButton
+                        type="button"
+                        icon="i-mdi-close"
+                        variant="ghost"
+                        color="neutral"
+                        size="xs"
+                        :aria-label="t('athlete.matchRecordsHistoryRemoveRow')"
+                        @click="removeHistoryRow(index)"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <UButton
-              v-if="state.generic_match_records_count !== null"
               type="button"
-              icon="i-mdi-close"
-              variant="ghost"
+              icon="i-mdi-plus"
+              variant="subtle"
               color="neutral"
               size="sm"
-              :aria-label="t('common.cancel')"
-              @click="() => { state.generic_match_records_count = null }"
-            />
+              class="self-start"
+              @click="addHistoryRow"
+            >
+              {{ t('athlete.matchRecordsHistoryAddRow') }}
+            </UButton>
           </div>
-        </UFormField>
-
-        <UFormField name="registered_match_records_count" :label="t('athlete.registeredMatchRecordsCount')" :description="t('athlete.registeredMatchRecordsCountHint')">
-          <UInput
-            :model-value="state.registered_match_records_count !== null ? String(state.registered_match_records_count) : '—'"
-            disabled
-            class="w-full"
-          />
-        </UFormField>
-
-        <UFormField name="match_records_count" :label="t('athlete.matchRecordsCount')" :description="t('athlete.matchRecordsCountHint')">
-          <UInput
-            :model-value="state.match_records_count !== null ? String(state.match_records_count) : '—'"
-            disabled
-            class="w-full"
-          />
         </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">
@@ -120,6 +186,20 @@ const genderOptions = computed(() => [
   { label: t('athlete.gender.female'), value: 'female' },
 ])
 
+interface HistoryRow {
+  id: string | null
+  label: string
+  manual_total: number
+  app_total: number
+  useManualLabel: boolean
+}
+
+const historyRowSchema = z.object({
+  id: z.string().nullable().optional(),
+  label: z.string().min(1),
+  manual_total: z.coerce.number().int().min(0),
+})
+
 const schema = z.object({
   first_name: z.string().min(1),
   last_name: z.string().min(1),
@@ -129,7 +209,7 @@ const schema = z.object({
   email: z.email(),
   phone_number: z.string().optional(),
   team_name: z.string().optional(),
-  generic_match_records_count: z.coerce.number().int().min(0).nullable().optional(),
+  match_records_history_rows: z.array(historyRowSchema),
 })
 
 const state = reactive({
@@ -141,10 +221,53 @@ const state = reactive({
   email: '',
   phone_number: '',
   team_name: '',
-  generic_match_records_count: null as number | null,
-  registered_match_records_count: null as number | null,
-  match_records_count: null as number | null,
+  match_records_history_rows: [] as HistoryRow[],
 })
+
+function blankHistoryRow(): HistoryRow {
+  return {
+    id: null,
+    label: '',
+    manual_total: 0,
+    app_total: 0,
+    useManualLabel: false,
+  }
+}
+
+function historyRowsFromAthlete(item: Athlete): HistoryRow[] {
+  return (item.match_records_history?.disciplines ?? []).map(d => ({
+    id: d.id,
+    label: d.label,
+    manual_total: d.manual_total,
+    app_total: d.app_total,
+    useManualLabel: d.id === null,
+  }))
+}
+
+function addHistoryRow() {
+  state.match_records_history_rows = [...state.match_records_history_rows, blankHistoryRow()]
+}
+
+function removeHistoryRow(index: number) {
+  state.match_records_history_rows = state.match_records_history_rows.filter((_, i) => i !== index)
+}
+
+function setRowDisciplineId(index: number, value: string | null) {
+  const row = state.match_records_history_rows[index]
+  if (row) { row.id = value }
+}
+
+function setRowDiscipline(index: number, item: Record<string, unknown>) {
+  const row = state.match_records_history_rows[index]
+  if (row) { row.label = String(item.label ?? '') }
+}
+
+function switchRowToManual(index: number, manual: boolean) {
+  const row = state.match_records_history_rows[index]
+  if (!row) { return }
+  row.useManualLabel = manual
+  if (manual) { row.id = null }
+}
 
 const fetching = ref(false)
 
@@ -162,9 +285,7 @@ watch(open, async (val) => {
       state.email = item.email
       state.phone_number = item.phone_number ?? ''
       state.team_name = item.team_name ?? ''
-      state.generic_match_records_count = item.generic_match_records_count ?? null
-      state.registered_match_records_count = item.registered_match_records_count ?? null
-      state.match_records_count = item.match_records_count ?? null
+      state.match_records_history_rows = historyRowsFromAthlete(item)
     } catch (e) {
       toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
       open.value = false
@@ -180,9 +301,7 @@ watch(open, async (val) => {
     state.email = ''
     state.phone_number = ''
     state.team_name = ''
-    state.generic_match_records_count = null
-    state.registered_match_records_count = null
-    state.match_records_count = null
+    state.match_records_history_rows = []
   }
 })
 
@@ -200,7 +319,13 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
       email: event.data.email,
       phone_number: event.data.phone_number || null,
       team_name: event.data.team_name || null,
-      generic_match_records_count: event.data.generic_match_records_count ?? null,
+      match_records_history: {
+        disciplines: event.data.match_records_history_rows.map(row => ({
+          id: row.id ?? null,
+          label: row.label,
+          manual_total: row.manual_total,
+        })),
+      },
     }
 
     let saved: Athlete
@@ -220,9 +345,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     state.email = saved.email
     state.phone_number = saved.phone_number ?? ''
     state.team_name = saved.team_name ?? ''
-    state.generic_match_records_count = saved.generic_match_records_count ?? null
-    state.registered_match_records_count = saved.registered_match_records_count ?? null
-    state.match_records_count = saved.match_records_count ?? null
+    state.match_records_history_rows = historyRowsFromAthlete(saved)
 
     emit('saved')
     toast.add({

@@ -43,8 +43,16 @@ export interface Athlete {
   email: string
   phone_number: string | null
   team_name: string | null
-  generic_match_records_count?: number | null
-  registered_match_records_count?: number | null
+  match_records_history?: {
+    total: number
+    disciplines: {
+      id: string | null
+      label: string
+      manual_total: number
+      app_total: number
+      total: number
+    }[]
+  }
   match_records_count?: number | null
   created_at: string
   updated_at: string
