@@ -18,7 +18,7 @@
         :key="match.id"
         :ref="(el) => { if (el) matchCardEls[index] = el as HTMLElement }"
       >
-        <MatchRecordCardReadOnly :match="match" :show-judges-points="true" />
+        <MatchRecordCardReadOnly :match="match" :show-judges-points="true" hide-notes />
       </div>
     </div>
   </div>

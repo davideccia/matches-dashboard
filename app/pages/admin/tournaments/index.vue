@@ -56,13 +56,6 @@
                 />
               </UDropdownMenu>
               <UButton
-                icon="i-mdi-pencil"
-                variant="ghost"
-                color="neutral"
-                size="sm"
-                @click="openEdit((row.original as unknown as Tournament))"
-              />
-              <UButton
                 icon="i-mdi-delete"
                 variant="ghost"
                 color="error"
@@ -185,11 +178,6 @@ function openDetail(item: Tournament) {
 
 function openCreate() {
   editingItem.value = null
-  panelOpen.value = true
-}
-
-function openEdit(item: Tournament) {
-  editingItem.value = item
   panelOpen.value = true
 }
 

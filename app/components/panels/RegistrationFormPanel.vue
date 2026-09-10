@@ -13,22 +13,11 @@
       >
         <UFormField name="athlete_id" :label="t('registration.athlete')" required>
           <div class="flex items-center gap-2">
-            <ApiSelectMenu
+            <AthleteSelectMenu
               v-model="state.athlete_id"
-              endpoint="/api/admin/athletes"
-              label-key="full_name"
               :placeholder="t('registration.selectAthlete')"
               :disabled="isEdit"
-              class="w-full"
-            >
-              <template #label="{ item: slotItem }">
-                <span class="flex items-center gap-2 min-w-0 w-full">
-                  <span class="truncate flex-1">{{ slotItem.full_name }}</span>
-                  <UBadge v-if="slotItem.is_adult" color="success" variant="subtle" size="sm">{{ t('athlete.adult') }}</UBadge>
-                  <UBadge v-else color="warning" variant="subtle" size="sm">{{ t('athlete.minor') }}</UBadge>
-                </span>
-              </template>
-            </ApiSelectMenu>
+            />
             <UButton
               v-if="state.athlete_id !== null && !isEdit"
               type="button"

@@ -122,7 +122,7 @@
       </div>
 
       <!-- FOOTER: note -->
-      <div class="flex items-start gap-2 border-t border-default bg-elevated/50 px-4 py-2.5">
+      <div v-if="!hideNotes" class="flex items-start gap-2 border-t border-default bg-elevated/50 px-4 py-2.5">
         <UIcon name="i-mdi-note-text-outline" class="mt-px size-3.5 shrink-0 text-dimmed" />
         <div class="min-w-0">
           <span class="block text-xs uppercase tracking-widest text-dimmed">{{ t('match.notes') }}</span>
@@ -155,10 +155,13 @@ const props = defineProps<{
   compact?: boolean
   /** Etichetta opzionale mostrata nell'header (es. "Precedente"/"Successivo" nella finestra live). */
   label?: string
+  /** Nasconde il blocco note (es. vista pubblica). */
+  hideNotes?: boolean
 }>()
 
 const showJudgesPoints = computed(() => (props.compact ? false : (props.showJudgesPoints ?? true)))
 const compact = computed(() => props.compact ?? false)
+const hideNotes = computed(() => props.hideNotes ?? false)
 
 const { t } = useI18n()
 const judgesPointsOpen = ref(false)

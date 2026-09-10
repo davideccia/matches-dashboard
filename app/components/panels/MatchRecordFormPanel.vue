@@ -206,37 +206,14 @@
                   <div class="flex flex-col gap-3 p-4 bg-red-500/4">
                     <UFormField name="red_corner_id" :label="t('match.athlete')">
                       <div class="flex items-center gap-1.5">
-                        <ApiSelectMenu
+                        <AthleteSelectMenu
                           v-model="state.red_corner_id"
-                          endpoint="/api/admin/athletes"
-                          label-key="full_name"
                           :paginated="false"
                           :placeholder="t('match.selectAthlete')"
                           :disabled="!filtersReady && !forceEntry"
                           :query-params="filterParams"
-                          class="w-full"
                           @select="onRedCornerSelect"
-                        >
-                          <template #label="{ item: slotItem }">
-                            <span class="flex items-center gap-2 min-w-0 w-full">
-                              <span class="truncate flex-1">{{ slotItem.full_name }}</span>
-                              <UBadge
-                                v-if="slotItem.age !== undefined"
-                                color="primary"
-                                variant="subtle"
-                                size="md"
-                                icon="i-mdi-cake-variant-outline"
-                              >{{ slotItem.age }}</UBadge>
-                              <span
-                                v-if="slotItem.match_records_count != null"
-                                class="inline-flex items-center gap-1 shrink-0 rounded-full border border-muted bg-elevated px-1.5 py-px text-[11px] font-medium text-muted"
-                              >
-                                <UIcon name="i-mdi-boxing-glove" size="md" class="size-4 opacity-70 bg-amber-400" />
-                                {{ slotItem.match_records_count }}
-                              </span>
-                            </span>
-                          </template>
-                        </ApiSelectMenu>
+                        />
                         <UButton
                           v-if="state.red_corner_id !== null && (filtersReady || forceEntry)"
                           type="button"
@@ -262,37 +239,14 @@
                   <div class="flex flex-col gap-3 p-4 bg-blue-500/4">
                     <UFormField name="blue_corner_id" :label="t('match.athlete')">
                       <div class="flex items-center gap-1.5">
-                        <ApiSelectMenu
+                        <AthleteSelectMenu
                           v-model="state.blue_corner_id"
-                          endpoint="/api/admin/athletes"
-                          label-key="full_name"
                           :paginated="false"
                           :placeholder="t('match.selectAthlete')"
                           :disabled="!filtersReady && !forceEntry"
                           :query-params="filterParams"
-                          class="w-full"
                           @select="onBlueCornerSelect"
-                        >
-                          <template #label="{ item: slotItem }">
-                            <span class="flex items-center gap-2 min-w-0 w-full">
-                              <span class="truncate flex-1">{{ slotItem.full_name }}</span>
-                              <UBadge
-                                v-if="slotItem.age !== undefined"
-                                color="primary"
-                                variant="subtle"
-                                size="md"
-                                icon="i-mdi-cake-variant-outline"
-                              >{{ slotItem.age }}</UBadge>
-                              <span
-                                v-if="slotItem.match_records_count != null"
-                                class="inline-flex items-center gap-1 shrink-0 rounded-full border border-muted bg-elevated px-1.5 py-px text-[11px] font-medium text-muted"
-                              >
-                                <UIcon name="i-mdi-boxing-glove" size="md" class="size-4 opacity-70 bg-amber-400" />
-                                {{ slotItem.match_records_count }}
-                              </span>
-                            </span>
-                          </template>
-                        </ApiSelectMenu>
+                        />
                         <UButton
                           v-if="state.blue_corner_id !== null && (filtersReady || forceEntry)"
                           type="button"
