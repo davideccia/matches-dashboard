@@ -179,18 +179,6 @@
               />
             </UFormField>
 
-            <UFormField name="generic_match_records_count" :label="t('athlete.genericMatchRecordsCount')">
-              <UInput
-                :model-value="athleteState.generic_match_records_count !== null ? String(athleteState.generic_match_records_count) : ''"
-                type="number"
-                min="0"
-                size="lg"
-                class="w-full"
-                :disabled="!isNewAthlete"
-                @update:model-value="(v: string) => athleteState.generic_match_records_count = v === '' ? null : Number(v)"
-              />
-            </UFormField>
-
             <div class="flex gap-3 pt-2">
               <UButton
                 size="lg"
@@ -637,7 +625,6 @@ const athleteState = reactive({
   team_name: '',
   email: '',
   phone_number: '',
-  generic_match_records_count: null as number | null,
 })
 
 async function onStep1Next() {
@@ -663,7 +650,6 @@ async function onStep1Next() {
     athleteState.gender = res.data.gender
     athleteState.team_name = res.data.team_name ?? ''
     athleteState.phone_number = res.data.phone_number ?? ''
-    athleteState.generic_match_records_count = res.data.generic_match_records_count ?? null
   } catch {
     // Il 400 è volutamente indistinguibile fra CF sconosciuto ed email errata:
     // si prosegue come nuova anagrafica, avvisando che potrebbe essere un typo.
@@ -675,7 +661,6 @@ async function onStep1Next() {
     athleteState.gender = 'male' as Gender
     athleteState.team_name = ''
     athleteState.phone_number = ''
-    athleteState.generic_match_records_count = null
   } finally {
     taxLookupLoading.value = false
     stepperRef.value?.next()
@@ -692,7 +677,6 @@ const athleteSchema = z.object({
   team_name: z.string().min(1),
   email: z.email(),
   phone_number: z.string().optional(),
-  generic_match_records_count: z.coerce.number().int().min(0).nullable().optional(),
 })
 
 const genderOptions = computed(() => [
@@ -710,7 +694,6 @@ function onStep2Submit(event: FormSubmitEvent<z.infer<typeof athleteSchema>>) {
   athleteState.team_name = event.data.team_name ?? ''
   athleteState.email = event.data.email
   athleteState.phone_number = event.data.phone_number ?? ''
-  athleteState.generic_match_records_count = event.data.generic_match_records_count ?? null
 
   stepperRef.value?.next()
   loadStep3Data()
@@ -909,7 +892,6 @@ async function submit() {
         gender: athleteState.gender,
         team_name: athleteState.team_name || null,
         phone_number: athleteState.phone_number || null,
-        generic_match_records_count: athleteState.generic_match_records_count ?? null,
         tournament_id: selectedTournamentId.value,
         discipline_id: selectedDisciplineId.value,
         weight_category_id: selectedWeightCategoryId.value,
@@ -962,7 +944,7 @@ function resetForm() {
   emailInput.value = ''
   existingAthlete.value = null
   isNewAthlete.value = false
-  Object.assign(athleteState, { first_name: '', last_name: '', birth_date: '', gender: 'male' as Gender, tax_number: '', team_name: '', email: '', phone_number: '', generic_match_records_count: null })
+  Object.assign(athleteState, { first_name: '', last_name: '', birth_date: '', gender: 'male' as Gender, tax_number: '', team_name: '', email: '', phone_number: '' })
   selectedTournamentId.value = null
   selectedDisciplineId.value = null
   selectedWeightCategoryId.value = null
