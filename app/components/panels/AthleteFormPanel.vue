@@ -44,107 +44,7 @@
         </UFormField>
 
         <UFormField :label="t('athlete.matchRecordsHistory')">
-          <div class="flex flex-col gap-2">
-            <div class="border border-default rounded-lg overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead>
-                  <tr class="bg-elevated border-b border-default">
-                    <th class="px-3 py-2 text-left font-medium text-muted">
-                      {{ t('athlete.matchRecordsHistoryDiscipline') }}
-                    </th>
-                    <th class="px-3 py-2 text-left font-medium text-muted w-32">
-                      {{ t('athlete.matchRecordsHistoryManualTotal') }}
-                    </th>
-                    <th class="px-3 py-2 text-left font-medium text-muted w-28">
-                      {{ t('athlete.matchRecordsHistoryAppTotal') }}
-                    </th>
-                    <th class="px-3 py-2 text-left font-medium text-muted w-24">
-                      {{ t('athlete.matchRecordsHistoryTotal') }}
-                    </th>
-                    <th class="w-10" />
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-if="state.match_records_history_rows.length === 0">
-                    <td colspan="5" class="px-3 py-8 text-center text-sm italic text-muted">
-                      {{ t('athlete.matchRecordsHistoryEmpty') }}
-                    </td>
-                  </tr>
-                  <tr
-                    v-for="(row, index) in state.match_records_history_rows"
-                    :key="index"
-                    class="border-t border-default/60"
-                  >
-                    <td class="px-3 py-2 align-top">
-                      <UFormField :name="`match_records_history_rows.${index}.label`">
-                        <div class="flex items-center gap-2">
-                          <ApiSelectMenu
-                            v-if="!row.useManualLabel"
-                            :model-value="row.id"
-                            endpoint="/api/admin/disciplines"
-                            label-key="label"
-                            :placeholder="t('athlete.matchRecordsHistorySelectDiscipline')"
-                            class="w-full"
-                            @update:model-value="(v: string | null) => setRowDisciplineId(index, v)"
-                            @select="(item: Record<string, unknown>) => setRowDiscipline(index, item)"
-                          />
-                          <UInput
-                            v-else
-                            v-model="row.label"
-                            size="sm"
-                            class="w-full"
-                            :placeholder="t('athlete.matchRecordsHistoryManualLabel')"
-                          />
-                          <UButton
-                            type="button"
-                            :icon="row.useManualLabel ? 'i-mdi-format-list-bulleted' : 'i-mdi-pencil-outline'"
-                            variant="ghost"
-                            color="neutral"
-                            size="sm"
-                            :aria-label="t('athlete.matchRecordsHistoryUseManualLabel')"
-                            @click="() => switchRowToManual(index, !row.useManualLabel)"
-                          />
-                        </div>
-                      </UFormField>
-                    </td>
-                    <td class="px-3 py-2 align-top">
-                      <UFormField :name="`match_records_history_rows.${index}.manual_total`">
-                        <UInputNumber v-model="row.manual_total" :min="0" size="sm" class="w-full" />
-                      </UFormField>
-                    </td>
-                    <td class="px-3 py-2 align-top tabular-nums text-muted">
-                      {{ row.app_total }}
-                    </td>
-                    <td class="px-3 py-2 align-top tabular-nums text-muted">
-                      {{ row.manual_total + row.app_total }}
-                    </td>
-                    <td class="px-3 py-2 align-top text-right">
-                      <UButton
-                        type="button"
-                        icon="i-mdi-close"
-                        variant="ghost"
-                        color="neutral"
-                        size="xs"
-                        :aria-label="t('athlete.matchRecordsHistoryRemoveRow')"
-                        @click="removeHistoryRow(index)"
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <UButton
-              type="button"
-              icon="i-mdi-plus"
-              variant="subtle"
-              color="neutral"
-              size="sm"
-              class="self-start"
-              @click="addHistoryRow"
-            >
-              {{ t('athlete.matchRecordsHistoryAddRow') }}
-            </UButton>
-          </div>
+          <AthleteMatchRecordsHistoryEditor v-model="state.match_records_history_rows" />
         </UFormField>
 
         <div class="flex justify-end gap-2 pt-2">
@@ -163,6 +63,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
 import type { Athlete } from '~/types/models'
+import type { HistoryRow } from '~/utils/athleteMatchRecordsHistory'
 import * as z from 'zod'
 import { type Gender, GENDERS } from '~/utils/constants'
 
@@ -185,14 +86,6 @@ const genderOptions = computed(() => [
   { label: t('athlete.gender.male'), value: 'male' },
   { label: t('athlete.gender.female'), value: 'female' },
 ])
-
-interface HistoryRow {
-  id: string | null
-  label: string
-  manual_total: number
-  app_total: number
-  useManualLabel: boolean
-}
 
 const historyRowSchema = z.object({
   id: z.string().nullable().optional(),
@@ -223,51 +116,6 @@ const state = reactive({
   team_name: '',
   match_records_history_rows: [] as HistoryRow[],
 })
-
-function blankHistoryRow(): HistoryRow {
-  return {
-    id: null,
-    label: '',
-    manual_total: 0,
-    app_total: 0,
-    useManualLabel: false,
-  }
-}
-
-function historyRowsFromAthlete(item: Athlete): HistoryRow[] {
-  return (item.match_records_history?.disciplines ?? []).map(d => ({
-    id: d.id,
-    label: d.label,
-    manual_total: d.manual_total,
-    app_total: d.app_total,
-    useManualLabel: d.id === null,
-  }))
-}
-
-function addHistoryRow() {
-  state.match_records_history_rows = [...state.match_records_history_rows, blankHistoryRow()]
-}
-
-function removeHistoryRow(index: number) {
-  state.match_records_history_rows = state.match_records_history_rows.filter((_, i) => i !== index)
-}
-
-function setRowDisciplineId(index: number, value: string | null) {
-  const row = state.match_records_history_rows[index]
-  if (row) { row.id = value }
-}
-
-function setRowDiscipline(index: number, item: Record<string, unknown>) {
-  const row = state.match_records_history_rows[index]
-  if (row) { row.label = String(item.label ?? '') }
-}
-
-function switchRowToManual(index: number, manual: boolean) {
-  const row = state.match_records_history_rows[index]
-  if (!row) { return }
-  row.useManualLabel = manual
-  if (manual) { row.id = null }
-}
 
 const fetching = ref(false)
 
