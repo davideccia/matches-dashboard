@@ -85,6 +85,16 @@
           </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1">
+              <UBadge
+                color="neutral"
+                variant="subtle"
+                icon="i-mdi-boxing-glove"
+                class="cursor-pointer"
+                :aria-label="t('athlete.viewMatchRecordsHistory')"
+                @click="openHistory((row.original as unknown as Athlete))"
+              >
+                {{ t('athlete.viewMatchRecordsHistory') }}
+              </UBadge>
               <UButton
                 icon="i-mdi-pencil"
                 variant="ghost"
@@ -108,6 +118,7 @@
 
   <ClientOnly>
     <AthleteFormPanel v-model="panelOpen" :item="editingItem" @saved="() => tableRef?.refresh()" />
+    <AthleteMatchRecordsHistoryViewer v-model:open="historyViewerOpen" :item="viewingItem" />
 
     <UModal v-model:open="confirmOpen" :title="t('common.confirm')">
       <template #body>
@@ -143,6 +154,8 @@ const tableRef = useTemplateRef('tableRef')
 
 const panelOpen = ref(false)
 const editingItem = ref<Athlete | null>(null)
+const historyViewerOpen = ref(false)
+const viewingItem = ref<Athlete | null>(null)
 const confirmOpen = ref(false)
 const deleteTarget = ref<Athlete | null>(null)
 const deleting = ref(false)
@@ -182,6 +195,11 @@ function openCreate() {
 function openEdit(item: Athlete) {
   editingItem.value = item
   panelOpen.value = true
+}
+
+function openHistory(item: Athlete) {
+  viewingItem.value = item
+  historyViewerOpen.value = true
 }
 
 function confirmDelete(item: Athlete) {

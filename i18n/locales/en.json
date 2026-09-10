@@ -245,6 +245,7 @@
     "phoneNumber": "Phone number",
     "team": "Team",
     "teamName": "Team",
+    "viewMatchRecordsHistory": "View match history",
     "matchRecordsHistory": "Match history",
     "matchRecordsHistoryEmpty": "No disciplines in history",
     "matchRecordsHistoryDiscipline": "Discipline",

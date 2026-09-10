@@ -64,7 +64,7 @@
           </template>
 
           <!-- Infinite scroll sentinel -->
-          <div v-if="paginated" ref="sentinel" class="h-px" />
+          <div ref="sentinel" class="h-px" />
 
           <!-- Empty state -->
           <div
@@ -90,14 +90,12 @@ const props = withDefaults(defineProps<{
   labelKey?: string
   placeholder?: string
   disabled?: boolean
-  paginated?: boolean
   queryParams?: Record<string, string | number | boolean | undefined>
 }>(), {
   valueKey: 'id',
   labelKey: 'label',
   placeholder: undefined,
   disabled: false,
-  paginated: true,
   queryParams: undefined,
 })
 
@@ -138,33 +136,20 @@ interface PaginatedResponse {
   meta: { total: number, current_page: number, last_page: number, per_page: number }
 }
 
-interface FlatResponse {
-  data: Item[]
-}
-
 async function fetchItems(append = false) {
   if (loading.value) { return }
   loading.value = true
   try {
-    if (props.paginated) {
-      const res = await api.get<PaginatedResponse>(props.endpoint, {
-        page: currentPage.value,
-        per_page: PAGE_SIZE,
-        ...(search.value ? { search: search.value } : {}),
-        ...(props.queryParams ?? {}),
-      })
-      const fetched = res.data ?? []
-      items.value = append ? [...items.value, ...fetched] : fetched
-      hasMore.value = currentPage.value < (res.meta?.last_page ?? 1)
-    } else {
-      const res = await api.get<FlatResponse>(props.endpoint, {
-        paginate: 0,
-        ...(search.value ? { search: search.value } : {}),
-        ...(props.queryParams ?? {}),
-      })
-      items.value = res.data ?? []
-      hasMore.value = false
-    }
+    const res = await api.get<PaginatedResponse>(props.endpoint, {
+      paginate: 1,
+      page: currentPage.value,
+      per_page: PAGE_SIZE,
+      ...(search.value ? { search: search.value } : {}),
+      ...(props.queryParams ?? {}),
+    })
+    const fetched = res.data ?? []
+    items.value = append ? [...items.value, ...fetched] : fetched
+    hasMore.value = currentPage.value < (res.meta?.last_page ?? 1)
   } catch {
     // silent – api errors handled upstream
   } finally {

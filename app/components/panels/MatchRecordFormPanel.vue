@@ -208,10 +208,10 @@
                       <div class="flex items-center gap-1.5">
                         <AthleteSelectMenu
                           v-model="state.red_corner_id"
-                          :paginated="false"
                           :placeholder="t('match.selectAthlete')"
                           :disabled="!filtersReady && !forceEntry"
                           :query-params="filterParams"
+                          :discipline-id="state.discipline_id"
                           @select="onRedCornerSelect"
                         />
                         <UButton
@@ -241,10 +241,10 @@
                       <div class="flex items-center gap-1.5">
                         <AthleteSelectMenu
                           v-model="state.blue_corner_id"
-                          :paginated="false"
                           :placeholder="t('match.selectAthlete')"
                           :disabled="!filtersReady && !forceEntry"
                           :query-params="filterParams"
+                          :discipline-id="state.discipline_id"
                           @select="onBlueCornerSelect"
                         />
                         <UButton
