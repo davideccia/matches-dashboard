@@ -90,7 +90,7 @@ const genderOptions = computed(() => [
 const historyRowSchema = z.object({
   id: z.string().nullable().optional(),
   label: z.string().min(1),
-  manual_total: z.coerce.number().int().min(0),
+  manual_total: z.coerce.number().int().min(1),
 })
 
 const schema = z.object({

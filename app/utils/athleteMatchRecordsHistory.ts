@@ -12,7 +12,7 @@ export function blankHistoryRow(): HistoryRow {
   return {
     id: null,
     label: '',
-    manual_total: 0,
+    manual_total: 1,
     app_total: 0,
     useManualLabel: false,
   }
