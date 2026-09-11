@@ -6,30 +6,36 @@
       match.status === 'in_progress' ? 'border-amber-500 dark:border-amber-500' : 'border-inverted dark:border-accented',
     ]"
   >
-    <!-- HEADER: stato + contesto -->
+    <!-- HEADER: torneo + stato + contesto -->
     <div
-      class="flex flex-wrap items-center gap-2 border-b-2 border-default"
+      class="border-b-2 border-default"
       :class="compact ? 'px-3 py-2' : 'px-4 py-3'"
     >
-      <span class="size-2 shrink-0 rounded-full" :class="statusDotClass[match.status]" />
+      <div v-if="showTournament && match.tournament?.name" class="mb-2 truncate border-b border-default pb-2 text-center text-sm font-bold uppercase tracking-widest text-highlighted">
+        {{ match.tournament.name }}
+      </div>
 
-      <span v-if="label" class="text-xs font-bold uppercase tracking-widest text-dimmed">{{ label }}</span>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="size-2 shrink-0 rounded-full" :class="statusDotClass[match.status]" />
 
-      <template v-if="!compact">
-        <span v-if="disciplineWeightLabel" class="rounded-full border border-default px-2.5 py-1 text-xs uppercase tracking-widest">
-          {{ disciplineWeightLabel }}
-        </span>
-        <span v-if="match.rounds && match.minutes_per_round" class="rounded-full border border-default px-2.5 py-1 text-xs uppercase tracking-widest">
-          {{ match.rounds }} × {{ match.minutes_per_round }}'
-        </span>
+        <span v-if="label" class="text-xs font-bold uppercase tracking-widest text-dimmed">{{ label }}</span>
 
-        <span v-if="match.unpaired" class="inline-flex items-center gap-1 rounded-full border border-amber-500/50 bg-amber-500/10 px-2.5 py-1 text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400">
-          <UIcon name="i-mdi-alert-outline" class="size-3.5" />
-          {{ t('match.unpaired') }}
-        </span>
-      </template>
+        <template v-if="!compact">
+          <span v-if="disciplineWeightLabel" class="rounded-full border border-default px-2.5 py-1 text-xs uppercase tracking-widest">
+            {{ disciplineWeightLabel }}
+          </span>
+          <span v-if="match.rounds && match.minutes_per_round" class="rounded-full border border-default px-2.5 py-1 text-xs uppercase tracking-widest">
+            {{ match.rounds }} × {{ match.minutes_per_round }}'
+          </span>
 
-      <span class="ml-auto text-xs font-bold text-dimmed">#{{ match.sort }}</span>
+          <span v-if="match.unpaired" class="inline-flex items-center gap-1 rounded-full border border-amber-500/50 bg-amber-500/10 px-2.5 py-1 text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400">
+            <UIcon name="i-mdi-alert-outline" class="size-3.5" />
+            {{ t('match.unpaired') }}
+          </span>
+        </template>
+
+        <span class="ml-auto text-xs font-bold text-dimmed">#{{ match.sort }}</span>
+      </div>
     </div>
 
     <!-- BODY: rosso / vs / blu -->
@@ -153,11 +159,14 @@ const props = defineProps<{
   label?: string
   /** Nasconde il blocco note (es. vista pubblica). */
   hideNotes?: boolean
+  /** Mostra il nome del torneo come riga sopra le info disciplina/sort. */
+  showTournament?: boolean
 }>()
 
 const showJudgesPoints = computed(() => (props.compact ? false : (props.showJudgesPoints ?? true)))
 const compact = computed(() => props.compact ?? false)
 const hideNotes = computed(() => props.hideNotes ?? false)
+const showTournament = computed(() => props.showTournament ?? false)
 
 const { t } = useI18n()
 const judgesPointsOpen = ref(false)

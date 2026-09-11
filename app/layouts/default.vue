@@ -112,7 +112,7 @@ const items = computed<NavigationMenuItem[][]>(() => [
     {
       label: t('nav.users'),
       icon: 'i-mdi-account-group',
-      to: localePath('/admin/configurations/users'),
+      to: localePath('/admin/users'),
     },
     {
       label: t('nav.settings'),

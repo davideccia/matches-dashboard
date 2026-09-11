@@ -46,7 +46,7 @@
           />
         </div>
 
-        <div v-if="matchesLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+        <div v-if="matchesLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           <USkeleton v-for="n in 6" :key="n" class="h-48 rounded-xl" />
         </div>
 
@@ -56,12 +56,13 @@
         </div>
 
         <template v-else>
-          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             <MatchRecordCardReadOnly
               v-for="match in matches"
               :key="match.id"
               :match="match"
               :show-judges-points="true"
+              show-tournament
             />
           </div>
 
