@@ -3,7 +3,10 @@
     <div class="w-full max-w-lg space-y-6">
       <!-- Header -->
       <div class="flex flex-col items-center gap-3 pt-2">
-        <LocaleSwitcher />
+        <div class="flex items-center gap-2">
+          <LocaleSwitcher />
+          <ColorModeToggle />
+        </div>
         <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center">
           <UIcon name="i-mdi-trophy" class="size-6 text-primary" />
         </div>

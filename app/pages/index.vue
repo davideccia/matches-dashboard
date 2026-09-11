@@ -1,6 +1,9 @@
 <template>
   <div class="min-h-screen bg-default flex flex-col items-center justify-center px-4 py-8 gap-8">
-    <LocaleSwitcher />
+    <div class="flex items-center gap-2">
+      <LocaleSwitcher />
+      <ColorModeToggle />
+    </div>
 
     <div class="flex flex-col items-center gap-3 text-center">
       <AppLogo

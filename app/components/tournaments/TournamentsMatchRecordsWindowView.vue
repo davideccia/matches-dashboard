@@ -1,14 +1,14 @@
 <template>
   <div>
     <!-- Loading skeletons -->
-    <div v-if="loading && !current && !previous && !next" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+    <div v-if="loading && !current && !previous && !next" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
       <USkeleton class="h-32 rounded-xl" />
       <USkeleton class="h-56 rounded-2xl md:scale-105" />
       <USkeleton class="h-32 rounded-xl" />
     </div>
 
     <!-- Window: previous / current / next -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+    <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
       <!-- Previous -->
       <div>
         <Transition name="window-slot" mode="out-in">

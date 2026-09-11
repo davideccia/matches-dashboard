@@ -2,8 +2,8 @@
   <article
     class="flex h-full flex-col overflow-hidden bg-default shadow-md transition"
     :class="[
-      compact ? 'rounded-xl border' : 'rounded-2xl border-2 hover:-translate-y-0.5 hover:shadow-lg',
-      match.status === 'in_progress' ? 'border-amber-500 dark:border-amber-500' : 'border-accented',
+      compact ? 'rounded-xl border-2' : 'rounded-2xl border-4 hover:-translate-y-0.5 hover:shadow-lg',
+      match.status === 'in_progress' ? 'border-amber-500 dark:border-amber-500' : 'border-inverted dark:border-accented',
     ]"
   >
     <!-- HEADER: stato + contesto -->
@@ -16,11 +16,8 @@
       <span v-if="label" class="text-xs font-bold uppercase tracking-widest text-dimmed">{{ label }}</span>
 
       <template v-if="!compact">
-        <span v-if="match.discipline?.label" class="rounded-full border border-default px-2.5 py-1 text-xs uppercase tracking-widest">
-          {{ match.discipline.label }}
-        </span>
-        <span v-if="match.weight_category?.label" class="rounded-full border border-default px-2.5 py-1 text-xs uppercase tracking-widest">
-          {{ match.weight_category.label }}
+        <span v-if="disciplineWeightLabel" class="rounded-full border border-default px-2.5 py-1 text-xs uppercase tracking-widest">
+          {{ disciplineWeightLabel }}
         </span>
         <span v-if="match.rounds && match.minutes_per_round" class="rounded-full border border-default px-2.5 py-1 text-xs uppercase tracking-widest">
           {{ match.rounds }} × {{ match.minutes_per_round }}'
@@ -103,12 +100,11 @@
 
     <template v-if="!compact">
       <!-- FOOTER: cartellini giudici -->
-      <div v-if="showJudgesPoints" class="flex items-center justify-between gap-3 border-t border-default px-4 py-2.5">
+      <div v-if="showJudgesPoints && hasJudgePoints" class="flex items-center justify-between gap-3 border-t border-default px-4 py-2.5">
         <span class="text-xs uppercase tracking-widest text-dimmed">
-          {{ hasJudgePoints ? t('match.judgesPointsRecorded') : t('match.judgesPointsEmpty') }}
+          {{ t('match.judgesPointsRecorded') }}
         </span>
         <UButton
-          v-if="hasJudgePoints"
           type="button"
           variant="outline"
           color="neutral"
@@ -183,6 +179,11 @@ function endMethodLabel(method: string): string {
   if (method === 'no_contest') { return t('match.endMethod.no_contest') }
   return method
 }
+
+const disciplineWeightLabel = computed(() => {
+  const parts = [props.match.discipline?.label, props.match.weight_category?.label].filter(Boolean)
+  return parts.length > 0 ? parts.join(' ') : null
+})
 
 const redCorner = computed(() => cornerInfo(props.match, 'red'))
 const blueCorner = computed(() => cornerInfo(props.match, 'blue'))

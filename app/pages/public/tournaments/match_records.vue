@@ -7,6 +7,7 @@
         <div class="flex flex-col items-center gap-2 sm:gap-3" :class="{ 'hidden sm:flex': selectedTournament }">
           <div class="flex items-center gap-2">
             <LocaleSwitcher />
+            <ColorModeToggle />
             <RealtimeToggle v-if="selectedTournament" v-model="realtimeEnabled" />
           </div>
           <div class="size-10 sm:size-12 rounded-2xl bg-primary/10 flex items-center justify-center">
@@ -32,6 +33,7 @@
           </div>
           <div class="flex items-center gap-2">
             <LocaleSwitcher />
+            <ColorModeToggle />
             <RealtimeToggle v-model="realtimeEnabled" />
           </div>
         </div>

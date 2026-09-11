@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Loading skeletons -->
-    <div v-if="matchesLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+    <div v-if="matchesLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
       <USkeleton v-for="n in 6" :key="n" class="h-48 rounded-xl" />
     </div>
 
@@ -12,7 +12,7 @@
     </div>
 
     <!-- MatchRecord cards -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
       <div
         v-for="(match, index) in matches"
         :key="match.id"
