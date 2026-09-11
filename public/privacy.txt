@@ -1,9 +1,99 @@
- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque at pretium augue. Integer id suscipit massa, ut accumsan nulla. Suspendisse condimentum dictum nulla non ornare. Mauris vel posuere urna. Duis finibus ante augue, eget pulvinar est eleifend sed. Fusce quis lobortis ligula, vitae varius enim. Nullam in lacus ut ipsum semper fringilla eu sit amet lectus. Vivamus vitae magna dui. Integer sit amet lacus sed diam bibendum molestie. Vivamus justo orci, eleifend nec convallis varius, molestie sit amet purus. Praesent erat eros, tincidunt ac dui non, auctor eleifend tellus. Nulla egestas justo massa, ac tempor est accumsan quis. Nam in finibus sapien. Proin massa enim, consectetur ac mattis sed, mollis sit amet justo. Duis vehicula, quam vel hendrerit molestie, massa sem vestibulum arcu, vitae suscipit erat mauris ut dolor.
+INFORMATIVA SULLA PRIVACY
+(ai sensi degli artt. 13-14 del Regolamento UE 2016/679 - GDPR)
 
-Donec sit amet leo nisl. Praesent id nisi eu augue imperdiet aliquam. Sed lectus libero, posuere pharetra dui id, mattis venenatis ante. In eget laoreet felis. Nullam eleifend cursus luctus. Vestibulum venenatis convallis arcu, vel eleifend nunc iaculis sed. Proin leo arcu, pellentesque semper lacinia ut, dictum a massa. Sed in nibh quis ex tincidunt ultrices quis a risus. Sed lacus turpis, luctus et efficitur non, sollicitudin ac libero. Donec sit amet auctor felis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aliquam nec suscipit ipsum. Proin tincidunt erat velit. Cras non placerat diam.
+Ultimo aggiornamento: 11/09/2026
 
-Morbi volutpat diam id ipsum suscipit, sed tincidunt mauris malesuada. Pellentesque rhoncus lobortis quam tempus consectetur. Vestibulum sodales luctus leo ut porta. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur dolor diam, facilisis a rutrum a, sodales non libero. Vestibulum blandit consectetur efficitur. Cras ut risus lectus. Donec ligula felis, lobortis non cursus non, accumsan vitae nisi. Nulla mollis dignissim ligula sit amet vestibulum.
+1. TITOLARE DEL TRATTAMENTO
 
-Donec non gravida mauris. Ut feugiat eu enim non porttitor. Morbi eget finibus leo. Nulla et diam felis. Ut volutpat scelerisque purus, eget condimentum libero malesuada et. Suspendisse potenti. Aenean et erat id felis dignissim egestas. Donec eget ligula consequat, hendrerit dui non, iaculis elit. Curabitur sagittis ligula non augue ullamcorper, eget ornare mauris sodales. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus eu volutpat leo.
+Titolare del trattamento dei dati è:
+ASD Countdown FC
+Sede legale: Via Catalano, 5 – 74024 Manduria (TA)
+P.IVA/C.F.: 90214580731
+Email: countdownroadtoshooto@gmail.com
+Telefono: +39 329 8033665
 
-Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam tincidunt vehicula enim, vitae placerat sem varius et. Donec a nulla nibh. Fusce tristique semper nibh, eu congue velit tristique volutpat. Pellentesque maximus est sed eleifend pellentesque. Etiam mollis ante a est maximus sodales. Aenean ac odio dui. Cras iaculis quis nisl eget tincidunt. Donec molestie, tellus non egestas porta, quam elit condimentum enim, in aliquam magna elit suscipit dolor. 
+2. RESPONSABILE DELLA PROTEZIONE DEI DATI (DPO)
+
+Il Titolare non ha nominato un Responsabile della Protezione dei Dati non ricorrendone i presupposti di legge
+
+3. TIPOLOGIE DI DATI RACCOLTI
+
+Nell'ambito dell'utilizzo dell'applicazione `Countdown FC - Matches`, vengono raccolte le seguenti categorie di dati personali:
+
+- Dati identificativi: nome, cognome, indirizzo email
+- Codice fiscale
+- Data di nascita
+- Dati di navigazione e cookie tecnici (indirizzo IP, tipo di browser, pagine visitate, data e ora di accesso)
+
+I dati relativi al codice fiscale e alla data di nascita sono trattati in quanto necessari per identificazione univoca del soggetto.
+
+4. FINALITÀ DEL TRATTAMENTO
+
+I dati personali raccolti sono trattati per le seguenti finalità:
+
+- Gestione dell'applicativo gestionale/CRM interno `Countdown FC - Matches`
+- Gestione dell'account utente e delle relative funzionalità
+- Reportistica interna
+
+5. BASE GIURIDICA DEL TRATTAMENTO
+
+Il trattamento dei dati personali si fonda sul consenso esplicito dell'interessato, espresso mediante accettazione di apposita casella al momento della registrazione nel form di registrazione evento dedicato.
+
+L'interessato ha diritto di revocare il consenso in qualsiasi momento, senza che ciò pregiudichi la liceità del trattamento basata sul consenso prestato prima della revoca.
+
+6. MODALITÀ DEL TRATTAMENTO
+
+Il trattamento è effettuato con strumenti informatici e/o cartacei, con logiche strettamente correlate alle finalità indicate, e comunque in modo da garantire la sicurezza e la riservatezza dei dati, adottando misure tecniche e organizzative adeguate ai sensi dell'art. 32 GDPR.
+
+7. COMUNICAZIONE E DIFFUSIONE DEI DATI
+
+I dati personali non sono comunicati a terze parti né diffusi, salvo quanto previsto da obblighi di legge o da specifiche necessità operative comunicate preventivamente all'interessato.
+
+Non vengono utilizzati servizi di terze parti per finalità di analytics, marketing o tracciamento.
+
+8. TRASFERIMENTO DEI DATI ALL'ESTERO
+
+I dati personali sono trattati esclusivamente all'interno dell'Unione Europea e non sono oggetto di trasferimento verso Paesi terzi o organizzazioni internazionali al di fuori dello Spazio Economico Europeo (SEE).
+
+9. PERIODO DI CONSERVAZIONE
+
+I dati personali sono conservati per tutta la durata del rapporto con l'utente e comunque fino a quando l'interessato non richieda espressamente la cancellazione del proprio account e dei dati ad esso associati, fatti salvi gli obblighi di conservazione previsti dalla normativa vigente.
+
+10. DIRITTI DELL'INTERESSATO
+
+Ai sensi degli artt. 15-22 del GDPR, l'interessato ha diritto di:
+
+- Accedere ai propri dati personali (diritto di accesso)
+- Ottenere la rettifica dei dati inesatti o incompleti
+- Ottenere la cancellazione dei dati (diritto all'oblio), nei casi previsti dalla legge
+- Ottenere la limitazione del trattamento
+- Ottenere la portabilità dei dati
+- Opporsi al trattamento
+- Revocare il consenso in qualsiasi momento
+- Proporre reclamo all'Autorità Garante per la Protezione dei Dati Personali (www.garanteprivacy.it)
+
+Per esercitare tali diritti, l'interessato può contattare il Titolare all'indirizzo email: countdownroadtoshooto@gmail.com
+
+11. COOKIE
+
+L'applicazione utilizza cookie tecnici necessari al corretto funzionamento del servizio. Non vengono utilizzati cookie di profilazione o di terze parti a fini di marketing.
+
+12. MINORI
+
+Il Titolare non raccoglie consapevolmente dati relativi a minori senza il consenso dei genitori o di chi ne esercita la responsabilità genitoriale.
+
+13. NATURA DEL CONFERIMENTO DEI DATI
+
+Il conferimento dei dati è necessario per l'utilizzo dell'applicazione. Il mancato conferimento comporta l'impossibilità di accedere ai servizi offerti.
+
+14. VIOLAZIONE DEI DATI (DATA BREACH)
+
+In caso di violazione dei dati personali che comporti un rischio per i diritti e le libertà degli interessati, il Titolare provvederà a notificare la violazione all'Autorità Garante entro 72 ore dalla conoscenza dell'evento, e agli interessati qualora la violazione comporti un rischio elevato, ai sensi degli artt. 33-34 GDPR.
+
+15. MODIFICHE ALLA PRESENTE INFORMATIVA
+
+Il Titolare si riserva il diritto di modificare la presente informativa in qualsiasi momento. Le modifiche saranno comunicate agli utenti tramite notifica email e/o pubblicazione sul sito, e saranno efficaci dalla data di pubblicazione.
+
+16. CONTATTI
+
+Per qualsiasi informazione relativa al trattamento dei dati personali, è possibile contattare il Titolare all'indirizzo email: countdownroadtoshooto@gmail.com
