@@ -121,7 +121,8 @@ The override is reachable through a deliberate gesture: **five clicks on the log
 | `/admin`                                  | Admin    | Dashboard home                                                          |
 | `/admin/tournaments`                      | Admin    | Tournament list, bulk delete, PDF exports                               |
 | `/admin/tournaments/{id}`                 | Admin    | Tournament workspace — registry, registrations, matches list, and board |
-| `/admin/configurations/athletes`          | Admin    | Manage athletes                                                         |
+| `/admin/athletes`                         | Admin    | Manage athletes                                                         |
+| `/admin/athletes/{id}/match_records`      | Admin    | Athlete match records — summary and history grid                        |
 | `/admin/configurations/disciplines`       | Admin    | Manage disciplines                                                      |
 | `/admin/configurations/weight_categories` | Admin    | Manage weight categories                                                |
 | `/admin/configurations/experience_tiers`  | Admin    | Manage experience tiers                                                 |

@@ -83,7 +83,7 @@ const items = computed<NavigationMenuItem[][]>(() => [
     {
       label: t('nav.athletes'),
       icon: 'i-mdi-run',
-      to: localePath('/admin/configurations/athletes'),
+      to: localePath('/admin/athletes'),
     },
     {
       label: t('nav.configurations'),

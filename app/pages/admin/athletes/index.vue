@@ -118,7 +118,6 @@
 
   <ClientOnly>
     <AthleteFormPanel v-model="panelOpen" :item="editingItem" @saved="() => tableRef?.refresh()" />
-    <AthleteMatchRecordsHistoryViewer v-model:open="historyViewerOpen" :item="viewingItem" />
 
     <UModal v-model:open="confirmOpen" :title="t('common.confirm')">
       <template #body>
@@ -149,13 +148,12 @@ definePageMeta({ layout: 'default' })
 const { t, locale } = useI18n()
 const api = useApi()
 const toast = useToast()
+const localePath = useLocalePath()
 
 const tableRef = useTemplateRef('tableRef')
 
 const panelOpen = ref(false)
 const editingItem = ref<Athlete | null>(null)
-const historyViewerOpen = ref(false)
-const viewingItem = ref<Athlete | null>(null)
 const confirmOpen = ref(false)
 const deleteTarget = ref<Athlete | null>(null)
 const deleting = ref(false)
@@ -198,8 +196,7 @@ function openEdit(item: Athlete) {
 }
 
 function openHistory(item: Athlete) {
-  viewingItem.value = item
-  historyViewerOpen.value = true
+  navigateTo(localePath({ name: 'admin-athletes-id-match_records', params: { id: item.id } }))
 }
 
 function confirmDelete(item: Athlete) {
