@@ -5,6 +5,7 @@ import type { EndMethod, Gender, MatchStatus, TournamentStatus } from '~/utils/c
 export interface Discipline {
   id: string
   label: string
+  sort: number
   rounds: number | null
   minutes_per_round: string | null
   created_at: string

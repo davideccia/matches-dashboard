@@ -19,6 +19,10 @@
           <UInput v-model="state.label" class="w-full" />
         </UFormField>
 
+        <UFormField name="sort" :label="t('discipline.sort')">
+          <UInput v-model="state.sort" type="number" step="1" class="w-full" />
+        </UFormField>
+
         <UFormField name="rounds" :label="t('discipline.rounds')">
           <UInput
             v-model="state.rounds"
@@ -80,12 +84,14 @@ const isEdit = computed(() => props.item !== null)
 
 const schema = z.object({
   label: z.string().min(1),
+  sort: z.coerce.number().int().optional().nullable(),
   rounds: z.coerce.number().int().min(1).optional().nullable(),
   minutes_per_round: z.string().optional().nullable(),
 })
 
 const state = reactive({
   label: '',
+  sort: null as number | null,
   rounds: null as number | null,
   minutes_per_round: undefined as string | undefined,
 })
@@ -99,6 +105,7 @@ watch(open, async (val) => {
     try {
       const { data: item } = await api.get<{ data: Discipline }>(`/api/admin/disciplines/${props.item!.id}`)
       state.label = item.label
+      state.sort = item.sort ?? null
       state.rounds = item.rounds ?? null
       state.minutes_per_round = item.minutes_per_round ?? undefined
     } catch (e) {
@@ -109,6 +116,7 @@ watch(open, async (val) => {
     }
   } else {
     state.label = ''
+    state.sort = null
     state.rounds = null
     state.minutes_per_round = undefined
   }
@@ -121,6 +129,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   try {
     const body = {
       label: event.data.label,
+      sort: event.data.sort ?? null,
       rounds: event.data.rounds ?? null,
       minutes_per_round: event.data.minutes_per_round ?? null,
     }
@@ -135,6 +144,7 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     }
 
     state.label = saved.label
+    state.sort = saved.sort ?? null
     state.rounds = saved.rounds ?? null
     state.minutes_per_round = saved.minutes_per_round ?? undefined
 

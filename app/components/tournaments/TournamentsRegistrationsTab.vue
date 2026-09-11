@@ -96,6 +96,9 @@
           <UButton icon="i-mdi-note-text-outline" variant="ghost" color="neutral" size="sm" />
         </UTooltip>
       </template>
+      <template #created_at-cell="{ row }">
+        {{ formatServerDate(((row.original as unknown as Registration)).created_at, locale) }}
+      </template>
       <template #actions-cell="{ row }">
         <div class="flex justify-end gap-1">
           <UButton
@@ -155,7 +158,7 @@ const props = defineProps<{
   tournamentId: string
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const api = useApi()
 const toast = useToast()
 
@@ -185,6 +188,7 @@ const columns = computed(() => [
   { id: 'paid', header: t('registration.paid'), meta: { class: { th: 'text-center', td: 'text-center' } } },
   { id: 'present', header: t('registration.arrived'), meta: { class: { th: 'text-center', td: 'text-center' } } },
   { id: 'notes', header: t('registration.notes') },
+  { accessorKey: 'created_at', header: t('registration.createdAt') },
   { id: 'actions', header: '' },
 ] as TableColumn<Record<string, unknown>>[])
 

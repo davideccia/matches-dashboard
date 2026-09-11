@@ -325,6 +325,7 @@
     "notes": "Notes",
     "discipline": "Discipline",
     "weightCategory": "Weight category",
+    "createdAt": "Created at",
     "selectAthlete": "Select athlete",
     "selectDiscipline": "Select discipline",
     "selectWeightCategory": "Select weight category",
@@ -348,6 +349,7 @@
   },
   "discipline": {
     "label": "Label",
+    "sort": "Order",
     "rounds": "Rounds",
     "minutesPerRound": "Min/round",
     "createTitle": "New discipline",
