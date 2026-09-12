@@ -239,3 +239,7 @@ Both pass the six build-time variables as `--build-arg` from repository variable
 ## Documentation
 
 [`CLAUDE.md`](CLAUDE.md) is the deepest written reference in this repo: it documents the runtime API override, the admin CRUD recipe, the realtime pattern, the match-board auto-scroll, the security headers/CSP setup, and known gaps like the broken `/architecture` route.
+
+## License
+
+All rights reserved — see [`LICENSE.md`](LICENSE.md). Viewing the source is permitted; using, copying, modifying, or distributing it is not, without the author's prior written consent.
