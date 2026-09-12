@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-default flex flex-col items-center px-4 py-8">
+  <div class="flex-1 flex flex-col items-center px-4 py-8">
     <div class="w-full max-w-lg space-y-6">
       <!-- Header -->
       <div class="flex flex-col items-center gap-3 pt-2">
@@ -476,7 +476,7 @@
               <a
                 href="#"
                 class="text-primary underline underline-offset-2 hover:opacity-80"
-                @click.prevent="openPrivacyModal"
+                @click.prevent="showPrivacyModal = true"
               >{{ t('register.privacyLink') }}</a>
             </span>
           </label>
@@ -559,20 +559,7 @@
       </div>
     </div>
     <!-- Privacy policy modal -->
-    <UModal v-model:open="showPrivacyModal" :title="t('register.privacyLink')" :ui="{ body: 'p-0' }">
-      <template #body>
-        <div class="max-h-[60vh] overflow-y-auto px-6 py-5 text-sm text-default whitespace-pre-wrap leading-relaxed">
-          {{ privacyPolicyText }}
-        </div>
-      </template>
-      <template #footer>
-        <div class="flex justify-end px-6 py-4">
-          <UButton @click="() => { showPrivacyModal = false }">
-            {{ t('common.close') }}
-          </UButton>
-        </div>
-      </template>
-    </UModal>
+    <PrivacyPolicyModal v-model="showPrivacyModal" />
   </div>
 </template>
 
@@ -582,7 +569,7 @@ import type { Athlete, Discipline, PaginatedResponse, Tournament, WeightCategory
 import type { Gender } from '~/utils/constants'
 import * as z from 'zod'
 
-definePageMeta({ layout: false, sanctum: { excluded: true } })
+definePageMeta({ layout: 'public', sanctum: { excluded: true } })
 
 const { config: apiConfig } = useApiConfig()
 const { t, locale } = useI18n()
@@ -825,13 +812,6 @@ const selectedWeightCategory = computed(() => weightCategories.value.find(w => w
 
 // ── Step 4: Riepilogo + submit ───────────────────────────────────────────────
 const showPrivacyModal = ref(false)
-const privacyPolicyText = ref('')
-async function openPrivacyModal() {
-  if (!privacyPolicyText.value) {
-    privacyPolicyText.value = await $fetch<string>('/privacy.txt', { responseType: 'text' })
-  }
-  showPrivacyModal.value = true
-}
 const countdown = ref(0)
 const privacyConsent = ref(false)
 const submitting = ref(false)

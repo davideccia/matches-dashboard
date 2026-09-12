@@ -83,7 +83,8 @@
     "selected": "selected",
     "clearSelection": "Clear selection",
     "maxSelectionReached": "Maximum selection reached",
-    "selectAll": "Select all"
+    "selectAll": "Select all",
+    "privacyPolicy": "Privacy policy"
   },
   "tournament": {
     "title": "Tournament",
@@ -464,9 +465,9 @@
     "discipline": "Discipline",
     "weightCategory": "Weight category",
     "notSelected": "—",
-    "privacyLabel": "I have read and accept the",
+    "privacyLabel": "I have read the",
     "privacyLink": "privacy policy",
-    "privacyRequired": "You must accept the privacy policy to proceed",
+    "privacyRequired": "You must read the privacy policy to proceed",
     "emailLabel": "Email",
     "emailPlaceholder": "Enter your email",
     "athleteNoMatch": "No match found. If you are already registered, check the email you entered; otherwise continue: we will create a new profile.",

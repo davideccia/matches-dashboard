@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-default flex flex-col items-center px-4 py-4 sm:py-8">
+  <div class="flex-1 flex flex-col items-center px-4 py-4 sm:py-8">
     <div class="w-full space-y-4 sm:space-y-6">
       <!-- Sticky top area: header + tournament bar (state B) -->
       <div class="sticky top-0 z-10 bg-default -mx-4 px-4 pt-2 pb-3 space-y-2 sm:space-y-3">
@@ -185,7 +185,7 @@
 import type { MatchRecordChangedPayload } from '~/composables/useTournamentMatchRecords'
 import type { Tournament } from '~/types/models'
 
-definePageMeta({ layout: false, sanctum: { excluded: true } })
+definePageMeta({ layout: 'public', sanctum: { excluded: true } })
 
 const { config: apiConfig } = useApiConfig()
 const { t, locale } = useI18n()

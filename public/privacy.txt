@@ -1,7 +1,7 @@
 INFORMATIVA SULLA PRIVACY
 (ai sensi degli artt. 13-14 del Regolamento UE 2016/679 - GDPR)
 
-Ultimo aggiornamento: 11/09/2026
+Ultimo aggiornamento: 12/09/2026
 
 1. TITOLARE DEL TRATTAMENTO
 
@@ -14,86 +14,301 @@ Telefono: +39 329 8033665
 
 2. RESPONSABILE DELLA PROTEZIONE DEI DATI (DPO)
 
-Il Titolare non ha nominato un Responsabile della Protezione dei Dati non ricorrendone i presupposti di legge
+Il Titolare non ha nominato un Responsabile della Protezione dei Dati, non
+ricorrendone i presupposti di legge.
 
-3. TIPOLOGIE DI DATI RACCOLTI
+3. CATEGORIE DI INTERESSATI E DATI TRATTATI
 
-Nell'ambito dell'utilizzo dell'applicazione `Countdown FC - Matches`, vengono raccolte le seguenti categorie di dati personali:
+Nell'ambito dell'utilizzo dell'applicazione `Countdown FC - Matches` sono
+trattate le seguenti categorie di dati personali.
 
-- Dati identificativi: nome, cognome, indirizzo email
+3.1 Atleti e iscritti agli eventi
+
+- Dati identificativi: nome, cognome
 - Codice fiscale
-- Data di nascita
-- Dati di navigazione e cookie tecnici (indirizzo IP, tipo di browser, pagine visitate, data e ora di accesso)
+- Data di nascita e, per derivazione, età e condizione di maggiore o minore età
+- Genere
+- Dati di contatto: indirizzo email, numero di telefono (facoltativo)
+- Società o team di appartenenza (facoltativo)
+- Dati di iscrizione: torneo, disciplina, categoria di peso, peso rilevato in
+  fase di weight-in, stato del pagamento, presenza all'evento, note inserite
+  dallo staff organizzativo
+- Dati sportivi: incontri disputati, avversario, angolo assegnato, esito,
+  round e metodo di conclusione dell'incontro (inclusi KO, KO tecnico e
+  squalifica), punteggi assegnati dai giudici, numero complessivo di incontri
+  per disciplina
+- Codice di verifica temporaneo (OTP) inviato via email durante l'iscrizione
+  online, conservato esclusivamente in forma di hash e per 10 minuti
 
-I dati relativi al codice fiscale e alla data di nascita sono trattati in quanto necessari per identificazione univoca del soggetto.
+3.2 Utenti amministratori (staff del Titolare)
+
+- Username e indirizzo email
+- Password, conservata esclusivamente in forma di hash (bcrypt)
+- Dati tecnici di sessione: indirizzo IP, user agent del browser, data e ora
+  di accesso e di ultima attività
+- Token di accesso all'applicazione
+
+3.3 Dati tecnici comuni
+
+- Dati di navigazione e di log: indirizzo IP, tipo di browser, richieste
+  effettuate, data e ora di accesso
+
+Il codice fiscale e la data di nascita sono trattati in quanto necessari per
+l'identificazione univoca dell'interessato, per la verifica dell'età e per
+l'assegnazione alle categorie previste dai regolamenti sportivi.
+
+Dati particolari (art. 9 GDPR): il Titolare non richiede e non intende
+trattare dati relativi alla salute, alla condizione fisica o all'idoneità
+medica attraverso l'applicazione. Lo staff organizzativo è istruito a non
+inserire informazioni di natura sanitaria nei campi note. Il peso rilevato e
+il metodo di conclusione dell'incontro sono trattati esclusivamente in quanto
+dati tecnico-sportivi necessari allo svolgimento della competizione.
 
 4. FINALITÀ DEL TRATTAMENTO
 
 I dati personali raccolti sono trattati per le seguenti finalità:
 
-- Gestione dell'applicativo gestionale/CRM interno `Countdown FC - Matches`
-- Gestione dell'account utente e delle relative funzionalità
-- Reportistica interna
+a) gestione delle iscrizioni agli eventi sportivi organizzati dal Titolare,
+   inclusa la generazione del documento di iscrizione in formato PDF;
+b) verifica dell'identità e dell'indirizzo email dell'iscritto mediante invio
+   di un codice temporaneo (OTP);
+c) organizzazione e svolgimento delle competizioni: abbinamento degli atleti
+   per categoria, disciplina, peso ed esperienza, gestione del tabellone e
+   registrazione degli esiti;
+d) pubblicazione del tabellone e dei risultati degli incontri (vedi punto 8);
+e) gestione dell'applicativo gestionale interno e degli account dello staff;
+f) reportistica ed elaborazioni statistiche interne;
+g) adempimento degli obblighi di legge, contabili, fiscali e assicurativi
+   connessi all'organizzazione degli eventi;
+h) comunicazioni di servizio relative all'iscrizione e all'evento.
 
 5. BASE GIURIDICA DEL TRATTAMENTO
 
-Il trattamento dei dati personali si fonda sul consenso esplicito dell'interessato, espresso mediante accettazione di apposita casella al momento della registrazione nel form di registrazione evento dedicato.
+Ciascuna finalità si fonda su una specifica base giuridica:
 
-L'interessato ha diritto di revocare il consenso in qualsiasi momento, senza che ciò pregiudichi la liceità del trattamento basata sul consenso prestato prima della revoca.
+- Finalità a), b), c), e), h): esecuzione di un contratto o di misure
+  precontrattuali richieste dall'interessato, ai sensi dell'art. 6(1)(b) GDPR.
+  L'iscrizione all'evento e la partecipazione alla competizione costituiscono
+  il rapporto in forza del quale i dati sono necessari.
+- Finalità d) e f): legittimo interesse del Titolare, ai sensi dell'art.
+  6(1)(f) GDPR, a documentare e rendere consultabile lo svolgimento delle
+  competizioni e a valutare l'andamento della propria attività sportiva.
+  L'interessato ha diritto di opporsi a tale trattamento (vedi punto 12).
+- Finalità g): adempimento di obblighi di legge, ai sensi dell'art. 6(1)(c)
+  GDPR.
 
-6. MODALITÀ DEL TRATTAMENTO
+Al momento dell'iscrizione online è richiesta la presa visione della presente
+informativa. Dove il trattamento si fonda sul consenso, l'interessato può
+revocarlo in qualsiasi momento scrivendo al Titolare, senza che ciò
+pregiudichi la liceità del trattamento effettuato prima della revoca.
 
-Il trattamento è effettuato con strumenti informatici e/o cartacei, con logiche strettamente correlate alle finalità indicate, e comunque in modo da garantire la sicurezza e la riservatezza dei dati, adottando misure tecniche e organizzative adeguate ai sensi dell'art. 32 GDPR.
+6. ORIGINE DEI DATI
 
-7. COMUNICAZIONE E DIFFUSIONE DEI DATI
+I dati sono raccolti:
 
-I dati personali non sono comunicati a terze parti né diffusi, salvo quanto previsto da obblighi di legge o da specifiche necessità operative comunicate preventivamente all'interessato.
+- direttamente presso l'interessato, attraverso il form di iscrizione online;
+- presso terzi, quando l'iscrizione o l'inserimento dei dati sono effettuati
+  dalla società sportiva di appartenenza, dal tecnico di riferimento, dal
+  genitore o tutore di un minore, oppure dallo staff organizzativo del
+  Titolare sulla base delle informazioni fornite in sede di evento;
+- automaticamente durante l'utilizzo dell'applicazione, per i soli dati
+  tecnici e di log indicati al punto 3.3.
 
-Non vengono utilizzati servizi di terze parti per finalità di analytics, marketing o tracciamento.
+7. MODALITÀ DEL TRATTAMENTO E MISURE DI SICUREZZA
 
-8. TRASFERIMENTO DEI DATI ALL'ESTERO
+Il trattamento è effettuato con strumenti informatici e, in via residuale,
+cartacei, con logiche strettamente correlate alle finalità indicate e in modo
+da garantire la sicurezza e la riservatezza dei dati, adottando misure
+tecniche e organizzative adeguate ai sensi dell'art. 32 GDPR, tra cui:
 
-I dati personali sono trattati esclusivamente all'interno dell'Unione Europea e non sono oggetto di trasferimento verso Paesi terzi o organizzazioni internazionali al di fuori dello Spazio Economico Europeo (SEE).
+- trasmissione dei dati su canale cifrato (HTTPS/TLS);
+- accesso all'area gestionale riservato al solo personale autorizzato, previa
+  autenticazione individuale con password conservata in forma di hash;
+- verifica dell'indirizzo email mediante codice temporaneo per l'iscrizione
+  online, con limitazione del numero di tentativi e delle richieste;
+- limitazione della frequenza delle richieste (rate limiting) sugli endpoint
+  pubblici e su quelli di autenticazione;
+- intestazioni di sicurezza e Content Security Policy sull'applicazione web;
+- backup periodici cifrati;
+- esclusione dell'applicazione dall'indicizzazione dei motori di ricerca.
 
-9. PERIODO DI CONSERVAZIONE
+8. PUBBLICAZIONE DEI RISULTATI E DEL TABELLONE
 
-I dati personali sono conservati per tutta la durata del rapporto con l'utente e comunque fino a quando l'interessato non richieda espressamente la cancellazione del proprio account e dei dati ad esso associati, fatti salvi gli obblighi di conservazione previsti dalla normativa vigente.
+Per la finalità d) del punto 4, l'applicazione mette a disposizione una
+pagina pubblica, consultabile senza autenticazione, sulla quale sono visibili:
 
-10. DIRITTI DELL'INTERESSATO
+- nome e cognome degli atleti impegnati negli incontri;
+- società o team di appartenenza;
+- disciplina e categoria di peso;
+- orario, stato ed esito dell'incontro, metodo di conclusione, indicazione del
+  vincitore e punteggi dei giudici.
+
+Tale pubblicazione riguarda anche gli atleti minori di età. Non sono
+pubblicati codice fiscale, data di nascita, email, numero di telefono,
+peso rilevato, note e dati di pagamento.
+
+La pagina è esclusa dall'indicizzazione dei motori di ricerca (noindex) ed è
+protetta da limitazione della frequenza delle richieste. L'interessato può
+opporsi alla pubblicazione dei propri dati scrivendo al Titolare.
+
+9. DESTINATARI E RESPONSABILI DEL TRATTAMENTO
+
+I dati personali non sono ceduti a terzi per finalità proprie di questi
+ultimi, né comunicati per finalità di marketing.
+
+Al di fuori della pubblicazione descritta al punto 8, i dati possono essere
+trattati, in qualità di responsabili del trattamento ai sensi dell'art. 28
+GDPR e sulla base di appositi accordi, dalle seguenti categorie di soggetti:
+
+- fornitori di servizi di hosting e distribuzione dell'applicazione web;
+- fornitori di servizi di hosting dell'infrastruttura applicativa e della
+  banca dati;
+- fornitore del servizio di posta elettronica utilizzato per l'invio delle
+  comunicazioni di servizio e dei codici di verifica;
+- fornitore del servizio di archiviazione dei backup cifrati.
+
+I dati possono inoltre essere comunicati ad autorità pubbliche, federazioni ed
+enti di promozione sportiva, compagnie assicurative e consulenti del Titolare,
+nei limiti in cui ciò sia necessario per adempiere a obblighi di legge o
+regolamentari connessi all'organizzazione degli eventi.
+
+L'elenco aggiornato dei responsabili del trattamento è disponibile su
+richiesta scrivendo al Titolare.
+
+Non vengono utilizzati servizi di terze parti per finalità di analytics,
+marketing, profilazione o tracciamento, né sono caricate risorse da reti di
+distribuzione di contenuti esterne.
+
+10. TRASFERIMENTO DEI DATI ALL'ESTERO
+
+Il trattamento dei dati avviene all'interno dello Spazio Economico Europeo
+(SEE). Qualora un fornitore comporti un trasferimento di dati verso Paesi
+terzi, il trasferimento avviene esclusivamente in presenza di una decisione di
+adeguatezza della Commissione europea oppure sulla base delle clausole
+contrattuali standard di cui all'art. 46 GDPR, con adozione delle misure
+supplementari eventualmente necessarie.
+
+11. PERIODO DI CONSERVAZIONE
+
+I dati sono conservati per il tempo necessario alle finalità indicate e,
+in particolare:
+
+- dati identificativi, di contatto, di iscrizione e dati sportivi (incontri
+  disputati, esiti, punteggi) degli atleti: per la durata del rapporto con il
+  Titolare e, successivamente, fino a 5 anni dall'ultima partecipazione a un
+  evento, anche ai fini dell'abbinamento per livello di esperienza negli
+  eventi successivi;
+- account degli utenti amministratori: per la durata dell'incarico e fino a 12
+  mesi successivi;
+- dati di log applicativi: fino a 12 mesi;
+- dati di sessione: 120 minuti di inattività;
+- cookie contenente il token di accesso all'area riservata: 7 giorni;
+- token per il ripristino della password: 60 minuti;
+- codice di verifica (OTP) per l'iscrizione online: 10 minuti;
+- copie di backup cifrate: 16 giorni.
+
+Alla scadenza, i dati sono cancellati oppure resi anonimi in modo
+irreversibile, fatti salvi gli obblighi di conservazione previsti dalla
+normativa vigente. L'interessato può in ogni momento chiedere la cancellazione
+anticipata dei propri dati nei casi previsti dalla legge.
+
+12. DIRITTI DELL'INTERESSATO
 
 Ai sensi degli artt. 15-22 del GDPR, l'interessato ha diritto di:
 
 - Accedere ai propri dati personali (diritto di accesso)
 - Ottenere la rettifica dei dati inesatti o incompleti
-- Ottenere la cancellazione dei dati (diritto all'oblio), nei casi previsti dalla legge
+- Ottenere la cancellazione dei dati (diritto all'oblio), nei casi previsti
+  dalla legge
 - Ottenere la limitazione del trattamento
 - Ottenere la portabilità dei dati
-- Opporsi al trattamento
-- Revocare il consenso in qualsiasi momento
-- Proporre reclamo all'Autorità Garante per la Protezione dei Dati Personali (www.garanteprivacy.it)
+- Opporsi al trattamento fondato sul legittimo interesse, inclusa la
+  pubblicazione descritta al punto 8
+- Revocare il consenso in qualsiasi momento, dove il trattamento si fonda sul
+  consenso
+- Proporre reclamo all'Autorità Garante per la Protezione dei Dati Personali
+  (www.garanteprivacy.it)
 
-Per esercitare tali diritti, l'interessato può contattare il Titolare all'indirizzo email: countdownroadtoshooto@gmail.com
+Per esercitare tali diritti, l'interessato può contattare il Titolare
+all'indirizzo email: countdownroadtoshooto@gmail.com
 
-11. COOKIE
+Il Titolare risponde senza ingiustificato ritardo e, in ogni caso, entro un
+mese dal ricevimento della richiesta, termine prorogabile di ulteriori due
+mesi in caso di particolare complessità, con informativa all'interessato.
 
-L'applicazione utilizza cookie tecnici necessari al corretto funzionamento del servizio. Non vengono utilizzati cookie di profilazione o di terze parti a fini di marketing.
+13. PROCESSO DECISIONALE AUTOMATIZZATO
 
-12. MINORI
+L'applicazione utilizza criteri automatici per proporre l'abbinamento degli
+atleti negli incontri (categoria di peso, disciplina, genere, età e livello di
+esperienza). Tali proposte sono sempre sottoposte alla verifica e alla
+modifica da parte dello staff organizzativo.
 
-Il Titolare non raccoglie consapevolmente dati relativi a minori senza il consenso dei genitori o di chi ne esercita la responsabilità genitoriale.
+Non sono effettuati trattamenti di profilazione né processi decisionali
+interamente automatizzati che producano effetti giuridici o incidano in modo
+analogamente significativo sull'interessato ai sensi dell'art. 22 GDPR.
 
-13. NATURA DEL CONFERIMENTO DEI DATI
+14. COOKIE E ARCHIVIAZIONE LOCALE
 
-Il conferimento dei dati è necessario per l'utilizzo dell'applicazione. Il mancato conferimento comporta l'impossibilità di accedere ai servizi offerti.
+L'applicazione utilizza esclusivamente cookie e strumenti di archiviazione
+locale tecnici, necessari al funzionamento del servizio. Non sono utilizzati
+cookie di profilazione, di terze parti o a fini di marketing, e per essi non è
+pertanto richiesto il consenso.
 
-14. VIOLAZIONE DEI DATI (DATA BREACH)
+In particolare:
 
-In caso di violazione dei dati personali che comporti un rischio per i diritti e le libertà degli interessati, il Titolare provvederà a notificare la violazione all'Autorità Garante entro 72 ore dalla conoscenza dell'evento, e agli interessati qualora la violazione comporti un rischio elevato, ai sensi degli artt. 33-34 GDPR.
+- `sanctum.token.cookie`: contiene il token di accesso all'area riservata; è
+  presente solo per gli utenti autenticati e ha durata di 7 giorni;
+- `ui-primary-color`: memorizza il colore dell'interfaccia scelto dall'utente;
+- cookie di preferenza della lingua e del tema (chiaro/scuro), ove impostati;
+- `matches.api-override` (archiviazione locale del browser): parametro tecnico
+  di configurazione dell'ambiente, utilizzato per finalità di manutenzione.
 
-15. MODIFICHE ALLA PRESENTE INFORMATIVA
+Questi dati restano nel browser dell'utente e non sono trasmessi a terzi.
 
-Il Titolare si riserva il diritto di modificare la presente informativa in qualsiasi momento. Le modifiche saranno comunicate agli utenti tramite notifica email e/o pubblicazione sul sito, e saranno efficaci dalla data di pubblicazione.
+15. MINORI
 
-16. CONTATTI
+L'applicazione tratta anche dati di atleti minori di età, in quanto ammessi a
+partecipare alle competizioni secondo i regolamenti sportivi applicabili.
 
-Per qualsiasi informazione relativa al trattamento dei dati personali, è possibile contattare il Titolare all'indirizzo email: countdownroadtoshooto@gmail.com
+L'iscrizione di un minore deve essere effettuata dal genitore o dal soggetto
+che esercita la responsabilità genitoriale, ovvero dalla società sportiva di
+appartenenza su suo incarico. Il genitore o tutore presta le dichiarazioni e,
+dove richiesto, il consenso previsti dalla presente informativa in nome del
+minore e risponde della veridicità dei dati conferiti.
+
+Come indicato al punto 8, nome, cognome, società, disciplina, categoria di
+peso ed esito degli incontri dei minori sono visibili sulla pagina pubblica
+del tabellone. Il genitore o tutore può opporsi a tale pubblicazione
+scrivendo al Titolare.
+
+Il Titolare non raccoglie dati di minori per finalità diverse
+dall'organizzazione e dalla documentazione delle competizioni sportive.
+
+16. NATURA DEL CONFERIMENTO DEI DATI
+
+Il conferimento dei dati indicati come obbligatori è necessario per
+l'iscrizione e la partecipazione agli eventi: il mancato conferimento comporta
+l'impossibilità di accedere ai servizi offerti. Il conferimento dei dati
+indicati come facoltativi (numero di telefono, società di appartenenza)
+non è necessario e la sua assenza non produce conseguenze.
+
+17. VIOLAZIONE DEI DATI (DATA BREACH)
+
+In caso di violazione dei dati personali che comporti un rischio per i diritti
+e le libertà degli interessati, il Titolare provvederà a notificare la
+violazione all'Autorità Garante entro 72 ore dalla conoscenza dell'evento, e
+agli interessati qualora la violazione comporti un rischio elevato, ai sensi
+degli artt. 33-34 GDPR.
+
+18. MODIFICHE ALLA PRESENTE INFORMATIVA
+
+Il Titolare si riserva il diritto di modificare la presente informativa in
+qualsiasi momento. Le modifiche saranno comunicate agli utenti tramite
+notifica email e/o pubblicazione sul sito, e saranno efficaci dalla data di
+pubblicazione.
+
+19. CONTATTI
+
+Per qualsiasi informazione relativa al trattamento dei dati personali, è
+possibile contattare il Titolare all'indirizzo email:
+countdownroadtoshooto@gmail.com

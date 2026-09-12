@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-default flex flex-col items-center justify-center px-4 py-8 gap-8">
+  <div class="flex-1 flex flex-col items-center justify-center px-4 py-8 gap-8">
     <div class="flex items-center gap-2">
       <LocaleSwitcher />
       <ColorModeToggle />
@@ -96,7 +96,7 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: false,
+  layout: 'public',
   sanctum: { guestOnly: true },
 })
 
