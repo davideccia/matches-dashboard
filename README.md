@@ -16,7 +16,7 @@ Frontend for an amateur combat-sports tournament management platform.
 A single [Nuxt 4](https://nuxt.com) application serving two audiences: **organisers** managing tournaments, athletes and match scores, and **the public** (athletes and spectators) registering for events and following live results.
 
 > [!NOTE]
-> This is a **thin SPA client**. All persistence, business rules, and authentication live in a separate [**Laravel API**](https://codeberg.org/davideccia/matches-api-laravel). This repo only renders the UI, validates input, and talks HTTP + WebSocket. Because the app runs with `ssr: false`, it builds to static files with **no Node.js server required at runtime** (Docker still runs one — see [Deployment](#deployment)).
+> This is a **thin SPA client**. All persistence, business rules, and authentication live in a separate [**Laravel API**](https://github.com/davideccia/matches-api). This repo only renders the UI, validates input, and talks HTTP + WebSocket. Because the app runs with `ssr: false`, it builds to static files with **no Node.js server required at runtime** (Docker still runs one — see [Deployment](#deployment)).
 
 ## Features
 
