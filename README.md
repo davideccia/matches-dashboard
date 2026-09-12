@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="app/assets/logo.png" alt="matches-dashboard logo" height="96" />
+<img src="app/assets/sidebar_logo.png" alt="matches-dashboard logo" height="96" />
 
 # Matches Dashboard [(Laravel Backend)](https://codeberg.org/davideccia/matches-api-laravel)
 
@@ -133,9 +133,6 @@ The override is reachable through a deliberate gesture: **five clicks on the log
 
 Every path above also exists under `/en/` for the English locale.
 
-> [!NOTE]
-> There is also `/architecture`, a dev-only page for a generated architecture map. It currently 404s under `nuxt dev` (its source file was removed in a prior cleanup) and is stripped entirely from production builds by an inline `pages:extend` hook in [`nuxt.config.ts`](nuxt.config.ts). Either regenerate the map or remove the page — don't leave it half-wired.
-
 ## Domain model
 
 | Entity              | Description                                                                                                                              |
@@ -169,12 +166,12 @@ app/
 │   ├── tournaments/  # The tab bodies of the tournament workspace (incl. the matches board)
 │   └── *.vue         # DataTable, ApiSelectMenu, ApiEnvironment*, MatchRecord*, switchers
 ├── composables/      # useApi, useApiConfig, useAuth, useEcho, useUser,
-│                     # useTournamentMatchRecords, useColorPreference
+│                     # useTournamentMatchRecords, useColorPreference, useAppLogo
 ├── layouts/          # default.vue — collapsible sidebar shell for admin pages
 ├── pages/
 │   ├── admin/        # Authenticated pages (tournaments, configurations, settings)
 │   ├── public/       # Registration form and live scoreboard
-│   └── *.vue         # Landing page, login, password recovery, architecture map (dev only)
+│   └── *.vue         # Landing page, login, password recovery
 ├── plugins/          # echo.client.ts (Reverb), auth.ts, api-base-url.ts, color-preference.client.ts
 ├── types/            # models.ts — domain TypeScript interfaces
 └── utils/            # constants.ts (enums, palette, endpoints), matchRecord.ts, experienceTier.ts, date.ts, authToken.ts
@@ -238,8 +235,4 @@ Both pass the six build-time variables as `--build-arg` from repository variable
 
 ## Documentation
 
-[`CLAUDE.md`](CLAUDE.md) is the deepest written reference in this repo: it documents the runtime API override, the admin CRUD recipe, the realtime pattern, the match-board auto-scroll, the security headers/CSP setup, and known gaps like the broken `/architecture` route.
-
-## License
-
-All rights reserved — see [`LICENSE.md`](LICENSE.md). Viewing the source is permitted; using, copying, modifying, or distributing it is not, without the author's prior written consent.
+[`CLAUDE.md`](CLAUDE.md) is the deepest written reference in this repo: it documents the runtime API override, the admin CRUD recipe, the realtime pattern, the match-board auto-scroll, and the security headers/CSP setup.

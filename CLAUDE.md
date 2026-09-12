@@ -21,7 +21,7 @@ The underlying scripts also work directly: `pnpm dev`, `pnpm generate`, `pnpm es
 
 **There is no automated test suite** (no test runner, no test files, no test script). `.claude/rules/common/testing.md` describes an 80%-coverage TDD workflow that has no infrastructure behind it here; verify changes via `make lint-fix` and manual runs against a live API.
 
-`README.md` was synced against the code on 2026-08-06 (commands, routes, config defaults, domain model, structure). When you change a route, a `make` target, or a `NUXT_PUBLIC_*` default, update it there too — and keep the `Makefile` and `nuxt.config.ts` as the tiebreakers if they ever drift again.
+`README.md` was resynced against the code on 2026-09-12 (commands, routes, config defaults, domain model, structure, CI). When you change a route, a `make` target, a `NUXT_PUBLIC_*` default, or the CI setup, update it there too — and keep the `Makefile` and `nuxt.config.ts` as the tiebreakers if they ever drift again. Note: README's own note on the `/architecture` route (in its Routes section) is itself stale as of this resync — see [Architecture map](#architecture-map-architecture-route--removed) below.
 
 The build is static, so these values are baked into the bundle at **build time** — they end up in the `index.html` payload, not in the `_nuxt/` assets:
 
@@ -159,39 +159,28 @@ Static. **There is no `amplify.yml` in this repo** (it was removed) — the buil
 - the build-time environment variables (a change needs a redeploy; for a one-off repoint without a rebuild use the runtime override above);
 - the `/index.html` rewrite described above.
 
-## Architecture map (`/architecture` route) — currently broken
+## Architecture map (`/architecture` route) — removed
 
-**`docs/` is an empty, untracked directory.** Its contents were deleted in commit `1747ad5` (`chore(docs): removed`) and is not tracked. It used to hold a generated pair produced by the `repo-architecture-map` skill: `docs/architecture.json` (agent-readable graph) and `docs/architecture.html` (interactive diagram).
+There is no `/architecture` route anymore. `app/pages/architecture.vue` and the inline `pages:extend` module in `nuxt.config.ts` that used to splice it out of production builds were both deleted in commit `ba016b2` (2026-09-09, `chore(config): alias url`) — verified: neither `nuxt.config.ts` nor anything under `app/` references "architecture" today. Earlier revisions of this file described the page as merely broken (missing its `docs/architecture.html?raw` import); that's now moot, the page itself is gone. Don't resurrect that half-wired state — if a repo map is wanted again, it needs a fresh page plus a fresh dev-only guard.
 
-Consequence: **`app/pages/architecture.vue` still imports `~~/docs/architecture.html?raw`, a file that is no longer there.** Verified by running `nuxt dev` and hitting the route:
-
-```
-ERROR  Internal server error: Failed to resolve import "~~/docs/architecture.html?raw"
-       from "app/pages/architecture.vue". Does the file exist?
-```
-
-Production builds are unaffected only because the page is spliced out before Vite ever resolves the import. Either re-run the skill to regenerate `docs/`, or delete the page and its dev-only module — do not leave it half-wired.
-
-The `/architecture` route is **dev-only**. An inline module in `nuxt.config.ts` hooks `pages:extend` and, outside `nuxt dev`, splices out any page whose file ends in `pages/architecture.vue` — matching by _file_ rather than path, because i18n has already added the `/en/` variant by then. So neither the URL nor the diagram's contents reach the published bundle (verified: the built image contains no `architecture` route). If you add another dev-only page, follow that same by-file pattern.
-
-`README.md` also links to `docs/en/00-index.md` and `docs/it/00-index.md`; **those do not exist either.**
+**`docs/` is still an empty, untracked directory** (contents deleted in commit `1747ad5`, `chore(docs): removed`), and comments across several files (`nuxt.config.ts`, `server/plugins/csp.ts`, `app/utils/authToken.ts`, both CI workflows) still cite `docs/security-issues/README.md` for rationale that now only exists in those comments — see [Repo hygiene notes](#repo-hygiene-notes). `README.md` no longer links to `docs/en/00-index.md` / `docs/it/00-index.md` (that was cleaned up in the 2026-09-12 resync).
 
 ## End of session
 
 After every code session run `make lint-fix` (or `pnpm eslint . --fix`) and report any remaining non-auto-fixable errors to the user.
 
-## CI (`.forgejo/workflows/`)
+## CI (`.github/workflows/`)
 
-Forgejo Actions, both jobs on the `docker-29-cli` runner label (Docker CLI + buildx, host daemon over the socket; no `docker/*-action` mirrors needed):
+GitHub Actions, both jobs on the hosted `ubuntu-latest` runner (Docker and buildx are preinstalled there). This replaced Forgejo Actions (`.forgejo/workflows/`, removed in commit `8df4a60`, `chore(cicd): removed forgejo actions`) — the two workflow files below are direct translations of their Forgejo predecessors, so don't go looking for a `.forgejo/` directory, it's gone:
 
 - **`ghcr-publish.yml`** — the live one. Triggers on **release published** (plus manual). Tags `latest` + the release title (fallback: release tag, normalised; short SHA on a manual run).
-- **`docker-publish.yml`** — the Docker Hub twin, **disabled**: `workflow_dispatch` only, kept as a fallback.
+- **`docker-publish.yml`** — the Docker Hub twin, **disabled**: `workflow_dispatch` only, kept as a fallback. Tags `latest` + the version from `package.json` (not a short SHA, unlike its Forgejo predecessor).
 
-Both pass the six build-time `NUXT_*` values as `--build-arg` from Forgejo variables/secrets. `NUXT_PUBLIC_REVERB_APP_KEY` and `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` sit in _secrets_ for convenience only — being `NUXT_PUBLIC_*` they land in `index.html` in the clear. Don't build any confidentiality assumption on them.
+Both pass the six build-time `NUXT_*` values as `--build-arg` from repository variables/secrets. `NUXT_PUBLIC_REVERB_APP_KEY` and `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` sit in _secrets_ for convenience only — being `NUXT_PUBLIC_*` they land in `index.html` in the clear. Don't build any confidentiality assumption on them.
 
 ## Repo hygiene notes
 
 - **Code comments are in Italian** (see `server/plugins/csp.ts`, `app/utils/authToken.ts`, `nuxt.config.ts`). Match the surrounding language when editing a file; UI strings always go through i18n keys.
 - **`yarn.lock` is tracked but stale** — pnpm is the package manager (`pnpm-lock.yaml`, `pnpm-workspace.yaml`, `--frozen-lockfile` in the Dockerfile). Never update `yarn.lock`.
 - **`postman/`** holds a collection + environment for the Laravel API — the quickest way to check an endpoint's real shape.
-- **Many files point into the missing `docs/`**: `README.md`, and comments in `nuxt.config.ts`, `server/plugins/csp.ts`, `app/utils/authToken.ts` and both CI workflows cite `docs/security-issues/README.md` for the rationale behind the CSP, the JS-readable token and the public-by-design env vars. That reasoning now exists only in those comments — read them before "fixing" any of it. See also [Architecture map](#architecture-map-architecture-route--currently-broken).
+- **Several files still point into the missing `docs/`**: comments in `nuxt.config.ts`, `server/plugins/csp.ts`, `app/utils/authToken.ts`, and both `.github/workflows/` CI files cite `docs/security-issues/README.md` for the rationale behind the CSP, the JS-readable token and the public-by-design env vars. That reasoning now exists only in those comments — read them before "fixing" any of it. See also [Architecture map](#architecture-map-architecture-route--removed).
