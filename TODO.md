@@ -158,7 +158,7 @@ autenticazione:
   dati) sono state unificate su un nuovo layout condiviso
   `app/layouts/public.vue` (`layout: 'public'` invece di `layout: false`),
   che monta `AppFooter` in fondo. Anche `app/pages/public/athletes/
-  registration.vue` è stata portata sullo stesso layout, in aggiunta al suo
+registration.vue` è stata portata sullo stesso layout, in aggiunta al suo
   link inline già esistente nel checkbox di consenso.
 - `app/pages/login.vue`, per gli utenti staff, eredita il footer tramite
   `app/components/AuthSplitLayout.vue` (shell condivisa anche da
@@ -168,12 +168,18 @@ autenticazione:
 Nuova chiave i18n `common.privacyPolicy` aggiunta sia in `it.json` che
 `en.json` (usata come testo del bottone e come titolo del modale).
 
-### 2.7 Traduzione inglese dell'informativa
+### 2.7 Traduzione inglese dell'informativa — RISOLTO 2026-09-12
 
-L'app è bilingue (`it` default, `/en/`) ma `privacy.txt` esiste solo in
-italiano e viene caricato con un path fisso (`$fetch('/privacy.txt')`).
-Se si vuole l'inglese: `public/privacy.en.txt` + scelta del file in base a
-`locale`.
+Aggiunto `public/privacy.en.txt` (traduzione integrale dei 19 punti di
+`privacy.txt`). `app/components/PrivacyPolicyModal.vue` ora sceglie il file
+in base a `locale.value` (`it` → `/privacy.txt`, `en` → `/privacy.en.txt`) e
+ricarica il testo se l'utente cambia lingua mentre il modale è già stato
+aperto in precedenza (tracciato con `loadedLocale`, non solo "già caricato
+una volta").
+
+Le due informative vanno tenute allineate manualmente: se si modifica
+`privacy.txt` (nuova data di aggiornamento, nuovo punto, ecc.) va
+aggiornato anche `privacy.en.txt`.
 
 ---
 

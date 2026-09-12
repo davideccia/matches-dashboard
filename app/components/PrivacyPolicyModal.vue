@@ -17,13 +17,16 @@
 
 <script setup lang="ts">
 const open = defineModel<boolean>({ default: false })
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const privacyPolicyText = ref('')
+const loadedLocale = ref<string | null>(null)
 
 watch(open, async (isOpen) => {
-  if (isOpen && !privacyPolicyText.value) {
-    privacyPolicyText.value = await $fetch<string>('/privacy.txt', { responseType: 'text' })
+  if (isOpen && loadedLocale.value !== locale.value) {
+    const path = locale.value === 'en' ? '/privacy.en.txt' : '/privacy.txt'
+    privacyPolicyText.value = await $fetch<string>(path, { responseType: 'text' })
+    loadedLocale.value = locale.value
   }
 })
 </script>

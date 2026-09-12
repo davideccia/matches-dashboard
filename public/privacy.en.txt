@@ -1,0 +1,314 @@
+PRIVACY POLICY
+(pursuant to Articles 13-14 of EU Regulation 2016/679 - GDPR)
+
+Last updated: 12/09/2026
+
+1. DATA CONTROLLER
+
+The data controller is:
+ASD Countdown FC
+Registered office: Via Catalano, 5 – 74024 Manduria (TA), Italy
+VAT/Tax ID: 90214580731
+Email: countdownroadtoshooto@gmail.com
+Phone: +39 329 8033665
+
+2. DATA PROTECTION OFFICER (DPO)
+
+The Controller has not appointed a Data Protection Officer, as the legal
+conditions requiring one do not apply.
+
+3. CATEGORIES OF DATA SUBJECTS AND DATA PROCESSED
+
+In the course of using the `Countdown FC - Matches` application, the
+following categories of personal data are processed.
+
+3.1 Athletes and event registrants
+
+- Identification data: first name, last name
+- Tax code (codice fiscale)
+- Date of birth and, derived from it, age and minor/adult status
+- Gender
+- Contact data: email address, phone number (optional)
+- Club or team affiliation (optional)
+- Registration data: tournament, discipline, weight category, weight recorded
+  at weigh-in, payment status, attendance at the event, notes entered by the
+  organizing staff
+- Sporting data: matches fought, opponent, assigned corner, outcome, round and
+  method of ending the match (including KO, technical KO and disqualification),
+  scores assigned by judges, total number of matches per discipline
+- Temporary verification code (OTP) sent by email during online registration,
+  stored exclusively as a hash and for 10 minutes
+
+3.2 Administrator users (Controller's staff)
+
+- Username and email address
+- Password, stored exclusively as a hash (bcrypt)
+- Technical session data: IP address, browser user agent, date and time of
+  access and last activity
+- Application access token
+
+3.3 Common technical data
+
+- Browsing and log data: IP address, browser type, requests made, date and
+  time of access
+
+The tax code and date of birth are processed as they are necessary to
+uniquely identify the data subject, to verify age, and to assign the subject
+to the categories set out by sporting regulations.
+
+Special categories of data (Art. 9 GDPR): the Controller does not request and
+does not intend to process data concerning health, physical condition, or
+medical fitness through the application. Organizing staff are instructed not
+to enter health-related information in the notes fields. The weight recorded
+and the method of ending the match are processed solely as technical-sporting
+data necessary to carry out the competition.
+
+4. PURPOSES OF PROCESSING
+
+The personal data collected are processed for the following purposes:
+
+a) managing registrations for sporting events organized by the Controller,
+   including generating the registration document in PDF format;
+b) verifying the identity and email address of the registrant by sending a
+   temporary code (OTP);
+c) organizing and running the competitions: matching athletes by category,
+   discipline, weight and experience, managing the bracket/board and
+   recording outcomes;
+d) publishing the board and match results (see point 8);
+e) managing the internal administrative application and staff accounts;
+f) internal reporting and statistical analysis;
+g) fulfilling legal, accounting, tax and insurance obligations connected with
+   organizing the events;
+h) service communications relating to the registration and the event.
+
+5. LEGAL BASIS FOR PROCESSING
+
+Each purpose is based on a specific legal basis:
+
+- Purposes a), b), c), e), h): performance of a contract or of pre-contractual
+  measures requested by the data subject, pursuant to Art. 6(1)(b) GDPR.
+  Registering for the event and participating in the competition constitute
+  the relationship by virtue of which the data are necessary.
+- Purposes d) and f): legitimate interest of the Controller, pursuant to Art.
+  6(1)(f) GDPR, in documenting and making the running of the competitions
+  available for consultation, and in assessing the progress of its sporting
+  activity. The data subject has the right to object to this processing
+  (see point 12).
+- Purpose g): compliance with legal obligations, pursuant to Art. 6(1)(c)
+  GDPR.
+
+At the time of online registration, the data subject is required to
+acknowledge having read this policy. Where processing is based on consent,
+the data subject may withdraw it at any time by writing to the Controller,
+without affecting the lawfulness of processing carried out before the
+withdrawal.
+
+6. SOURCE OF THE DATA
+
+Data are collected:
+
+- directly from the data subject, through the online registration form;
+- from third parties, when the registration or data entry is carried out by
+  the athlete's sporting club, their coach, the parent or guardian of a
+  minor, or the Controller's organizing staff based on information provided
+  at the event;
+- automatically while using the application, only for the technical and log
+  data indicated in point 3.3.
+
+7. PROCESSING METHODS AND SECURITY MEASURES
+
+Processing is carried out using IT tools and, residually, paper records, with
+logic strictly related to the stated purposes and in a manner that ensures
+the security and confidentiality of the data, adopting technical and
+organizational measures appropriate under Art. 32 GDPR, including:
+
+- transmission of data over an encrypted channel (HTTPS/TLS);
+- access to the administrative area restricted to authorized personnel only,
+  subject to individual authentication with a password stored as a hash;
+- verification of the email address via a temporary code for online
+  registration, with a limit on the number of attempts and requests;
+- rate limiting on public and authentication endpoints;
+- security headers and a Content Security Policy on the web application;
+- periodic encrypted backups;
+- exclusion of the application from search engine indexing.
+
+8. PUBLICATION OF RESULTS AND THE BOARD
+
+For purpose d) in point 4, the application provides a public page,
+accessible without authentication, on which the following are visible:
+
+- first and last name of the athletes involved in the matches;
+- club or team affiliation;
+- discipline and weight category;
+- time, status and outcome of the match, method of ending it, indication of
+  the winner and judges' scores.
+
+This publication also concerns athletes who are minors. The following are
+not published: tax code, date of birth, email, phone number, weight
+recorded, notes, and payment data.
+
+The page is excluded from search engine indexing (noindex) and is protected
+by rate limiting. The data subject may object to the publication of their
+data by writing to the Controller.
+
+9. RECIPIENTS AND DATA PROCESSORS
+
+Personal data are not disclosed to third parties for their own purposes, nor
+communicated for marketing purposes.
+
+Outside of the publication described in point 8, data may be processed, as
+data processors pursuant to Art. 28 GDPR and on the basis of specific
+agreements, by the following categories of parties:
+
+- providers of web application hosting and distribution services;
+- providers of hosting services for the application infrastructure and the
+  database;
+- the email service provider used to send service communications and
+  verification codes;
+- the provider of the encrypted backup storage service.
+
+Data may also be communicated to public authorities, sports federations and
+promotion bodies, insurance companies and consultants of the Controller, to
+the extent necessary to comply with legal or regulatory obligations
+connected with organizing the events.
+
+An up-to-date list of data processors is available on request by writing to
+the Controller.
+
+No third-party services are used for analytics, marketing, profiling or
+tracking purposes, nor are resources loaded from external content delivery
+networks.
+
+10. TRANSFER OF DATA ABROAD
+
+Data processing takes place within the European Economic Area (EEA). Should
+a provider involve a transfer of data to third countries, the transfer will
+take place only where there is an adequacy decision of the European
+Commission, or on the basis of the standard contractual clauses referred to
+in Art. 46 GDPR, together with any supplementary measures that may be
+necessary.
+
+11. RETENTION PERIOD
+
+Data are retained for the time necessary to fulfil the stated purposes and,
+in particular:
+
+- identification, contact, registration and sporting data (matches fought,
+  outcomes, scores) of athletes: for the duration of the relationship with
+  the Controller and, thereafter, up to 5 years from the last participation
+  in an event, also for the purpose of matching by experience level in
+  subsequent events;
+- administrator user accounts: for the duration of their role and up to 12
+  months thereafter;
+- application log data: up to 12 months;
+- session data: 120 minutes of inactivity;
+- cookie containing the access token for the restricted area: 7 days;
+- password reset token: 60 minutes;
+- verification code (OTP) for online registration: 10 minutes;
+- encrypted backup copies: 16 days.
+
+Upon expiry, data are deleted or irreversibly anonymized, without prejudice
+to any retention obligations set out by applicable law. The data subject may
+at any time request early deletion of their data in the cases provided for
+by law.
+
+12. RIGHTS OF THE DATA SUBJECT
+
+Pursuant to Articles 15-22 of the GDPR, the data subject has the right to:
+
+- Access their personal data (right of access)
+- Obtain rectification of inaccurate or incomplete data
+- Obtain erasure of data (right to be forgotten), in the cases provided for
+  by law
+- Obtain restriction of processing
+- Obtain data portability
+- Object to processing based on legitimate interest, including the
+  publication described in point 8
+- Withdraw consent at any time, where processing is based on consent
+- Lodge a complaint with the Italian Data Protection Authority
+  (www.garanteprivacy.it)
+
+To exercise these rights, the data subject may contact the Controller at the
+email address: countdownroadtoshooto@gmail.com
+
+The Controller will respond without undue delay and, in any case, within one
+month of receiving the request, a period which may be extended by a further
+two months in cases of particular complexity, with notice given to the data
+subject.
+
+13. AUTOMATED DECISION-MAKING
+
+The application uses automated criteria to propose matches between athletes
+(weight category, discipline, gender, age and experience level). These
+proposals are always subject to review and modification by the organizing
+staff.
+
+No profiling or fully automated decision-making processes that produce legal
+effects or similarly significantly affect the data subject are carried out,
+within the meaning of Art. 22 GDPR.
+
+14. COOKIES AND LOCAL STORAGE
+
+The application uses exclusively technical cookies and local storage tools,
+necessary for the operation of the service. No profiling, third-party or
+marketing cookies are used, and consent is therefore not required for them.
+
+In particular:
+
+- `sanctum.token.cookie`: contains the access token for the restricted area;
+  it is present only for authenticated users and lasts 7 days;
+- `ui-primary-color`: stores the interface color chosen by the user;
+- language and theme (light/dark) preference cookies, where set;
+- `matches.api-override` (browser local storage): a technical configuration
+  parameter used for maintenance purposes.
+
+These data remain in the user's browser and are not transmitted to third
+parties.
+
+15. MINORS
+
+The application also processes data of athletes who are minors, as they are
+admitted to participate in competitions under the applicable sporting
+regulations.
+
+Registration of a minor must be carried out by the parent or the person
+exercising parental responsibility, or by the sporting club to which the
+minor belongs on their behalf. The parent or guardian makes the declarations
+and, where required, gives the consent provided for in this policy on behalf
+of the minor, and is responsible for the accuracy of the data provided.
+
+As indicated in point 8, the first name, last name, club, discipline, weight
+category and outcome of minors' matches are visible on the public board
+page. The parent or guardian may object to such publication by writing to
+the Controller.
+
+The Controller does not collect data of minors for purposes other than the
+organization and documentation of sporting competitions.
+
+16. NATURE OF THE DATA PROVISION
+
+Providing the data indicated as mandatory is necessary for registration and
+participation in the events: failure to provide it will make it impossible
+to access the services offered. Providing the data indicated as optional
+(phone number, club affiliation) is not necessary, and its absence has no
+consequences.
+
+17. DATA BREACH
+
+In the event of a personal data breach that poses a risk to the rights and
+freedoms of data subjects, the Controller will notify the breach to the Data
+Protection Authority within 72 hours of becoming aware of it, and to the
+data subjects where the breach poses a high risk, pursuant to Articles 33-34
+GDPR.
+
+18. CHANGES TO THIS POLICY
+
+The Controller reserves the right to modify this policy at any time. Changes
+will be communicated to users by email notification and/or publication on
+the site, and will take effect from the date of publication.
+
+19. CONTACTS
+
+For any information regarding the processing of personal data, you may
+contact the Controller at the email address:
+countdownroadtoshooto@gmail.com
