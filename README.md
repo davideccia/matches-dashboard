@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="app/assets/sidebar_logo.png" alt="matches-dashboard logo" height="96" />
-
-# Matches Dashboard [(Laravel Backend)](https://codeberg.org/davideccia/matches-api-laravel)
+# Matches Dashboard [(Laravel Backend)](https://github.com/davideccia/matches-api)
 
 Frontend for an amateur combat-sports tournament management platform.
 
