@@ -27,7 +27,8 @@
     "home": "Home",
     "settings": "Impostazioni",
     "horizon": "Coda job (Horizon)",
-    "logViewer": "Log applicativi"
+    "logViewer": "Log applicativi",
+    "pulse": "Metriche (Pulse)"
   },
   "settings": {
     "title": "Impostazioni",
@@ -51,6 +52,8 @@
     "reverbHost": "Reverb host",
     "reverbPort": "Reverb port",
     "reverbScheme": "Reverb scheme",
+    "devToolsPort": "Porta Horizon / Log Viewer / Pulse",
+    "devToolsPortDesc": "Horizon, Log Viewer e Pulse sono serviti su localhost su questa porta",
     "apiBaseUrlDesc": "Scegli un endpoint noto o scrivine uno nuovo e confermalo con «Crea»",
     "apiEnvironmentNotProduction": "Ambiente non di produzione",
     "apiEnvironmentPassword": "Password",

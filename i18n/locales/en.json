@@ -27,7 +27,8 @@
     "home": "Home",
     "settings": "Settings",
     "horizon": "Job queue (Horizon)",
-    "logViewer": "Application logs"
+    "logViewer": "Application logs",
+    "pulse": "Metrics (Pulse)"
   },
   "settings": {
     "title": "Settings",
@@ -51,6 +52,8 @@
     "reverbHost": "Reverb host",
     "reverbPort": "Reverb port",
     "reverbScheme": "Reverb scheme",
+    "devToolsPort": "Horizon / Log Viewer / Pulse port",
+    "devToolsPortDesc": "Horizon, Log Viewer and Pulse are served on localhost on this port",
     "apiBaseUrlDesc": "Pick a known endpoint or type a new one and confirm it with “Create”",
     "apiEnvironmentNotProduction": "Non-production environment",
     "apiEnvironmentPassword": "Password",

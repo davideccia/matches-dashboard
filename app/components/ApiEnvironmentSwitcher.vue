@@ -45,6 +45,15 @@
         </UFormField>
       </div>
 
+      <UFormField
+        name="devToolsPort"
+        :label="t('settings.devToolsPort')"
+        :description="t('settings.devToolsPortDesc')"
+        required
+      >
+        <UInput v-model="state.devToolsPort" class="w-full font-mono" />
+      </UFormField>
+
       <div class="flex flex-wrap gap-2">
         <UButton
           type="submit"
@@ -79,6 +88,7 @@ const schema = z.object({
   reverbHost: z.string().min(1),
   reverbPort: z.string().regex(/^\d+$/),
   reverbScheme: z.enum(['http', 'https']),
+  devToolsPort: z.string().regex(/^\d+$/),
 })
 
 const state = reactive<ApiConfig>({ ...config.value })

@@ -63,10 +63,10 @@ const localePath = useLocalePath()
 const { user, logout } = useAuth()
 const { config } = useApiConfig()
 
-/** Le viste Horizon / Log Viewer sono servite dall'API Laravel, non da questa SPA. */
-const apiBaseUrl = computed(() => config.value.baseUrl.replace(/\/+$/, ''))
-const horizonUrl = computed(() => `${apiBaseUrl.value}/horizon`)
-const logViewerUrl = computed(() => `${apiBaseUrl.value}/log-viewer`)
+/** Le viste Horizon / Log Viewer / Pulse sono servite su localhost, su una porta configurabile. */
+const horizonUrl = computed(() => `http://localhost:${config.value.devToolsPort}/horizon`)
+const logViewerUrl = computed(() => `http://localhost:${config.value.devToolsPort}/log-viewer`)
+const pulseUrl = computed(() => `http://localhost:${config.value.devToolsPort}/pulse`)
 
 const items = computed<NavigationMenuItem[][]>(() => [
   [
@@ -143,6 +143,14 @@ const userMenuItems = computed(() => [
             label: t('nav.logViewer'),
             icon: 'i-mdi-text-box',
             to: logViewerUrl.value,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            color: 'primary' as const,
+          },
+          {
+            label: t('nav.pulse'),
+            icon: 'i-mdi-pulse',
+            to: pulseUrl.value,
             target: '_blank',
             rel: 'noopener noreferrer',
             color: 'primary' as const,

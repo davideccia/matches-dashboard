@@ -10,7 +10,11 @@ export interface ApiConfig {
   reverbHost: string
   reverbPort: string
   reverbScheme: ReverbScheme
+  devToolsPort: string
 }
+
+/** Porta di default per Horizon / Log Viewer, sempre serviti su localhost. */
+const DEFAULT_DEV_TOOLS_PORT = '81'
 
 /** L'env è una stringa libera: qualunque valore diverso da 'https' degrada a 'http'. */
 function toReverbScheme(value: unknown): ReverbScheme {
@@ -31,6 +35,7 @@ export function useApiConfig() {
     reverbHost: cfg.reverbHost,
     reverbPort: String(cfg.reverbPort),
     reverbScheme: toReverbScheme(cfg.reverbScheme),
+    devToolsPort: DEFAULT_DEV_TOOLS_PORT,
   }))
 
   // ssr: false ⇒ l'initializer gira solo lato client, localStorage è disponibile.
