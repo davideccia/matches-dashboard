@@ -1,0 +1,170 @@
+TERMS AND CONDITIONS OF USE
+
+Last updated: 15/09/2026
+
+1. PURPOSE AND ACCEPTANCE
+
+These Terms and Conditions of Use (the "Terms") govern access to and use of
+the `Countdown FC - Matches` application (the "Application"), made available
+by:
+
+ASD Countdown FC
+Registered office: Via Catalano, 5 – 74024 Manduria (TA), Italy
+VAT/Tax ID: 90214580731
+Email: countdownroadtoshooto@gmail.com
+Phone: +39 329 8033665
+
+(the "Data Controller" or "ASD Countdown FC").
+
+Registering for an event through the Application, as well as accessing the
+restricted area as a member of the organizing staff, implies full acceptance
+of these Terms. Anyone who does not accept the Terms may not use the
+Application.
+
+For information on the processing of personal data, please refer to the
+separate Privacy Policy available within the Application.
+
+2. DESCRIPTION OF THE SERVICE
+
+The Application provides:
+
+a) a public area, accessible without authentication, for athlete
+   registration to the sporting events organized by the Data Controller and
+   for viewing the match board and results;
+b) a restricted area, accessible after authentication, reserved for the Data
+   Controller's organizing staff, for managing events, athletes,
+   registrations and matches.
+
+The Data Controller reserves the right to modify, suspend or discontinue, in
+whole or in part, temporarily or permanently, the Application's features,
+even without prior notice, in particular for maintenance or security
+reasons, without this giving rise to any right to compensation for users.
+
+3. REGISTRATION REQUIREMENTS AND ACCURACY OF DATA
+
+Users completing the registration form undertake to provide truthful,
+accurate and up-to-date data (identity, date of birth, weight category, team
+affiliation and any other requested information). The Data Controller is not
+liable for the consequences of inaccurate or incomplete data provided by the
+user.
+
+The registration of a minor athlete must be carried out by the parent or the
+person exercising parental responsibility, or by the sports club on their
+behalf. Whoever registers a minor declares to be entitled to do so and is
+responsible for the accuracy of the data provided and the declarations made
+on the minor's behalf, including those relating to reading the Privacy
+Policy and accepting these Terms.
+
+Actual admission to the competition remains in any case subject to
+verification, by the organizing staff, of compliance with the applicable
+sporting regulations (weight category, discipline, age, payment status).
+
+4. STAFF ACCOUNTS AND CREDENTIALS
+
+Access to the restricted area is granted exclusively to personnel authorized
+by the Data Controller, by means of individual credentials (username and
+password). The administrator user is responsible for the confidentiality of
+their credentials and for any activity carried out through their account.
+
+The administrator user undertakes to:
+
+- not share their credentials with third parties;
+- promptly notify the Data Controller of any suspected unauthorized access
+  to their account;
+- use the restricted area exclusively for purposes related to their role.
+
+The Data Controller reserves the right to suspend or revoke access
+credentials at any time, in particular at the end of the relationship
+between the administrator user and the Data Controller or in the event of
+misuse of the Application.
+
+5. PERMITTED AND PROHIBITED USE
+
+It is prohibited to:
+
+- use the Application for purposes other than those for which it was made
+  available;
+- attempt to access data, accounts or restricted features without
+  authorization;
+- interfere with the normal operation of the Application (for example by
+  sending mass requests, circumventing rate-limiting measures, or any form
+  of computer attack);
+- enter offensive, defamatory, unlawful content into the Application, or
+  content otherwise unrelated to the purposes of the service, including
+  health-related data in the notes fields relating to athletes;
+- systematically extract, copy or reuse the data published on the
+  Application (for example through automated scraping) for purposes other
+  than personal consultation of the match board and results.
+
+Violation of the above may result in the suspension or revocation of access
+to the Application, without prejudice to any further civil or criminal
+liability of the user.
+
+6. INTELLECTUAL PROPERTY
+
+The Application, its structure, code, graphics, trademarks and distinctive
+signs of the Data Controller are owned by the Data Controller or its
+licensors and are protected under applicable intellectual property law. Any
+unauthorized reproduction, modification or distribution of such elements is
+prohibited.
+
+Data and content relating to sporting events (match boards, results,
+rankings) published on the Application may be viewed and shared for
+informational purposes, citing the source, but may not be reused for
+commercial purposes without the Data Controller's written authorization.
+
+7. LIMITATION OF LIABILITY
+
+The Data Controller undertakes to keep the Application operational and the
+published data accurate, but does not guarantee continuity, uninterrupted
+availability or the absence of errors in the service, as this may be
+affected by technical factors that are not always controllable (maintenance,
+malfunctions of hosting or connectivity providers, force majeure).
+
+Results and data published on the match board (outcomes, scores, method of
+conclusion of matches) are informational in nature. In the event of a
+discrepancy between what is published and the official match records, the
+latter shall prevail.
+
+To the maximum extent permitted by law, the Data Controller is not liable
+for direct or indirect damages arising from the use or inability to use the
+Application, except in cases of willful misconduct or gross negligence.
+
+8. SUSPENSION AND TERMINATION OF ACCOUNT
+
+The Data Controller may suspend or revoke, at any time and without notice, an
+administrator user's access to the restricted area in the event of a
+violation of these Terms, misuse of the Application, or at the end of the
+relationship with the Data Controller.
+
+Users may at any time request the termination of their account by writing to
+the Data Controller at the contact details indicated in section 1.
+
+9. PROCESSING OF PERSONAL DATA
+
+For all matters concerning the methods, purposes and legal bases for the
+processing of personal data collected through the Application, as well as
+data subject rights, please refer in full to the Privacy Policy, available
+within the Application and forming an integral part of these Terms.
+
+10. GOVERNING LAW AND JURISDICTION
+
+These Terms are governed by Italian law. Any dispute relating to their
+interpretation, validity or execution shall be subject to the exclusive
+jurisdiction of the courts of the place where the Data Controller has its
+registered office, without prejudice to any mandatory consumer-protection
+rules that may apply.
+
+11. CHANGES TO THESE TERMS
+
+The Data Controller reserves the right to modify these Terms at any time.
+Changes will be communicated to users by email notification and/or
+publication within the Application, and will take effect from the date of
+publication. Continued use of the Application after the publication of
+changes constitutes acceptance of the new Terms.
+
+12. CONTACT
+
+For any information regarding these Terms, please contact the Data
+Controller at:
+countdownroadtoshooto@gmail.com

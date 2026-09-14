@@ -87,7 +87,8 @@
     "clearSelection": "Deseleziona tutto",
     "maxSelectionReached": "Selezione massima raggiunta",
     "selectAll": "Seleziona tutto",
-    "privacyPolicy": "Informativa sulla privacy"
+    "privacyPolicy": "Informativa sulla privacy",
+    "termsOfUse": "Termini di utilizzo"
   },
   "tournament": {
     "title": "Torneo",
@@ -471,6 +472,9 @@
     "privacyLabel": "Ho letto l'informativa sulla",
     "privacyLink": "privacy",
     "privacyRequired": "Devi prendere visione dell'informativa sulla privacy per procedere",
+    "termsLabel": "Ho letto e accetto i",
+    "termsLink": "termini di utilizzo",
+    "termsRequired": "Devi accettare i termini di utilizzo per procedere",
     "emailLabel": "Email",
     "emailPlaceholder": "Inserisci la tua email",
     "athleteNoMatch": "Nessuna corrispondenza trovata. Se sei già registrato controlla l'email inserita, altrimenti prosegui: creeremo una nuova anagrafica.",

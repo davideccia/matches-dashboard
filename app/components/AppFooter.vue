@@ -4,10 +4,19 @@
       variant="link"
       color="neutral"
       size="sm"
+      @click="showTermsModal = true"
+    >
+      {{ t('common.termsOfUse') }}
+    </UButton>
+    <UButton
+      variant="link"
+      color="neutral"
+      size="sm"
       @click="showPrivacyModal = true"
     >
       {{ t('common.privacyPolicy') }}
     </UButton>
+    <TermsOfUseModal v-model="showTermsModal" />
     <PrivacyPolicyModal v-model="showPrivacyModal" />
   </footer>
 </template>
@@ -15,4 +24,5 @@
 <script setup lang="ts">
 const { t } = useI18n()
 const showPrivacyModal = ref(false)
+const showTermsModal = ref(false)
 </script>

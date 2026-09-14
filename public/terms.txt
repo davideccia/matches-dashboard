@@ -1,0 +1,178 @@
+TERMINI E CONDIZIONI DI UTILIZZO
+
+Ultimo aggiornamento: 15/09/2026
+
+1. OGGETTO E ACCETTAZIONE
+
+I presenti Termini e Condizioni di Utilizzo (di seguito "Termini") disciplinano
+l'accesso e l'uso dell'applicazione `Countdown FC - Matches` (di seguito
+"Applicazione"), messa a disposizione da:
+
+ASD Countdown FC
+Sede legale: Via Catalano, 5 – 74024 Manduria (TA)
+P.IVA/C.F.: 90214580731
+Email: countdownroadtoshooto@gmail.com
+Telefono: +39 329 8033665
+
+(di seguito il "Titolare" o "ASD Countdown FC").
+
+L'iscrizione a un evento tramite l'Applicazione, così come l'accesso all'area
+riservata da parte dello staff organizzativo, comporta l'accettazione
+integrale dei presenti Termini. Chi non accetta i Termini non può utilizzare
+l'Applicazione.
+
+Per l'informativa relativa al trattamento dei dati personali si rimanda alla
+separata Informativa sulla Privacy, disponibile nell'Applicazione.
+
+2. DESCRIZIONE DEL SERVIZIO
+
+L'Applicazione mette a disposizione:
+
+a) un'area pubblica, accessibile senza autenticazione, per l'iscrizione degli
+   atleti agli eventi sportivi organizzati dal Titolare e per la
+   consultazione del tabellone e dei risultati degli incontri;
+b) un'area riservata, accessibile previa autenticazione, riservata allo staff
+   organizzativo del Titolare per la gestione degli eventi, degli atleti,
+   delle iscrizioni e degli incontri.
+
+Il Titolare si riserva il diritto di modificare, sospendere o interrompere,
+in tutto o in parte, temporaneamente o permanentemente, le funzionalità
+dell'Applicazione, anche senza preavviso, in particolare per esigenze di
+manutenzione o di sicurezza, senza che ciò comporti alcun diritto di
+indennizzo per gli utenti.
+
+3. REQUISITI DI ISCRIZIONE E VERIDICITÀ DEI DATI
+
+L'utente che compila il form di iscrizione si impegna a fornire dati
+veritieri, corretti e aggiornati (identità, data di nascita, categoria di
+peso, società di appartenenza e ogni altra informazione richiesta). Il
+Titolare non è responsabile delle conseguenze derivanti da dati inesatti o
+incompleti forniti dall'utente.
+
+L'iscrizione di un atleta minorenne deve essere effettuata dal genitore o dal
+soggetto che esercita la responsabilità genitoriale, ovvero dalla società
+sportiva di appartenenza su suo incarico. Chi effettua l'iscrizione di un
+minore dichiara di averne la legittimazione e risponde della veridicità dei
+dati conferiti e delle dichiarazioni rese in nome del minore, comprese quelle
+relative alla presa visione dell'Informativa Privacy e all'accettazione dei
+presenti Termini.
+
+L'ammissione effettiva alla competizione resta in ogni caso subordinata alla
+verifica, da parte dello staff organizzativo, del rispetto dei regolamenti
+sportivi applicabili (categoria di peso, disciplina, età, stato del
+pagamento).
+
+4. ACCOUNT E CREDENZIALI DELLO STAFF
+
+L'accesso all'area riservata è concesso esclusivamente al personale
+autorizzato dal Titolare, mediante credenziali individuali (username e
+password). L'utente amministratore è responsabile della riservatezza delle
+proprie credenziali e di ogni attività effettuata tramite il proprio account.
+
+L'utente amministratore si impegna a:
+
+- non condividere le proprie credenziali con terzi;
+- comunicare tempestivamente al Titolare ogni sospetto di accesso non
+  autorizzato al proprio account;
+- utilizzare l'area riservata esclusivamente per le finalità connesse al
+  proprio incarico.
+
+Il Titolare si riserva il diritto di sospendere o revocare in qualsiasi
+momento le credenziali di accesso, in particolare al termine del rapporto tra
+l'utente amministratore e il Titolare o in caso di uso improprio
+dell'Applicazione.
+
+5. USO CONSENTITO E VIETATO
+
+È vietato:
+
+- utilizzare l'Applicazione per finalità diverse da quelle per cui è stata
+  messa a disposizione;
+- tentare di accedere senza autorizzazione a dati, account o funzionalità
+  riservate;
+- interferire con il normale funzionamento dell'Applicazione (ad esempio
+  tramite l'invio massivo di richieste, l'elusione delle misure di
+  limitazione della frequenza delle richieste o attacchi informatici di
+  qualsiasi natura);
+- inserire nell'Applicazione contenuti offensivi, diffamatori, illeciti o
+  comunque non pertinenti alle finalità del servizio, inclusi dati sanitari
+  nei campi note relativi agli atleti;
+- estrarre, copiare o riutilizzare sistematicamente i dati pubblicati
+  sull'Applicazione (ad esempio tramite scraping automatizzato) per finalità
+  diverse dalla consultazione personale del tabellone e dei risultati.
+
+La violazione di quanto sopra può comportare la sospensione o la revoca
+dell'accesso all'Applicazione, ferma restando ogni ulteriore responsabilità
+civile o penale dell'utente.
+
+6. PROPRIETÀ INTELLETTUALE
+
+L'Applicazione, la sua struttura, il codice, la grafica, i marchi e i segni
+distintivi del Titolare sono di proprietà del Titolare o dei rispettivi
+licenzianti e sono protetti dalla normativa vigente in materia di proprietà
+intellettuale. È vietata ogni riproduzione, modifica o distribuzione non
+autorizzata di tali elementi.
+
+I dati e i contenuti relativi agli eventi sportivi (tabelloni, risultati,
+classifiche) pubblicati sull'Applicazione possono essere consultati e
+condivisi per finalità informative, citando la fonte, ma non possono essere
+riutilizzati per finalità commerciali senza l'autorizzazione scritta del
+Titolare.
+
+7. LIMITAZIONE DI RESPONSABILITÀ
+
+Il Titolare si impegna a mantenere l'Applicazione funzionante e i dati
+pubblicati accurati, ma non garantisce la continuità, la disponibilità
+ininterrotta o l'assenza di errori del servizio, potendo questo essere
+condizionato da fattori tecnici non sempre controllabili (manutenzione,
+malfunzionamenti dei fornitori di hosting o di connettività, cause di forza
+maggiore).
+
+I risultati e i dati pubblicati sul tabellone (esiti, punteggi, metodo di
+conclusione degli incontri) hanno natura informativa. In caso di discrepanza
+tra quanto pubblicato e i verbali ufficiali di gara, prevalgono questi
+ultimi.
+
+Nei limiti massimi consentiti dalla legge, il Titolare non risponde per danni
+diretti o indiretti derivanti dall'uso o dall'impossibilità di uso
+dell'Applicazione, salvo il caso di dolo o colpa grave.
+
+8. SOSPENSIONE E CESSAZIONE DELL'ACCOUNT
+
+Il Titolare può sospendere o revocare, in qualsiasi momento e senza
+preavviso, l'accesso di un utente amministratore all'area riservata in caso
+di violazione dei presenti Termini, di uso improprio dell'Applicazione o al
+termine del rapporto con il Titolare.
+
+L'utente può in qualsiasi momento chiedere la cessazione del proprio account
+scrivendo al Titolare ai recapiti indicati al punto 1.
+
+9. TRATTAMENTO DEI DATI PERSONALI
+
+Per tutto quanto riguarda le modalità, le finalità e le basi giuridiche del
+trattamento dei dati personali raccolti tramite l'Applicazione, nonché i
+diritti dell'interessato, si rimanda integralmente all'Informativa sulla
+Privacy, disponibile nell'Applicazione e parte integrante dei presenti
+Termini.
+
+10. LEGGE APPLICABILE E FORO COMPETENTE
+
+I presenti Termini sono regolati dalla legge italiana. Per ogni controversia
+relativa alla loro interpretazione, validità o esecuzione è competente il
+Foro in cui ha sede il Titolare, salva l'applicazione delle norme inderogabili
+a tutela del consumatore, ove applicabili.
+
+11. MODIFICHE AI PRESENTI TERMINI
+
+Il Titolare si riserva il diritto di modificare i presenti Termini in
+qualsiasi momento. Le modifiche saranno comunicate agli utenti tramite
+notifica email e/o pubblicazione sull'Applicazione, e saranno efficaci dalla
+data di pubblicazione. L'uso continuato dell'Applicazione successivamente
+alla pubblicazione delle modifiche costituisce accettazione dei nuovi
+Termini.
+
+12. CONTATTI
+
+Per qualsiasi informazione relativa ai presenti Termini, è possibile
+contattare il Titolare all'indirizzo email:
+countdownroadtoshooto@gmail.com

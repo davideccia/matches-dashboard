@@ -481,6 +481,18 @@
             </span>
           </label>
 
+          <label class="flex items-start gap-3 cursor-pointer select-none">
+            <UCheckbox v-model="termsConsent" class="mt-0.5 shrink-0" />
+            <span class="text-sm text-muted leading-snug">
+              {{ t('register.termsLabel') }}
+              <a
+                href="#"
+                class="text-primary underline underline-offset-2 hover:opacity-80"
+                @click.prevent="showTermsModal = true"
+              >{{ t('register.termsLink') }}</a>
+            </span>
+          </label>
+
           <!-- Verifica in due fasi: invio codice → conferma -->
           <template v-if="codeSent">
             <UAlert
@@ -537,7 +549,7 @@
               size="lg"
               class="flex-1"
               :loading="sendingCode"
-              :disabled="!privacyConsent"
+              :disabled="!privacyConsent || !termsConsent"
               trailing-icon="i-mdi-email-arrow-right-outline"
               @click="sendVerificationCode"
             >
@@ -548,7 +560,7 @@
               size="lg"
               class="flex-1"
               :loading="submitting"
-              :disabled="!privacyConsent || verificationCode.length !== 6"
+              :disabled="!privacyConsent || !termsConsent || verificationCode.length !== 6"
               trailing-icon="i-mdi-send"
               @click="submit"
             >
@@ -560,6 +572,8 @@
     </div>
     <!-- Privacy policy modal -->
     <PrivacyPolicyModal v-model="showPrivacyModal" />
+    <!-- Terms of use modal -->
+    <TermsOfUseModal v-model="showTermsModal" />
   </div>
 </template>
 
@@ -812,8 +826,10 @@ const selectedWeightCategory = computed(() => weightCategories.value.find(w => w
 
 // ── Step 4: Riepilogo + submit ───────────────────────────────────────────────
 const showPrivacyModal = ref(false)
+const showTermsModal = ref(false)
 const countdown = ref(0)
 const privacyConsent = ref(false)
+const termsConsent = ref(false)
 const submitting = ref(false)
 const submitted = ref(false)
 const registrationId = ref<string | null>(null)
@@ -916,6 +932,7 @@ async function downloadPdf() {
 function resetForm() {
   submitted.value = false
   privacyConsent.value = false
+  termsConsent.value = false
   registrationId.value = null
   pdfUrl.value = null
   codeSent.value = false
