@@ -1,34 +1,3 @@
-# ==============================================================================
-# Build dell'immagine di produzione e push su GitHub Container Registry (ghcr.io).
-#
-# Traduzione di .forgejo/workflows/ghcr-publish.yml per GitHub Actions.
-# Gemello di docker-publish.yml (ora disattivato: solo workflow_dispatch).
-#
-# Trigger: SOLO alla pubblicazione di una release (non piu' su push a main).
-# Tag pubblicati: `latest` + il titolo della release (fallback: il tag della
-# release), normalizzato a caratteri validi per un tag Docker. Su avvio
-# manuale, dove la release non esiste, si ripiega sullo short SHA.
-#
-# Runner: `ubuntu-latest` (hosted) → Docker e buildx sono gia' preinstallati,
-# quindi a differenza del gemello Forgejo non serve `apk add git nodejs`.
-#
-# Variables (Settings → Secrets and variables → Actions → Variables):
-#   GHCR_USERNAME, NUXT_BASE_URL, NUXT_PUBLIC_REVERB_HOST,
-#   NUXT_PUBLIC_REVERB_PORT, NUXT_PUBLIC_REVERB_SCHEME
-# Secrets: GHCR_TOKEN (PAT con scope write:packages),
-#   NUXT_PUBLIC_REVERB_APP_KEY, NUXT_PUBLIC_ENV_SWITCHER_PASSWORD
-#
-# NB: NUXT_PUBLIC_REVERB_APP_KEY e NUXT_PUBLIC_ENV_SWITCHER_PASSWORD stanno fra i
-# secrets solo per comodità di gestione: NON sono confidenziali. Essendo NUXT_PUBLIC_*
-# finiscono in chiaro nel payload di index.html, leggibili da chiunque apra il sorgente.
-# La app key di Reverb è un identificativo pubblico by design (l'autorizzazione dei canali
-# privati passa dall'API); la password dell'env-switcher è offuscamento, non un controllo
-# d'accesso. Non riusarle altrove e non fondarci nessuna assunzione di riservatezza.
-# Vedi docs/security-issues/README.md #11 e #6.
-#
-# ATTENZIONE: i NUXT_* sono compilati DENTRO il bundle. Un'immagine = un
-# ambiente: cambiare una variabile richiede un nuovo build.
-# ==============================================================================
 name: GHCR publish
 
 on:
@@ -39,48 +8,53 @@ on:
 jobs:
   build-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Preflight: fallisce subito e in chiaro se il daemon non è raggiungibile.
-      - name: Check Docker daemon
-        run: docker version
-
       # ghcr.io accetta solo path minuscoli, la variabile può non esserlo.
+      # VERSION: titolo della release (fallback: tag, poi short SHA per gli
+      # avvii manuali senza release), normalizzato ai caratteri ammessi in un
+      # tag Docker ([A-Za-z0-9_.-], max 128, non può iniziare con . o -).
       - name: Resolve image and tag
         env:
           RELEASE_TITLE: ${{ github.event.release.name }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           echo "IMAGE=ghcr.io/$(echo "${{ vars.GHCR_USERNAME }}" | tr '[:upper:]' '[:lower:]')/matches-dashboard" >> "$GITHUB_ENV"
-          # Un tag Docker ammette [A-Za-z0-9_.-], max 128 char, e non puo'
-          # iniziare con . o -: il titolo della release va normalizzato.
           RAW="${RELEASE_TITLE:-${RELEASE_TAG:-$(echo "$GITHUB_SHA" | cut -c1-7)}}"
-          VERSION_TAG=$(printf '%s' "$RAW" | tr -c 'A-Za-z0-9_.-' '-' | sed 's/^[.-]*//' | cut -c1-128)
-          echo "VERSION_TAG=${VERSION_TAG:-$(echo "$GITHUB_SHA" | cut -c1-7)}" >> "$GITHUB_ENV"
+          VERSION=$(printf '%s' "$RAW" | tr -c 'A-Za-z0-9_.-' '-' | sed 's/^[.-]*//' | cut -c1-128)
+          echo "VERSION=${VERSION:-$(echo "$GITHUB_SHA" | cut -c1-7)}" >> "$GITHUB_ENV"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GHCR
-        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ vars.GHCR_USERNAME }}" --password-stdin
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      # buildx (non `docker build`): il Dockerfile usa `# syntax=` e una cache
-      # mount, quindi serve BuildKit. Il context è la ROOT del repo.
-      # I build-arg vuoti degradano sui default del Dockerfile.
+      # Il Dockerfile usa `# syntax=` e una cache mount, quindi serve BuildKit.
+      # Il context è la ROOT del repo. I build-arg vuoti degradano sui default
+      # del Dockerfile.
       - name: Build and push
-        run: |
-          docker buildx build \
-            -f docker/production/Dockerfile \
-            -t "$IMAGE:latest" \
-            -t "$IMAGE:$VERSION_TAG" \
-            --build-arg NUXT_BASE_URL="${{ vars.NUXT_BASE_URL }}" \
-            --build-arg NUXT_PUBLIC_REVERB_HOST="${{ vars.NUXT_PUBLIC_REVERB_HOST }}" \
-            --build-arg NUXT_PUBLIC_REVERB_PORT="${{ vars.NUXT_PUBLIC_REVERB_PORT }}" \
-            --build-arg NUXT_PUBLIC_REVERB_SCHEME="${{ vars.NUXT_PUBLIC_REVERB_SCHEME }}" \
-            --build-arg NUXT_PUBLIC_REVERB_APP_KEY="${{ secrets.NUXT_PUBLIC_REVERB_APP_KEY }}" \
-            --build-arg NUXT_PUBLIC_ENV_SWITCHER_PASSWORD="${{ secrets.NUXT_PUBLIC_ENV_SWITCHER_PASSWORD }}" \
-            --push \
-            .
-
-      - name: Logout
-        if: always()
-        run: docker logout ghcr.io
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/production/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ env.VERSION }}
+          build-args: |
+            NUXT_BASE_URL=${{ vars.NUXT_BASE_URL }}
+            NUXT_PUBLIC_REVERB_HOST=${{ vars.NUXT_PUBLIC_REVERB_HOST }}
+            NUXT_PUBLIC_REVERB_PORT=${{ vars.NUXT_PUBLIC_REVERB_PORT }}
+            NUXT_PUBLIC_REVERB_SCHEME=${{ vars.NUXT_PUBLIC_REVERB_SCHEME }}
+            NUXT_PUBLIC_REVERB_APP_KEY=${{ secrets.NUXT_PUBLIC_REVERB_APP_KEY }}
+            NUXT_PUBLIC_ENV_SWITCHER_PASSWORD=${{ secrets.NUXT_PUBLIC_ENV_SWITCHER_PASSWORD }}
