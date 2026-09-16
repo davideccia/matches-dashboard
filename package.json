@@ -1,7 +1,7 @@
 {
   "name": "matches-dashboard",
   "type": "module",
-  "version": "2026.09.14-1",
+  "version": "2026.09.16",
   "private": true,
   "scripts": {
     "build": "nuxt build",
@@ -11,28 +11,28 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@internationalized/date": "^3.12.3",
-    "@nuxt/ui": "^4.11.0",
+    "@internationalized/date": "^3.12.4",
+    "@nuxt/ui": "^4.11.1",
     "@nuxtjs/i18n": "^10.6.0",
-    "@types/node": "^25.9.5",
+    "@types/node": "^25.9.6",
     "dayjs": "^1.11.23",
-    "laravel-echo": "^2.4.0",
+    "laravel-echo": "^2.5.0",
     "nuxt": "^4.5.2",
-    "nuxt-auth-sanctum": "^3.1.0",
+    "nuxt-auth-sanctum": "^3.1.1",
     "pusher-js": "^8.6.0",
-    "reka-ui": "^2.10.3",
+    "reka-ui": "^2.10.4",
     "tailwindcss": "^4.3.3",
-    "vue": "^3.5.41",
-    "vue-router": "^5.2.0",
-    "zod": "^4.4.3"
+    "vue": "^3.5.42",
+    "vue-router": "^5.3.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^9.3.0",
+    "@antfu/eslint-config": "^9.5.1",
     "@iconify-json/heroicons": "^1.2.3",
     "@iconify-json/mdi": "^1.2.3",
     "@intlify/eslint-plugin-vue-i18n": "^4.5.1",
     "@nuxt/eslint": "^1.17.0",
-    "eslint": "^10.9.0",
+    "eslint": "^10.10.0",
     "eslint-plugin-format": "^2.0.1",
     "eslint-plugin-vuetify": "^2.7.2",
     "typescript": "^6.0.3"
