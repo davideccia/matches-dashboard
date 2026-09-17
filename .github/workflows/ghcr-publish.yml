@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ghcr.io accetta solo path minuscoli, la variabile può non esserlo.
+      # ghcr.io accetta solo path minuscoli, github.repository_owner può non esserlo.
       # VERSION: titolo della release (fallback: tag, poi short SHA per gli
       # avvii manuali senza release), normalizzato ai caratteri ammessi in un
       # tag Docker ([A-Za-z0-9_.-], max 128, non può iniziare con . o -).
@@ -24,7 +24,7 @@ jobs:
           RELEASE_TITLE: ${{ github.event.release.name }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          echo "IMAGE=ghcr.io/$(echo "${{ vars.GHCR_USERNAME }}" | tr '[:upper:]' '[:lower:]')/matches-dashboard" >> "$GITHUB_ENV"
+          echo "IMAGE=ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/matches-dashboard" >> "$GITHUB_ENV"
           RAW="${RELEASE_TITLE:-${RELEASE_TAG:-$(echo "$GITHUB_SHA" | cut -c1-7)}}"
           VERSION=$(printf '%s' "$RAW" | tr -c 'A-Za-z0-9_.-' '-' | sed 's/^[.-]*//' | cut -c1-128)
           echo "VERSION=${VERSION:-$(echo "$GITHUB_SHA" | cut -c1-7)}" >> "$GITHUB_ENV"
