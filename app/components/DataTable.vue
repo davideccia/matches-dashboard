@@ -53,6 +53,7 @@
             :data="items"
             :columns="alignedColumns"
             :loading="loading"
+            :column-pinning="columnPinning"
             :ui="{ tr: 'border-b border-default last:border-0 odd:bg-default even:bg-elevated' }"
           >
             <template #empty>
@@ -227,10 +228,17 @@ const alignedColumns = computed(() => [
   selectColumn,
   ...props.columns.map(col => ({
     ...col,
-    meta: col.meta ?? { class: { th: 'text-left', td: 'text-left' } },
+    meta: col.meta ?? {
+      class: col.id === 'actions'
+        ? { th: 'text-left w-px whitespace-nowrap bg-default!', td: 'text-left w-px whitespace-nowrap bg-default!' }
+        : { th: 'text-left', td: 'text-left' },
+    },
   })),
 ])
 const loading = computed(() => status.value === 'pending' || status.value === 'idle')
+const columnPinning = computed(() => (
+  props.columns.some(col => col.id === 'actions') ? { right: ['actions'] } : {}
+))
 
 watch(items, () => { rowSelection.value = {} })
 

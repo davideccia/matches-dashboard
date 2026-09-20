@@ -86,15 +86,12 @@
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1">
               <UBadge
-                color="neutral"
+                color="primary"
                 variant="subtle"
                 icon="i-mdi-boxing-glove"
                 class="cursor-pointer"
-                :aria-label="t('athlete.viewMatchRecordsHistory')"
                 @click="openHistory((row.original as unknown as Athlete))"
-              >
-                {{ t('athlete.viewMatchRecordsHistory') }}
-              </UBadge>
+              />
               <UButton
                 icon="i-mdi-pencil"
                 variant="ghost"

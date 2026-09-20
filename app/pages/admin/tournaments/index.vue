@@ -44,7 +44,6 @@
                 variant="outline"
                 color="primary"
                 size="sm"
-                :label="t('tournament.viewDetail')"
                 @click="openDetail((row.original as unknown as Tournament))"
               />
               <UDropdownMenu :items="getPdfMenuItems((row.original as unknown as Tournament))">
