@@ -64,7 +64,7 @@
             </td>
             <td class="px-3 py-2 align-top">
               <UFormField :name="`${fieldName}.${index}.manual_total`">
-                <UInputNumber v-model="row.manual_total" :min="1" size="sm" class="w-full" />
+                <UInputNumber v-model="row.manual_total" :min="0" size="sm" class="w-full" />
               </UFormField>
             </td>
             <td class="px-3 py-2 align-top tabular-nums text-muted">

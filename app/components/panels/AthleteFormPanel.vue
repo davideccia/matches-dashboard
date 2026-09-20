@@ -1,5 +1,5 @@
 <template>
-  <USlideover v-model:open="open" :title="isEdit ? t('athlete.editTitle') : t('athlete.createTitle')" :ui="{ content: 'w-2/5 max-w-none' }">
+  <USlideover v-model:open="open" :title="isEdit ? t('athlete.editTitle') : t('athlete.createTitle')" :ui="{ content: 'w-[65%] max-w-none' }">
     <template #body>
       <div v-if="fetching" class="flex items-center justify-center p-12">
         <UIcon name="i-mdi-loading" class="animate-spin text-2xl" />
@@ -90,7 +90,7 @@ const genderOptions = computed(() => [
 const historyRowSchema = z.object({
   id: z.string().nullable().optional(),
   label: z.string().min(1),
-  manual_total: z.coerce.number().int().min(1),
+  manual_total: z.coerce.number().int().min(0),
 })
 
 const schema = z.object({

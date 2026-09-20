@@ -22,7 +22,12 @@
       <!-- Current -->
       <div class="md:scale-105 md:z-10">
         <Transition name="window-slot" mode="out-in">
-          <div v-if="current" :key="current.id" class="rounded-2xl ring-2 ring-primary/40">
+          <div
+            v-if="current"
+            :key="current.id"
+            class="rounded-2xl"
+            :class="current.status === 'in_progress' ? 'ring-2 ring-amber-500/60 dark:ring-amber-500/50' : ''"
+          >
             <MatchRecordCardReadOnly :match="current" :show-judges-points="true" hide-notes />
           </div>
           <TournamentsMatchRecordsWindowSlotEmpty
