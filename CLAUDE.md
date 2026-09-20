@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Absolute priority: load skills before touching code
+
+Before modifying or analyzing **any** piece of code in this repo, load these skills, in this order:
+
+1. `/nuxt-ui` — this app is built on `@nuxt/ui`; component/API decisions must follow it.
+2. `/nuxt4-patterns` — this app is Nuxt 4 (`ssr: false`, static SPA); data-fetching and hydration decisions must follow it.
+
+This applies even to what looks like a trivial one-line change or a read-only analysis question. Do this first, before Read/Grep/Edit on app code.
+
 ## Commands
 
 The `Makefile` is the canonical entrypoint (`make help` lists all targets):
