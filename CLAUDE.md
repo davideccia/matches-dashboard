@@ -16,7 +16,8 @@ This applies even to what looks like a trivial one-line change or a read-only an
 The `Makefile` is the canonical entrypoint (`make help` lists all targets):
 
 ```bash
-make dev              # dev server, exposed on 0.0.0.0 (LAN) → http://localhost:3000
+make dev              # dev server → http://localhost:3000
+make dev-host         # dev server, exposed on 0.0.0.0 (LAN)
 make lint             # ESLint (no auto-fix)
 make lint-fix         # ESLint + auto-fix
 make typecheck        # nuxi typecheck — CURRENTLY BROKEN, see below
