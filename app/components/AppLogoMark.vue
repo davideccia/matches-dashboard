@@ -1,10 +1,10 @@
 <template>
   <template v-if="variant === 'fill'">
     <div
-      v-if="!collapsed && logoUrl"
+      v-if="!collapsed && logoAvailable"
       class="w-full max-w-32 aspect-square mx-auto rounded-4xl overflow-hidden flex items-center justify-center border-4 border-primary"
     >
-      <img :src="logoUrl" alt="" class="w-full h-full object-contain">
+      <img :src="logoUrl" alt="" class="w-full h-full object-contain" @error="logoAvailable = false">
     </div>
     <div
       v-else
@@ -21,11 +21,11 @@
 
   <template v-else-if="variant === 'boxed'">
     <div
-      v-if="logoUrl"
+      v-if="logoAvailable"
       class="mx-auto flex items-center justify-center rounded-4xl border-4 border-primary overflow-hidden"
       :class="[size, rootClass]"
     >
-      <img :src="logoUrl" alt="" class="w-full h-full object-contain">
+      <img :src="logoUrl" alt="" class="w-full h-full object-contain" @error="logoAvailable = false">
     </div>
     <div
       v-else
@@ -38,11 +38,11 @@
 
   <template v-else>
     <div
-      v-if="logoUrl"
+      v-if="logoAvailable"
       class="rounded-4xl overflow-hidden flex items-center justify-center border-4 border-primary"
       :class="[size, rootClass]"
     >
-      <img :src="logoUrl" alt="" class="w-full h-full object-contain">
+      <img :src="logoUrl" alt="" class="w-full h-full object-contain" @error="logoAvailable = false">
     </div>
     <UIcon
       v-else
@@ -73,4 +73,9 @@ withDefaults(defineProps<{
 })
 
 const { logoUrl } = useAppLogo()
+
+// Nessun modo di sapere in anticipo se LOGO_ENDPOINT ha un'immagine (GET pubblica,
+// binaria): si assume disponibile e si ricade sull'icona solo se il caricamento fallisce.
+const logoAvailable = ref(true)
+watch(logoUrl, () => { logoAvailable.value = true })
 </script>

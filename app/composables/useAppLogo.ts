@@ -1,13 +1,19 @@
+import { LOGO_PUBLIC_ENDPOINT } from '~/utils/constants'
+
 /**
- * Logo custom opzionale: se presente un file "sidebar_logo.*" in app/assets/,
- * sostituisce l'icona di default su sidebar, login e pagine pubbliche.
+ * Logo custom opzionale, recuperato a runtime dalla GET pubblica di LOGO_PUBLIC_ENDPOINT
+ * (immagine binaria diretta, 404 se non impostato). Se assente, AppLogoMark mostra
+ * l'icona di default. `?v=` invalida la cache del browser dopo upload/rimozione.
  */
 export function useAppLogo() {
-  const logoModules = import.meta.glob<string>('~/assets/sidebar_logo.*', {
-    eager: true,
-    import: 'default',
-  })
-  const logoUrl = Object.values(logoModules)[0]
+  const { config } = useApiConfig()
+  const version = useState('app-logo-version', () => 0)
 
-  return { logoUrl }
+  const logoUrl = computed(() => `${config.value.baseUrl}${LOGO_PUBLIC_ENDPOINT}?v=${version.value}`)
+
+  function bumpLogoVersion() {
+    version.value += 1
+  }
+
+  return { logoUrl, bumpLogoVersion }
 }

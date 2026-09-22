@@ -57,7 +57,14 @@
     "apiBaseUrlDesc": "Pick a known endpoint or type a new one and confirm it with “Create”",
     "apiEnvironmentNotProduction": "Non-production environment",
     "apiEnvironmentPassword": "Password",
-    "apiEnvironmentPasswordWrong": "Wrong password"
+    "apiEnvironmentPasswordWrong": "Wrong password",
+    "logo": "Application logo",
+    "logoDesc": "Replaces the default icon in the sidebar, login and public pages",
+    "logoUpload": "Upload logo",
+    "logoRemove": "Remove logo",
+    "logoUploadSuccess": "Logo updated",
+    "logoRemoveSuccess": "Logo removed",
+    "logoRemoveConfirm": "Remove the logo? The default icon will be restored."
   },
   "common": {
     "save": "Save",

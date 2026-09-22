@@ -57,7 +57,14 @@
     "apiBaseUrlDesc": "Scegli un endpoint noto o scrivine uno nuovo e confermalo con «Crea»",
     "apiEnvironmentNotProduction": "Ambiente non di produzione",
     "apiEnvironmentPassword": "Password",
-    "apiEnvironmentPasswordWrong": "Password errata"
+    "apiEnvironmentPasswordWrong": "Password errata",
+    "logo": "Logo applicazione",
+    "logoDesc": "Sostituisce l'icona di default in sidebar, login e pagine pubbliche",
+    "logoUpload": "Carica logo",
+    "logoRemove": "Rimuovi logo",
+    "logoUploadSuccess": "Logo aggiornato",
+    "logoRemoveSuccess": "Logo rimosso",
+    "logoRemoveConfirm": "Confermi la rimozione del logo? Verrà ripristinata l'icona di default."
   },
   "common": {
     "save": "Salva",

@@ -41,6 +41,11 @@ export const API_ENDPOINTS = [
   'http://localhost:8081',
 ] as const
 
+// GET pubblica (esclusa da Sanctum, come le altre api/public/**): risponde con l'immagine binaria diretta.
+export const LOGO_PUBLIC_ENDPOINT = '/api/public/settings/logo'
+// POST/DELETE autenticate, riservate ai superadmin (come le altre api/admin/**).
+export const LOGO_ADMIN_ENDPOINT = '/api/admin/settings/logo'
+
 // Tutti i colori cromatici di Tailwind (esclusi i neutri: slate, gray, zinc, neutral, stone, ...).
 export const COLOR_PALETTE = [
   { name: 'red', bgClass: 'bg-red-500' },
