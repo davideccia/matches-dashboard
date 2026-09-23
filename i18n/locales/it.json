@@ -245,7 +245,8 @@
     "judgesPointsEmpty": "Nessun cartellino",
     "notes": "Note",
     "notesEmpty": "Nessuna nota",
-    "selectTournamentFirst": "Scegli prima un torneo"
+    "selectTournamentFirst": "Scegli prima un torneo",
+    "current": "Prossimo match"
   },
   "athlete": {
     "title": "Atleta",

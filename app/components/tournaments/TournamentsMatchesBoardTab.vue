@@ -69,7 +69,7 @@
               :ref="(el) => { if (el) matchCardEls[index] = el as HTMLElement }"
               class="relative group"
             >
-              <MatchRecordCardReadOnly :match="match" :show-judges-points="false" />
+              <MatchRecordCardReadOnly :match="match" :show-judges-points="false" :current="index === nextUpIndex" />
               <div class="absolute inset-0 rounded-[inherit] flex items-center justify-center gap-3 bg-default/75 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto">
                 <UButton
                   icon="i-mdi-pencil"
@@ -208,6 +208,11 @@ const { data, refresh, status } = useLazyAsyncData(
 
 const items = computed(() => data.value?.data ?? [])
 const total = computed(() => data.value?.meta?.total ?? 0)
+
+const nextUpIndex = computed(() => {
+  const hasInProgress = items.value.some(m => m.status === 'in_progress')
+  return hasInProgress ? -1 : items.value.findIndex(m => m.status === 'scheduled')
+})
 
 watch(items, async (newItems) => {
   if (!newItems.length || hasScrolledInitially) { return }

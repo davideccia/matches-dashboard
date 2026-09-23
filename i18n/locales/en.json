@@ -245,7 +245,8 @@
     "judgesPointsEmpty": "No scorecards",
     "notes": "Notes",
     "notesEmpty": "No notes",
-    "selectTournamentFirst": "Select a tournament first"
+    "selectTournamentFirst": "Select a tournament first",
+    "current": "Next match"
   },
   "athlete": {
     "title": "Athlete",

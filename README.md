@@ -37,14 +37,14 @@ make dev-host
 
 A `Makefile` wraps the common tasks (`make help` lists all targets):
 
-| Command             | Description                                          |
-| -------------------- | ----------------------------------------------------- |
-| `make dev`           | Start the dev server on `localhost:3000`              |
-| `make dev-host`      | Start the dev server exposed on `0.0.0.0` (LAN)       |
-| `make lint`          | Run ESLint (no auto-fix)                              |
-| `make lint-fix`      | Run ESLint with auto-fix                              |
-| `make clean`         | Remove `.nuxt`, `.output`, `dist`                     |
-| `pnpm generate`      | Build the static SPA into `.output/public/`           |
+| Command         | Description                                     |
+| --------------- | ----------------------------------------------- |
+| `make dev`      | Start the dev server on `localhost:3000`        |
+| `make dev-host` | Start the dev server exposed on `0.0.0.0` (LAN) |
+| `make lint`     | Run ESLint (no auto-fix)                        |
+| `make lint-fix` | Run ESLint with auto-fix                        |
+| `make clean`    | Remove `.nuxt`, `.output`, `dist`               |
+| `pnpm generate` | Build the static SPA into `.output/public/`     |
 
 > [!WARNING]
 > `make typecheck` does not currently work: `nuxi typecheck` shells out to an npx-installed `vue-tsc` that fails to resolve this project's TypeScript version. There is also no automated test suite — validate changes with `make lint-fix` and by running the app against a live API.
@@ -53,14 +53,14 @@ A `Makefile` wraps the common tasks (`make help` lists all targets):
 
 Because the build is static, these are the **only** environment variables the app reads, and they must be set **at build time** (they end up baked into `index.html`):
 
-| Variable                            | Default                  | Purpose                                                        |
-| ------------------------------------ | ------------------------- | --------------------------------------------------------------- |
+| Variable                            | Default                  | Purpose                                                         |
+| ----------------------------------- | ------------------------ | --------------------------------------------------------------- |
 | `NUXT_BASE_URL`                     | `https://api.matches.it` | Laravel API base URL                                            |
-| `NUXT_PUBLIC_REVERB_APP_KEY`        | —                         | Laravel Reverb app key                                          |
-| `NUXT_PUBLIC_REVERB_HOST`           | `localhost`               | Reverb WebSocket host                                            |
-| `NUXT_PUBLIC_REVERB_PORT`           | `8080`                    | Reverb WebSocket port                                            |
-| `NUXT_PUBLIC_REVERB_SCHEME`         | `http`                    | `http` or `https`                                                |
-| `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` | —                         | Password unlocking the runtime API switcher. Empty disables it. |
+| `NUXT_PUBLIC_REVERB_APP_KEY`        | —                        | Laravel Reverb app key                                          |
+| `NUXT_PUBLIC_REVERB_HOST`           | `localhost`              | Reverb WebSocket host                                           |
+| `NUXT_PUBLIC_REVERB_PORT`           | `8080`                   | Reverb WebSocket port                                           |
+| `NUXT_PUBLIC_REVERB_SCHEME`         | `http`                   | `http` or `https`                                               |
+| `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` | —                        | Password unlocking the runtime API switcher. Empty disables it. |
 
 > [!IMPORTANT]
 > `NUXT_PUBLIC_ENV_SWITCHER_PASSWORD` is not a secret in any real sense — it is a `NUXT_PUBLIC_*` value shipped in the clear inside the bundle. It guards no data; it only prevents accidental fat-fingering of the API environment from the UI. Anyone can achieve the same effect from the browser console.

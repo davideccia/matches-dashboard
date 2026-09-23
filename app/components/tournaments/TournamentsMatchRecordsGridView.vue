@@ -18,7 +18,7 @@
         :key="match.id"
         :ref="(el) => { if (el) matchCardEls[index] = el as HTMLElement }"
       >
-        <MatchRecordCardReadOnly :match="match" :show-judges-points="true" hide-notes />
+        <MatchRecordCardReadOnly :match="match" :show-judges-points="true" hide-notes :current="index === nextUpIndex" />
       </div>
     </div>
   </div>
@@ -65,6 +65,11 @@ watch(matchesError, (e) => {
 
 const matches = computed(() => matchesData.value?.data ?? [])
 const matchesLoading = computed(() => matchesStatus.value === 'pending')
+
+const nextUpIndex = computed(() => {
+  const hasInProgress = matches.value.some(m => m.status === 'in_progress')
+  return hasInProgress ? -1 : matches.value.findIndex(m => m.status === 'scheduled')
+})
 
 // Keep the active (or next) match centered on every refresh, including WS pushes.
 watch(matchesData, async () => {
