@@ -166,6 +166,9 @@
         </div>
       </UForm>
     </template>
+    <template v-if="isEdit && audit && !fetching" #footer>
+      <RecordAuditInfo :record="audit" />
+    </template>
   </USlideover>
 </template>
 
@@ -190,6 +193,7 @@ const api = useApi()
 const toast = useToast()
 
 const isEdit = computed(() => props.item !== null)
+const showUrl = computed(() => `/api/admin/registrations/${props.item?.id}`)
 
 const schema = z.object({
   athlete_id: z.string().min(1),
@@ -264,13 +268,25 @@ function clearPaidAt() {
 }
 
 const fetching = ref(false)
+const audit = ref<Registration | null>(null)
+
+// PUT/POST non restituiscono created_user/updated_user: serve la show.
+async function refreshAudit() {
+  try {
+    const { data } = await api.get<{ data: Registration }>(showUrl.value)
+    audit.value = data
+  } catch (e) {
+    toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+  }
+}
 
 watch(open, async (val) => {
   if (!val) { return }
   if (isEdit.value) {
     fetching.value = true
     try {
-      const { data: item } = await api.get<{ data: Registration }>(`/api/admin/registrations/${props.item!.id}`)
+      const { data: item } = await api.get<{ data: Registration }>(showUrl.value)
+      audit.value = item
       state.athlete_id = item.athlete_id ?? null
       state.tournament_id = item.tournament_id ?? null
       state.discipline_id = item.discipline_id ?? null
@@ -286,6 +302,7 @@ watch(open, async (val) => {
       fetching.value = false
     }
   } else {
+    audit.value = null
     state.athlete_id = null
     state.tournament_id = props.tournamentId
     state.discipline_id = null
@@ -314,8 +331,9 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
     }
     let saved: Registration
     if (isEdit.value) {
-      const { data } = await api.put<{ data: Registration }>(`/api/admin/registrations/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: Registration }>(showUrl.value, body)
       saved = data
+      void refreshAudit()
     } else {
       const { data } = await api.post<{ data: Registration }>(`/api/admin/tournaments/${props.tournamentId}/registrations`, body)
       saved = data

@@ -75,6 +75,10 @@
           </UButton>
         </div>
       </UForm>
+      <!-- Il parent rifà la show su @saved: la prop arriva già con gli stamp aggiornati. -->
+      <template #footer>
+        <RecordAuditInfo :record="tournament" />
+      </template>
     </UCard>
 
     <!-- Fuori dal form del torneo: i tier si salvano da soli, non col submit sopra. -->

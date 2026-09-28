@@ -66,6 +66,12 @@
     "logoRemoveSuccess": "Logo rimosso",
     "logoRemoveConfirm": "Confermi la rimozione del logo? Verrà ripristinata l'icona di default."
   },
+  "audit": {
+    "createdBy": "Creato da {user} il {date}",
+    "created": "Creato il {date}",
+    "updatedBy": "Ultima modifica di {user} il {date}",
+    "updated": "Ultima modifica il {date}"
+  },
   "common": {
     "save": "Salva",
     "cancel": "Annulla",

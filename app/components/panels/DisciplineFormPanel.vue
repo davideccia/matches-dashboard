@@ -59,6 +59,9 @@
         </div>
       </UForm>
     </template>
+    <template v-if="isEdit && audit && !fetching" #footer>
+      <RecordAuditInfo :record="audit" />
+    </template>
   </USlideover>
 </template>
 
@@ -81,6 +84,7 @@ const api = useApi()
 const toast = useToast()
 
 const isEdit = computed(() => props.item !== null)
+const showUrl = computed(() => `/api/admin/disciplines/${props.item?.id}`)
 
 const schema = z.object({
   label: z.string().min(1),
@@ -97,13 +101,25 @@ const state = reactive({
 })
 
 const fetching = ref(false)
+const audit = ref<Discipline | null>(null)
+
+// PUT/POST non restituiscono created_user/updated_user: serve la show.
+async function refreshAudit() {
+  try {
+    const { data } = await api.get<{ data: Discipline }>(showUrl.value)
+    audit.value = data
+  } catch (e) {
+    toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+  }
+}
 
 watch(open, async (val) => {
   if (!val) { return }
   if (isEdit.value) {
     fetching.value = true
     try {
-      const { data: item } = await api.get<{ data: Discipline }>(`/api/admin/disciplines/${props.item!.id}`)
+      const { data: item } = await api.get<{ data: Discipline }>(showUrl.value)
+      audit.value = item
       state.label = item.label
       state.sort = item.sort ?? null
       state.rounds = item.rounds ?? null
@@ -115,6 +131,7 @@ watch(open, async (val) => {
       fetching.value = false
     }
   } else {
+    audit.value = null
     state.label = ''
     state.sort = null
     state.rounds = null
@@ -136,8 +153,9 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
 
     let saved: Discipline
     if (isEdit.value) {
-      const { data } = await api.put<{ data: Discipline }>(`/api/admin/disciplines/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: Discipline }>(showUrl.value, body)
       saved = data
+      void refreshAudit()
     } else {
       const { data } = await api.post<{ data: Discipline }>('/api/admin/disciplines', body)
       saved = data

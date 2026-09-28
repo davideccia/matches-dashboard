@@ -1,8 +1,24 @@
 import type { EndMethod, Gender, MatchStatus, TournamentStatus } from '~/utils/constants'
 
+// ─── Audit ───────────────────────────────────────────────────────────────────
+
+export interface UserStamp {
+  id: string
+  username: string
+}
+
+// created_user / updated_user arrivano solo dalla SHOW; null se l'autore è
+// sconosciuto (record legacy, form pubblico, comandi di sistema, utente cancellato).
+export interface UserStamps {
+  created_user_id: string | null
+  updated_user_id: string | null
+  created_user?: UserStamp | null
+  updated_user?: UserStamp | null
+}
+
 // ─── Models ──────────────────────────────────────────────────────────────────
 
-export interface Discipline {
+export interface Discipline extends UserStamps {
   id: string
   label: string
   sort: number
@@ -12,7 +28,7 @@ export interface Discipline {
   updated_at: string
 }
 
-export interface WeightCategory {
+export interface WeightCategory extends UserStamps {
   id: string
   label: string
   value: number
@@ -20,7 +36,7 @@ export interface WeightCategory {
   updated_at: string
 }
 
-export interface ExperienceTier {
+export interface ExperienceTier extends UserStamps {
   id: string
   tournament_id: string | null
   label: string
@@ -31,7 +47,7 @@ export interface ExperienceTier {
   updated_at: string
 }
 
-export interface Athlete {
+export interface Athlete extends UserStamps {
   id: string
   first_name: string
   last_name: string
@@ -77,7 +93,7 @@ export interface MatchmakingIssue {
   reason: 'no_tier' | 'unpaired'
 }
 
-export interface Tournament {
+export interface Tournament extends UserStamps {
   id: string
   name: string
   location_name: string
@@ -95,7 +111,7 @@ export interface Tournament {
   disciplines?: Discipline[]
 }
 
-export interface Registration {
+export interface Registration extends UserStamps {
   id: string
   athlete_id: string
   tournament_id: string
@@ -124,7 +140,7 @@ export interface JudgesPointsRow {
   judge3_blue: number | null
 }
 
-export interface MatchRecord {
+export interface MatchRecord extends UserStamps {
   id: string
   tournament_id: string
   red_corner_id: string | null

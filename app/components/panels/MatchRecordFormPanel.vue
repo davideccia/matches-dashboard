@@ -448,6 +448,9 @@
         </div>
       </UForm>
     </template>
+    <template v-if="isEdit && audit && !fetching" #footer>
+      <RecordAuditInfo :record="audit" />
+    </template>
   </USlideover>
 </template>
 
@@ -474,6 +477,7 @@ const api = useApi()
 const toast = useToast()
 
 const isEdit = computed(() => props.item !== null)
+const showUrl = computed(() => `/api/admin/match_records/${props.item?.id}`)
 
 // ── Tabs ─────────────────────────────────────────────────────────────────────
 const activeTab = ref('details')
@@ -586,6 +590,17 @@ const schema = z.object({
 
 // ── Populate state when slideover opens ─────────────────────────────────────
 const fetching = ref(false)
+const audit = ref<MatchRecord | null>(null)
+
+// PUT/POST non restituiscono created_user/updated_user: serve la show.
+async function refreshAudit() {
+  try {
+    const { data } = await api.get<{ data: MatchRecord }>(showUrl.value)
+    audit.value = data
+  } catch (e) {
+    toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+  }
+}
 
 watch(open, async (val) => {
   if (!val) { return }
@@ -594,7 +609,8 @@ watch(open, async (val) => {
   if (isEdit.value) {
     fetching.value = true
     try {
-      const { data: item } = await api.get<{ data: MatchRecord }>(`/api/admin/match_records/${props.item!.id}`)
+      const { data: item } = await api.get<{ data: MatchRecord }>(showUrl.value)
+      audit.value = item
       forceEntry.value = item.forced ?? false
       genderFilter.value = item.gender ?? 'male'
       state.tournament_id = props.tournamentId ?? item.tournament_id ?? null
@@ -622,6 +638,7 @@ watch(open, async (val) => {
       fetching.value = false
     }
   } else {
+    audit.value = null
     forceEntry.value = false
     genderFilter.value = 'male'
     state.tournament_id = props.tournamentId ?? null
@@ -804,8 +821,9 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
 
     let saved: MatchRecord
     if (isEdit.value) {
-      const { data } = await api.put<{ data: MatchRecord }>(`/api/admin/match_records/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: MatchRecord }>(showUrl.value, body)
       saved = data
+      void refreshAudit()
     } else {
       const { data } = await api.post<{ data: MatchRecord }>(`/api/admin/tournaments/${props.tournamentId ?? event.data.tournament_id}/match_records`, body)
       saved = data

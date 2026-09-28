@@ -66,6 +66,12 @@
     "logoRemoveSuccess": "Logo removed",
     "logoRemoveConfirm": "Remove the logo? The default icon will be restored."
   },
+  "audit": {
+    "createdBy": "Created by {user} on {date}",
+    "created": "Created on {date}",
+    "updatedBy": "Last modified by {user} on {date}",
+    "updated": "Last modified on {date}"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",

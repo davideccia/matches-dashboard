@@ -57,6 +57,9 @@
         </div>
       </UForm>
     </template>
+    <template v-if="isEdit && audit && !fetching" #footer>
+      <RecordAuditInfo :record="audit" />
+    </template>
   </USlideover>
 </template>
 
@@ -81,6 +84,7 @@ const api = useApi()
 const toast = useToast()
 
 const isEdit = computed(() => props.item !== null)
+const showUrl = computed(() => `/api/admin/athletes/${props.item?.id}`)
 
 const genderOptions = computed(() => [
   { label: t('athlete.gender.male'), value: 'male' },
@@ -118,13 +122,25 @@ const state = reactive({
 })
 
 const fetching = ref(false)
+const audit = ref<Athlete | null>(null)
+
+// PUT/POST non restituiscono created_user/updated_user: serve la show.
+async function refreshAudit() {
+  try {
+    const { data } = await api.get<{ data: Athlete }>(showUrl.value)
+    audit.value = data
+  } catch (e) {
+    toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+  }
+}
 
 watch(open, async (val) => {
   if (!val) { return }
   if (isEdit.value) {
     fetching.value = true
     try {
-      const { data: item } = await api.get<{ data: Athlete }>(`/api/admin/athletes/${props.item!.id}`)
+      const { data: item } = await api.get<{ data: Athlete }>(showUrl.value)
+      audit.value = item
       state.first_name = item.first_name
       state.last_name = item.last_name
       state.birth_date = serverDateOnlyToInput(item.birth_date)
@@ -141,6 +157,7 @@ watch(open, async (val) => {
       fetching.value = false
     }
   } else {
+    audit.value = null
     state.first_name = ''
     state.last_name = ''
     state.birth_date = ''
@@ -178,8 +195,9 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
 
     let saved: Athlete
     if (isEdit.value) {
-      const { data } = await api.put<{ data: Athlete }>(`/api/admin/athletes/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: Athlete }>(showUrl.value, body)
       saved = data
+      void refreshAudit()
     } else {
       const { data } = await api.post<{ data: Athlete }>('/api/admin/athletes', body)
       saved = data

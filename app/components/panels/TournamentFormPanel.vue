@@ -49,6 +49,9 @@
         </div>
       </UForm>
     </template>
+    <template v-if="isEdit && audit && !fetching" #footer>
+      <RecordAuditInfo :record="audit" />
+    </template>
   </USlideover>
 </template>
 
@@ -72,6 +75,7 @@ const api = useApi()
 const toast = useToast()
 
 const isEdit = computed(() => props.item !== null)
+const showUrl = computed(() => `/api/admin/tournaments/${props.item?.id}`)
 
 const statusOptions = computed(() => [
   { label: t('tournament.status.scheduled'), value: 'scheduled' },
@@ -101,13 +105,25 @@ const state = reactive({
 })
 
 const fetching = ref(false)
+const audit = ref<Tournament | null>(null)
+
+// PUT/POST non restituiscono created_user/updated_user: serve la show.
+async function refreshAudit() {
+  try {
+    const { data } = await api.get<{ data: Tournament }>(showUrl.value)
+    audit.value = data
+  } catch (e) {
+    toast.add({ title: getApiErrorMessage(e) ?? t('common.error'), color: 'error' })
+  }
+}
 
 watch(open, async (val) => {
   if (!val) { return }
   if (isEdit.value) {
     fetching.value = true
     try {
-      const { data: tournament } = await api.get<{ data: Tournament }>(`/api/admin/tournaments/${props.item!.id}`)
+      const { data: tournament } = await api.get<{ data: Tournament }>(showUrl.value)
+      audit.value = tournament
       state.name = tournament.name
       state.location_name = tournament.location_name
       state.location_address = tournament.location_address
@@ -121,6 +137,7 @@ watch(open, async (val) => {
       fetching.value = false
     }
   } else {
+    audit.value = null
     state.name = ''
     state.location_name = ''
     state.location_address = ''
@@ -146,8 +163,9 @@ async function onSubmit(event: FormSubmitEvent<z.infer<typeof schema>>) {
 
     let saved: Tournament
     if (isEdit.value) {
-      const { data } = await api.put<{ data: Tournament }>(`/api/admin/tournaments/${props.item!.id}`, body)
+      const { data } = await api.put<{ data: Tournament }>(showUrl.value, body)
       saved = data
+      void refreshAudit()
     } else {
       const { data } = await api.post<{ data: Tournament }>('/api/admin/tournaments', body)
       saved = data
