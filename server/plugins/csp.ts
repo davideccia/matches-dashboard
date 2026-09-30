@@ -25,7 +25,10 @@ const POLICY = [
   'object-src \'none\'',
   'frame-ancestors \'none\'',
   'style-src \'self\' \'unsafe-inline\'', // debito: richiesto da Nuxt UI / Tailwind
-  'img-src \'self\' data:',
+  // Il logo custom arriva dall'API (useAppLogo → `${baseUrl}/api/public/settings/logo`),
+  // quindi da un host che non è 'self' e che l'override può ripuntare ovunque:
+  // stessa ragione di connect-src qui sotto. Un'immagine non esegue codice.
+  'img-src \'self\' data: https: http:',
   'font-src \'self\' data:',
   // Permissivo di proposito: l'app può ripuntare il base URL a runtime su un host
   // qualsiasi (override `matches.api-override`), API e Reverb inclusi — e in test o
