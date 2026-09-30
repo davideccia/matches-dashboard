@@ -109,6 +109,13 @@ const items = computed<NavigationMenuItem[][]>(() => [
     },
   ],
   [
+    ...(user.value?.superadmin
+      ? [{
+          label: t('nav.requestLogs'),
+          icon: 'i-mdi-format-list-bulleted',
+          to: localePath('/admin/request-logs'),
+        }]
+      : []),
     {
       label: t('nav.users'),
       icon: 'i-mdi-account-group',

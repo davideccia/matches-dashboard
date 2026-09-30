@@ -4,7 +4,7 @@ Static SPA admin dashboard and public scoreboard for **Matches**, a combat-sport
 
 ## Features
 
-- **Admin console** (`/admin`) — manage tournaments, athletes, disciplines, weight categories, experience tiers, and users through a consistent paginated-table + slideover-form pattern, behind Sanctum token authentication.
+- **Admin console** (`/admin`) — manage tournaments, athletes, disciplines, weight categories, experience tiers, and users (plus a superadmin-only read-only API request log at `/admin/request-logs`) through a consistent paginated-table + slideover-form pattern, behind Sanctum token authentication.
 - **Public pages** (`/public`) — unauthenticated athlete registration and a live tournament scoreboard, with no login required.
 - **Realtime match board** — the scoreboard and the admin match board subscribe to Laravel Reverb over WebSocket and auto-scroll to the active bout as matches progress.
 - **Runtime API repointing** — a hidden gesture (5 clicks on the logo, then a password) lets an already-built bundle be redirected to a different API/WebSocket environment without a rebuild.

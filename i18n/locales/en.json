@@ -19,6 +19,7 @@
     "tournaments": "Tournaments",
     "configurations": "Settings",
     "users": "Users",
+    "requestLogs": "Request Logs",
     "athletes": "Athletes",
     "disciplines": "Disciplines",
     "weightCategories": "Weight Categories",
@@ -338,6 +339,24 @@
     "created": "User created",
     "updated": "User updated",
     "deleted": "User deleted"
+  },
+  "requestLog": {
+    "createdAt": "Date",
+    "user": "User",
+    "method": "Method",
+    "path": "Path",
+    "routeName": "Route",
+    "status": "Status",
+    "durationMs": "Duration",
+    "filterUser": "Filter by user",
+    "filterMethod": "Method",
+    "filterStatus": "HTTP status",
+    "filterStatusClass": "Status class",
+    "filterPath": "Path",
+    "filterDateFrom": "From",
+    "filterDateTo": "To",
+    "all": "All",
+    "clearUser": "Clear user filter"
   },
   "registration": {
     "title": "Registration",

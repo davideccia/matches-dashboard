@@ -184,6 +184,19 @@ export interface User {
   // password e remember_token sono $hidden — non compaiono mai nella risposta
 }
 
+export interface ApiRequestLog {
+  id: string
+  user_id: string | null
+  method: string
+  path: string
+  route_name: string | null
+  status: number
+  duration_ms: number
+  created_at: string
+  // presente solo con ?with=user
+  user?: User | null
+}
+
 export interface TemporaryUpload {
   id: string
   original_name: string

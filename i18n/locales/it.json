@@ -19,6 +19,7 @@
     "tournaments": "Tornei",
     "configurations": "Configurazioni",
     "users": "Utenti",
+    "requestLogs": "Request Logs",
     "athletes": "Atleti",
     "disciplines": "Discipline",
     "weightCategories": "Categorie di peso",
@@ -338,6 +339,24 @@
     "created": "Utente creato",
     "updated": "Utente aggiornato",
     "deleted": "Utente eliminato"
+  },
+  "requestLog": {
+    "createdAt": "Data",
+    "user": "Utente",
+    "method": "Metodo",
+    "path": "Percorso",
+    "routeName": "Route",
+    "status": "Stato",
+    "durationMs": "Durata",
+    "filterUser": "Filtra per utente",
+    "filterMethod": "Metodo",
+    "filterStatus": "Stato HTTP",
+    "filterStatusClass": "Classe di stato",
+    "filterPath": "Percorso",
+    "filterDateFrom": "Dal",
+    "filterDateTo": "Al",
+    "all": "Tutti",
+    "clearUser": "Rimuovi filtro utente"
   },
   "registration": {
     "title": "Iscrizione",
