@@ -13,6 +13,60 @@
           {{ t('common.add') }}
         </UButton>
         <USeparator orientation="vertical" class="h-5" />
+        <div class="flex items-center gap-1 w-56">
+          <AthleteSelectMenu
+            v-model="fkFilters.athlete.id"
+            :placeholder="fkFilters.athlete.label ?? t('registration.selectAthlete')"
+            :query-params="athleteQueryParams"
+            @select="(item) => { fkFilters.athlete.label = String(item.full_name ?? '') }"
+          />
+          <UButton
+            v-if="fkFilters.athlete.id"
+            icon="i-mdi-close"
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            :aria-label="t('common.cancel')"
+            @click="clearFkFilter('athlete')"
+          />
+        </div>
+        <div class="flex items-center gap-1 w-56">
+          <ApiSelectMenu
+            v-model="fkFilters.discipline.id"
+            :endpoint="disciplinesEndpoint"
+            label-key="label"
+            :placeholder="fkFilters.discipline.label ?? t('registration.selectDiscipline')"
+            @select="(item) => { fkFilters.discipline.label = String(item.label ?? '') }"
+          />
+          <UButton
+            v-if="fkFilters.discipline.id"
+            icon="i-mdi-close"
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            :aria-label="t('common.cancel')"
+            @click="clearFkFilter('discipline')"
+          />
+        </div>
+        <div class="flex items-center gap-1 w-56">
+          <ApiSelectMenu
+            v-model="fkFilters.weightCategory.id"
+            endpoint="/api/admin/weight_categories"
+            label-key="label"
+            :placeholder="fkFilters.weightCategory.label ?? t('registration.selectWeightCategory')"
+            @select="(item) => { fkFilters.weightCategory.label = String(item.label ?? '') }"
+          />
+          <UButton
+            v-if="fkFilters.weightCategory.id"
+            icon="i-mdi-close"
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            :aria-label="t('common.cancel')"
+            @click="clearFkFilter('weightCategory')"
+          />
+        </div>
+        <USeparator orientation="vertical" class="h-5" />
         <UButton
           :color="unpaid === null ? 'neutral' : unpaid ? 'success' : 'error'"
           :variant="unpaid === null ? 'outline' : 'subtle'"
@@ -175,10 +229,36 @@ const deleting = ref(false)
 
 const registrationsUrl = computed(() => `/api/admin/tournaments/${props.tournamentId}/registrations?with=weightCategory,athlete,discipline`)
 
+const disciplinesEndpoint = computed(() => `/api/admin/tournaments/${props.tournamentId}/disciplines`)
+// Computed e non oggetto inline: ApiSelectMenu rifà la fetch a ogni nuovo riferimento.
+const athleteQueryParams = computed(() => ({ tournament_id: props.tournamentId }))
+
+// Filtri sulle FK. La select svuota la propria lista alla chiusura: l'etichetta
+// della voce scelta va conservata qui per restare visibile come placeholder.
+type FkFilterKey = 'athlete' | 'discipline' | 'weightCategory'
+
+const fkFilters = reactive<Record<FkFilterKey, { id: string | null, label: string | null }>>({
+  athlete: { id: null, label: null },
+  discipline: { id: null, label: null },
+  weightCategory: { id: null, label: null },
+})
+
+function clearFkFilter(key: FkFilterKey) {
+  fkFilters[key] = { id: null, label: null }
+}
+
+// Le FK del torneo precedente non hanno senso sul nuovo.
+watch(() => props.tournamentId, () => {
+  (Object.keys(fkFilters) as FkFilterKey[]).forEach(clearFkFilter)
+})
+
 const tableParams = computed(() => ({
   unpaid: unpaid.value === null ? undefined : unpaid.value ? 1 : 0,
   unarrived: unarrived.value === null ? undefined : unarrived.value ? 1 : 0,
   weight_in_exceeded: weightInExceeded.value === null ? undefined : weightInExceeded.value ? 1 : 0,
+  athlete_id: fkFilters.athlete.id ?? undefined,
+  discipline_id: fkFilters.discipline.id ?? undefined,
+  weight_category_id: fkFilters.weightCategory.id ?? undefined,
 }))
 
 const columns = computed(() => [
