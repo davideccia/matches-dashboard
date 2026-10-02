@@ -159,7 +159,22 @@
             </UFormField>
 
             <UFormField name="team_name" :label="t('athlete.teamName')" required>
-              <UInput v-model="athleteState.team_name" size="lg" class="w-full" :disabled="!isNewAthlete" />
+              <UAlert
+                v-if="isNewAthlete"
+                id="team-name-hint"
+                color="warning"
+                variant="soft"
+                icon="i-mdi-account-group"
+                :description="t('register.teamNameHint')"
+                class="mb-2"
+              />
+              <UInput
+                v-model="athleteState.team_name"
+                size="lg"
+                class="w-full"
+                :disabled="!isNewAthlete"
+                :aria-describedby="isNewAthlete ? 'team-name-hint' : undefined"
+              />
             </UFormField>
 
             <UFormField name="email" :label="t('register.emailLabel')" required>

@@ -511,6 +511,7 @@
     "emailLabel": "Email",
     "emailPlaceholder": "Inserisci la tua email",
     "athleteNoMatch": "Nessuna corrispondenza trovata. Se sei già registrato controlla l'email inserita, altrimenti prosegui: creeremo una nuova anagrafica.",
+    "teamNameHint": "Assicurati di scrivere il nome del team esattamente come i tuoi compagni: se loro hanno scritto \"Team Mario Rossi\", scrivi \"Team Mario Rossi\" e non \"Mario Rossi\".",
     "sendCode": "Invia codice",
     "resendCode": "Rinvia codice",
     "resendCodeIn": "Rinvia codice fra {n}s",

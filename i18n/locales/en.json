@@ -511,6 +511,7 @@
     "emailLabel": "Email",
     "emailPlaceholder": "Enter your email",
     "athleteNoMatch": "No match found. If you are already registered, check the email you entered; otherwise continue: we will create a new profile.",
+    "teamNameHint": "Make sure you enter the team name exactly as your teammates did: if they wrote \"Team Mario Rossi\", write \"Team Mario Rossi\", not \"Mario Rossi\".",
     "sendCode": "Send code",
     "resendCode": "Resend code",
     "resendCodeIn": "Resend code in {n}s",
