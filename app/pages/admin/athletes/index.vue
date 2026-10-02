@@ -5,11 +5,6 @@
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
-        <template #right>
-          <UButton icon="i-mdi-plus" @click="openCreate">
-            {{ t('common.add') }}
-          </UButton>
-        </template>
       </UDashboardNavbar>
     </template>
 
@@ -20,32 +15,34 @@
           url="/api/admin/athletes"
           :columns="columns"
           :params="tableParams"
+          :active-filters="activeFilters"
           empty-icon="i-mdi-account"
           :bulk-actions="[{ endpoint: '/api/admin/athletes/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
+          @clear-filters="clearFilters"
         >
-          <template #filters>
-            <UButton
-              :color="isAdult === null ? 'neutral' : isAdult ? 'success' : 'error'"
-              :variant="isAdult === null ? 'outline' : 'subtle'"
-              size="sm"
-              @click="() => { isAdult = isAdult === null ? true : isAdult ? false : null }"
-            >
-              {{ t('athlete.filterIsAdult') }}
+          <template #toolbar>
+            <UButton icon="i-mdi-plus" @click="openCreate">
+              {{ t('common.add') }}
             </UButton>
-            <UInput
-              v-model="minMatchRecordsCount"
-              type="number"
-              :min="0"
-              :placeholder="t('athlete.filterMinMatchRecordsCount')"
-              class="w-36"
-            />
-            <UInput
-              v-model="maxMatchRecordsCount"
-              type="number"
-              :min="0"
-              :placeholder="t('athlete.filterMaxMatchRecordsCount')"
-              class="w-36"
-            />
+          </template>
+          <template #filters>
+            <TriStateFilter v-model="isAdult" :label="t('athlete.filterIsAdult')" />
+            <FilterField :label="t('athlete.filterMinMatchRecordsCount')" class="w-36">
+              <UInput
+                v-model="minMatchRecordsCount"
+                type="number"
+                :min="0"
+                class="w-full"
+              />
+            </FilterField>
+            <FilterField :label="t('athlete.filterMaxMatchRecordsCount')" class="w-36">
+              <UInput
+                v-model="maxMatchRecordsCount"
+                type="number"
+                :min="0"
+                class="w-full"
+              />
+            </FilterField>
           </template>
           <template #full_name-cell="{ row }">
             <span class="flex items-center gap-2 min-w-0">
@@ -164,6 +161,16 @@ const tableParams = computed(() => ({
   min_match_records_count: minMatchRecordsCount.value ?? undefined,
   max_match_records_count: maxMatchRecordsCount.value ?? undefined,
 }))
+
+const activeFilters = computed(() =>
+  countActiveFilters([isAdult.value, minMatchRecordsCount.value, maxMatchRecordsCount.value]),
+)
+
+function clearFilters() {
+  isAdult.value = null
+  minMatchRecordsCount.value = undefined
+  maxMatchRecordsCount.value = undefined
+}
 
 function genderLabel(gender: string): string {
   if (gender === 'male') { return t('athlete.gender.male') }

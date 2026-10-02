@@ -5,92 +5,55 @@
       :url="registrationsUrl"
       :columns="columns"
       :params="tableParams"
+      :active-filters="activeFilters"
       empty-icon="i-mdi-clipboard-list-outline"
       :bulk-actions="[{ endpoint: '/api/admin/registrations/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
+      @clear-filters="clearFilters"
     >
-      <template #filters>
+      <template #toolbar>
         <UButton icon="i-mdi-plus" @click="openCreate">
           {{ t('common.add') }}
         </UButton>
-        <USeparator orientation="vertical" class="h-5" />
-        <div class="flex items-center gap-1 w-56">
+      </template>
+      <template #fk-filters>
+        <FilterField :label="t('registration.athlete')" class="w-full sm:w-56">
           <AthleteSelectMenu
             v-model="fkFilters.athlete.id"
             :placeholder="fkFilters.athlete.label ?? t('registration.selectAthlete')"
             :query-params="athleteQueryParams"
+            clearable
+            class="w-full"
             @select="(item) => { fkFilters.athlete.label = String(item.full_name ?? '') }"
           />
-          <UButton
-            v-if="fkFilters.athlete.id"
-            icon="i-mdi-close"
-            variant="ghost"
-            color="neutral"
-            size="sm"
-            :aria-label="t('common.cancel')"
-            @click="clearFkFilter('athlete')"
-          />
-        </div>
-        <div class="flex items-center gap-1 w-56">
+        </FilterField>
+        <FilterField :label="t('registration.discipline')" class="w-full sm:w-56">
           <ApiSelectMenu
             v-model="fkFilters.discipline.id"
             :endpoint="disciplinesEndpoint"
             label-key="label"
             :placeholder="fkFilters.discipline.label ?? t('registration.selectDiscipline')"
+            clearable
+            class="w-full"
             @select="(item) => { fkFilters.discipline.label = String(item.label ?? '') }"
           />
-          <UButton
-            v-if="fkFilters.discipline.id"
-            icon="i-mdi-close"
-            variant="ghost"
-            color="neutral"
-            size="sm"
-            :aria-label="t('common.cancel')"
-            @click="clearFkFilter('discipline')"
-          />
-        </div>
-        <div class="flex items-center gap-1 w-56">
+        </FilterField>
+        <FilterField :label="t('registration.weightCategory')" class="w-full sm:w-56">
           <ApiSelectMenu
             v-model="fkFilters.weightCategory.id"
             endpoint="/api/admin/weight_categories"
             label-key="label"
             :placeholder="fkFilters.weightCategory.label ?? t('registration.selectWeightCategory')"
+            clearable
+            class="w-full"
             @select="(item) => { fkFilters.weightCategory.label = String(item.label ?? '') }"
           />
-          <UButton
-            v-if="fkFilters.weightCategory.id"
-            icon="i-mdi-close"
-            variant="ghost"
-            color="neutral"
-            size="sm"
-            :aria-label="t('common.cancel')"
-            @click="clearFkFilter('weightCategory')"
-          />
-        </div>
-        <USeparator orientation="vertical" class="h-5" />
-        <UButton
-          :color="unpaid === null ? 'neutral' : unpaid ? 'success' : 'error'"
-          :variant="unpaid === null ? 'outline' : 'subtle'"
-          size="sm"
-          @click="() => { unpaid = unpaid === null ? true : unpaid ? false : null }"
-        >
-          {{ t('registration.filterUnpaid') }}
-        </UButton>
-        <UButton
-          :color="unarrived === null ? 'neutral' : unarrived ? 'success' : 'error'"
-          :variant="unarrived === null ? 'outline' : 'subtle'"
-          size="sm"
-          @click="() => { unarrived = unarrived === null ? true : unarrived ? false : null }"
-        >
-          {{ t('registration.filterUnarrived') }}
-        </UButton>
-        <UButton
-          :color="weightInExceeded === null ? 'neutral' : weightInExceeded ? 'success' : 'error'"
-          :variant="weightInExceeded === null ? 'outline' : 'subtle'"
-          size="sm"
-          @click="() => { weightInExceeded = weightInExceeded === null ? true : weightInExceeded ? false : null }"
-        >
-          {{ t('registration.filterWeightExceeded') }}
-        </UButton>
+        </FilterField>
+      </template>
+      <template #filters>
+        <TriStateFilter v-model="unpaid" :label="t('registration.filterUnpaid')" />
+        <TriStateFilter v-model="unarrived" :label="t('registration.filterUnarrived')" />
+        <TriStateFilter v-model="weightInExceeded" :label="t('registration.filterWeightExceeded')" />
+        <TriStateFilter v-model="isAdult" :label="t('athlete.filterIsAdult')" />
       </template>
       <template #athlete_full_name-cell="{ row }">
         <span class="flex items-center gap-2">
@@ -221,6 +184,8 @@ const tableRef = useTemplateRef('tableRef')
 const unpaid = ref<boolean | null>(null)
 const unarrived = ref<boolean | null>(null)
 const weightInExceeded = ref<boolean | null>(null)
+// true ⇒ solo atleti maggiorenni, false ⇒ solo minorenni.
+const isAdult = ref<boolean | null>(null)
 const panelOpen = ref(false)
 const editingItem = ref<Registration | null>(null)
 const confirmOpen = ref(false)
@@ -235,7 +200,8 @@ const athleteQueryParams = computed(() => ({ tournament_id: props.tournamentId }
 
 // Filtri sulle FK. La select svuota la propria lista alla chiusura: l'etichetta
 // della voce scelta va conservata qui per restare visibile come placeholder.
-type FkFilterKey = 'athlete' | 'discipline' | 'weightCategory'
+const FK_FILTER_KEYS = ['athlete', 'discipline', 'weightCategory'] as const
+type FkFilterKey = typeof FK_FILTER_KEYS[number]
 
 const fkFilters = reactive<Record<FkFilterKey, { id: string | null, label: string | null }>>({
   athlete: { id: null, label: null },
@@ -247,15 +213,39 @@ function clearFkFilter(key: FkFilterKey) {
   fkFilters[key] = { id: null, label: null }
 }
 
+// La X di ApiSelectMenu azzera solo l'id: l'etichetta conservata va pulita qui.
+FK_FILTER_KEYS.forEach((key) => {
+  watch(() => fkFilters[key].id, (id) => {
+    if (!id) { clearFkFilter(key) }
+  })
+})
+
 // Le FK del torneo precedente non hanno senso sul nuovo.
 watch(() => props.tournamentId, () => {
-  (Object.keys(fkFilters) as FkFilterKey[]).forEach(clearFkFilter)
+  FK_FILTER_KEYS.forEach(clearFkFilter)
 })
+
+const activeFilters = computed(() => countActiveFilters([
+  unpaid.value,
+  unarrived.value,
+  weightInExceeded.value,
+  isAdult.value,
+  ...FK_FILTER_KEYS.map(key => fkFilters[key].id),
+]))
+
+function clearFilters() {
+  unpaid.value = null
+  unarrived.value = null
+  weightInExceeded.value = null
+  isAdult.value = null
+  FK_FILTER_KEYS.forEach(clearFkFilter)
+}
 
 const tableParams = computed(() => ({
   unpaid: unpaid.value === null ? undefined : unpaid.value ? 1 : 0,
   unarrived: unarrived.value === null ? undefined : unarrived.value ? 1 : 0,
   weight_in_exceeded: weightInExceeded.value === null ? undefined : weightInExceeded.value ? 1 : 0,
+  is_adult: isAdult.value === null ? undefined : isAdult.value ? 1 : 0,
   athlete_id: fkFilters.athlete.id ?? undefined,
   discipline_id: fkFilters.discipline.id ?? undefined,
   weight_category_id: fkFilters.weightCategory.id ?? undefined,

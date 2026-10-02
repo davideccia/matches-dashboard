@@ -1,83 +1,94 @@
 <template>
-  <UPopover
-    v-model:open="open"
-    :disabled="disabled"
-    class="flex-1 min-w-0"
-  >
-    <!-- Trigger -->
-    <UButton
-      variant="outline"
-      color="neutral"
-      class="w-full justify-between font-normal"
+  <div class="flex items-center gap-1 min-w-0">
+    <UPopover
+      v-model:open="open"
       :disabled="disabled"
-      trailing-icon="i-mdi-unfold-more-vertical"
+      class="flex-1 min-w-0"
     >
-      <span :class="selectedLabel ? 'text-default' : 'text-muted'">
-        {{ selectedLabel ?? placeholder ?? t('common.search') }}
-      </span>
-    </UButton>
+      <!-- Trigger -->
+      <UButton
+        variant="outline"
+        color="neutral"
+        class="w-full justify-between font-normal"
+        :disabled="disabled"
+        trailing-icon="i-mdi-unfold-more-vertical"
+      >
+        <span :class="selectedLabel ? 'text-default' : 'text-muted'">
+          {{ selectedLabel ?? placeholder ?? t('common.search') }}
+        </span>
+      </UButton>
 
-    <!-- Dropdown content -->
-    <template #content>
-      <div class="w-[min(18rem,calc(100vw-1rem))] p-2">
-        <!-- Search input -->
-        <UInput
-          v-model="search"
-          icon="i-mdi-magnify"
-          :placeholder="t('common.search')"
-          autofocus
-          class="w-full"
-        />
+      <!-- Dropdown content -->
+      <template #content>
+        <div class="w-[min(18rem,calc(100vw-1rem))] p-2">
+          <!-- Search input -->
+          <UInput
+            v-model="search"
+            icon="i-mdi-magnify"
+            :placeholder="t('common.search')"
+            autofocus
+            class="w-full"
+          />
 
-        <!-- List -->
-        <div class="max-h-60 overflow-y-auto mt-1 space-y-px">
-          <div
-            v-for="item in items"
-            :key="String(item[valueKey])"
-            class="flex items-center justify-between gap-2 rounded px-2 py-1.5 cursor-pointer select-none text-sm"
-            :class="String(item[valueKey]) === modelValue
-              ? 'bg-primary/10 text-primary font-medium'
-              : 'hover:bg-elevated text-default'"
-            @click="select(item)"
-          >
-            <span class="truncate">
-              <slot name="label" :item="item">
-                {{ item[labelKey] }}
-              </slot>
-            </span>
-            <UIcon
-              v-if="String(item[valueKey]) === modelValue"
-              name="i-mdi-check"
-              class="shrink-0 size-4"
-            />
-          </div>
-
-          <!-- Loading skeletons -->
-          <template v-if="loading">
+          <!-- List -->
+          <div class="max-h-60 overflow-y-auto mt-1 space-y-px">
             <div
-              v-for="n in 3"
-              :key="n"
-              class="px-2 py-1.5"
+              v-for="item in items"
+              :key="String(item[valueKey])"
+              class="flex items-center justify-between gap-2 rounded px-2 py-1.5 cursor-pointer select-none text-sm"
+              :class="String(item[valueKey]) === modelValue
+                ? 'bg-primary/10 text-primary font-medium'
+                : 'hover:bg-elevated text-default'"
+              @click="select(item)"
             >
-              <USkeleton class="h-4 w-full rounded" />
+              <span class="truncate">
+                <slot name="label" :item="item">
+                  {{ item[labelKey] }}
+                </slot>
+              </span>
+              <UIcon
+                v-if="String(item[valueKey]) === modelValue"
+                name="i-mdi-check"
+                class="shrink-0 size-4"
+              />
             </div>
-          </template>
 
-          <!-- Infinite scroll sentinel -->
-          <div ref="sentinel" class="h-px" />
+            <!-- Loading skeletons -->
+            <template v-if="loading">
+              <div
+                v-for="n in 3"
+                :key="n"
+                class="px-2 py-1.5"
+              >
+                <USkeleton class="h-4 w-full rounded" />
+              </div>
+            </template>
 
-          <!-- Empty state -->
-          <div
-            v-if="!loading && items.length === 0"
-            class="flex flex-col items-center gap-1.5 py-8 text-muted"
-          >
-            <UIcon name="i-mdi-magnify-remove-outline" class="size-6 opacity-40" />
-            <span class="text-xs">{{ t('common.noResults') }}</span>
+            <!-- Infinite scroll sentinel -->
+            <div ref="sentinel" class="h-px" />
+
+            <!-- Empty state -->
+            <div
+              v-if="!loading && items.length === 0"
+              class="flex flex-col items-center gap-1.5 py-8 text-muted"
+            >
+              <UIcon name="i-mdi-magnify-remove-outline" class="size-6 opacity-40" />
+              <span class="text-xs">{{ t('common.noResults') }}</span>
+            </div>
           </div>
         </div>
-      </div>
-    </template>
-  </UPopover>
+      </template>
+    </UPopover>
+    <UButton
+      v-if="clearable && modelValue && !disabled"
+      icon="i-mdi-close"
+      variant="ghost"
+      color="neutral"
+      size="sm"
+      :aria-label="t('common.clear')"
+      @click="clear"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -90,12 +101,14 @@ const props = withDefaults(defineProps<{
   labelKey?: string
   placeholder?: string
   disabled?: boolean
+  clearable?: boolean
   queryParams?: Record<string, string | number | boolean | undefined>
 }>(), {
   valueKey: 'id',
   labelKey: 'label',
   placeholder: undefined,
   disabled: false,
+  clearable: false,
   queryParams: undefined,
 })
 
@@ -162,6 +175,11 @@ function select(item: Item) {
   emit('select', item)
   emitFormChange()
   open.value = false
+}
+
+function clear() {
+  emit('update:modelValue', null)
+  emitFormChange()
 }
 
 // ── Infinite scroll ────────────────────────────────────────────────────────

@@ -15,64 +15,67 @@
           :columns="columns"
           :params="tableParams"
           :searchable="false"
+          :active-filters="activeFilters"
           empty-icon="i-mdi-format-list-bulleted"
+          @clear-filters="clearFilters"
         >
-          <template #filters>
-            <div class="flex items-center gap-1 w-56">
+          <template #fk-filters>
+            <FilterField :label="t('requestLog.user')" class="w-full sm:w-56">
               <ApiSelectMenu
                 v-model="userId"
                 endpoint="/api/admin/users"
                 label-key="username"
                 :placeholder="selectedUserLabel ?? t('requestLog.filterUser')"
+                clearable
+                class="w-full"
                 @select="onUserSelect"
               />
-              <UButton
-                v-if="userId"
-                icon="i-mdi-close"
-                variant="ghost"
-                color="neutral"
-                size="sm"
-                :aria-label="t('requestLog.clearUser')"
-                @click="clearUser"
+            </FilterField>
+          </template>
+          <template #filters>
+            <FilterField :label="t('requestLog.filterMethod')" class="w-32">
+              <USelect
+                v-model="method"
+                :items="methodItems"
+                class="w-full"
               />
-            </div>
-            <USelect
-              v-model="method"
-              :items="methodItems"
-              :placeholder="t('requestLog.filterMethod')"
-              class="w-32"
-            />
-            <USelect
-              v-model="statusClass"
-              :items="statusClassItems"
-              :placeholder="t('requestLog.filterStatusClass')"
-              class="w-36"
-            />
-            <UInput
-              v-model="status"
-              type="number"
-              :min="100"
-              :max="599"
-              :placeholder="t('requestLog.filterStatus')"
-              class="w-36"
-            />
-            <UInput
-              v-model="pathInput"
-              :placeholder="t('requestLog.filterPath')"
-              class="w-48"
-            />
-            <UInput
-              v-model="dateFrom"
-              type="date"
-              :aria-label="t('requestLog.filterDateFrom')"
-              class="w-40"
-            />
-            <UInput
-              v-model="dateTo"
-              type="date"
-              :aria-label="t('requestLog.filterDateTo')"
-              class="w-40"
-            />
+            </FilterField>
+            <FilterField :label="t('requestLog.filterStatusClass')" class="w-36">
+              <USelect
+                v-model="statusClass"
+                :items="statusClassItems"
+                class="w-full"
+              />
+            </FilterField>
+            <FilterField :label="t('requestLog.filterStatus')" class="w-36">
+              <UInput
+                v-model="status"
+                type="number"
+                :min="100"
+                :max="599"
+                class="w-full"
+              />
+            </FilterField>
+            <FilterField :label="t('requestLog.filterPath')" class="w-48">
+              <UInput
+                v-model="pathInput"
+                class="w-full"
+              />
+            </FilterField>
+            <FilterField :label="t('requestLog.filterDateFrom')" class="w-40">
+              <UInput
+                v-model="dateFrom"
+                type="date"
+                class="w-full"
+              />
+            </FilterField>
+            <FilterField :label="t('requestLog.filterDateTo')" class="w-40">
+              <UInput
+                v-model="dateTo"
+                type="date"
+                class="w-full"
+              />
+            </FilterField>
           </template>
           <template #created_at-cell="{ row }">
             {{ formatServerDate((row.original as unknown as ApiRequestLog).created_at, locale) }}
@@ -150,10 +153,10 @@ function onUserSelect(item: Record<string, unknown>) {
   selectedUserLabel.value = String(item.email ?? '')
 }
 
-function clearUser() {
-  userId.value = null
-  selectedUserLabel.value = null
-}
+// La X di ApiSelectMenu azzera solo il valore: l'etichetta conservata va pulita qui.
+watch(userId, (value) => {
+  if (!value) { selectedUserLabel.value = null }
+})
 
 let pathTimer: ReturnType<typeof setTimeout>
 watch(pathInput, (value) => {
@@ -172,6 +175,28 @@ const tableParams = computed(() => ({
   date_from: dateFrom.value || undefined,
   date_to: dateTo.value || undefined,
 }))
+
+const activeFilters = computed(() => countActiveFilters([
+  userId.value,
+  method.value === ALL ? null : method.value,
+  statusClass.value === ALL ? null : statusClass.value,
+  status.value || null,
+  path.value,
+  dateFrom.value,
+  dateTo.value,
+]))
+
+function clearFilters() {
+  userId.value = null
+  method.value = ALL
+  statusClass.value = ALL
+  status.value = undefined
+  clearTimeout(pathTimer)
+  pathInput.value = ''
+  path.value = ''
+  dateFrom.value = undefined
+  dateTo.value = undefined
+}
 
 function statusBadgeColor(code: number): BadgeProps['color'] {
   if (code < HTTP_SUCCESS_MAX) { return 'success' }

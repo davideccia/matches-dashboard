@@ -83,24 +83,14 @@
 
     <!-- Fuori dal form del torneo: i tier si salvano da soli, non col submit sopra. -->
     <div class="mt-6 flex flex-col gap-4">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h4 class="flex items-center gap-2 text-sm font-medium text-highlighted">
-            <UIcon name="i-mdi-stairs" class="size-4" />
-            {{ t('tournament.section.experienceTiers') }}
-          </h4>
-          <p class="mt-1 text-xs text-muted">
-            {{ hasEnabledTier ? t('tournament.experienceTiers.overrideWarning') : t('tournament.experienceTiers.empty') }}
-          </p>
-        </div>
-        <UButton
-          icon="i-mdi-plus"
-          size="sm"
-          variant="subtle"
-          @click="openTierCreate"
-        >
-          {{ t('common.add') }}
-        </UButton>
+      <div>
+        <h4 class="flex items-center gap-2 text-sm font-medium text-highlighted">
+          <UIcon name="i-mdi-stairs" class="size-4" />
+          {{ t('tournament.section.experienceTiers') }}
+        </h4>
+        <p class="mt-1 text-xs text-muted">
+          {{ hasEnabledTier ? t('tournament.experienceTiers.overrideWarning') : t('tournament.experienceTiers.empty') }}
+        </p>
       </div>
 
       <DataTable
@@ -111,6 +101,11 @@
         empty-icon="i-mdi-stairs"
         :bulk-actions="[{ endpoint: '/api/admin/experience_tiers/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
       >
+        <template #toolbar>
+          <UButton icon="i-mdi-plus" @click="openTierCreate">
+            {{ t('common.add') }}
+          </UButton>
+        </template>
         <template #range-cell="{ row }">
           <span class="tabular-nums">
             {{ formatTierRange((row.original as unknown as ExperienceTier).min_match_count, (row.original as unknown as ExperienceTier).max_match_count) }}

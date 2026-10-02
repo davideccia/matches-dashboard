@@ -5,11 +5,6 @@
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
-        <template #right>
-          <UButton icon="i-mdi-plus" @click="openCreate">
-            {{ t('common.add') }}
-          </UButton>
-        </template>
       </UDashboardNavbar>
     </template>
 
@@ -30,6 +25,11 @@
           empty-icon="i-mdi-stairs"
           :bulk-actions="[{ endpoint: '/api/admin/experience_tiers/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
+          <template #toolbar>
+            <UButton icon="i-mdi-plus" @click="openCreate">
+              {{ t('common.add') }}
+            </UButton>
+          </template>
           <template #range-cell="{ row }">
             <span class="tabular-nums">
               {{ formatTierRange((row.original as unknown as ExperienceTier).min_match_count, (row.original as unknown as ExperienceTier).max_match_count) }}

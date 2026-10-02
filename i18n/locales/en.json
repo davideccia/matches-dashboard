@@ -74,6 +74,10 @@
     "updated": "Last modified on {date}"
   },
   "common": {
+    "filters": "Filters",
+    "clearFilters": "Clear filters",
+    "clear": "Clear",
+    "all": "All",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -355,8 +359,7 @@
     "filterPath": "Path",
     "filterDateFrom": "From",
     "filterDateTo": "To",
-    "all": "All",
-    "clearUser": "Clear user filter"
+    "all": "All"
   },
   "registration": {
     "title": "Registration",

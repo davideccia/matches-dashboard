@@ -74,6 +74,10 @@
     "updated": "Ultima modifica il {date}"
   },
   "common": {
+    "filters": "Filtri",
+    "clearFilters": "Azzera filtri",
+    "clear": "Rimuovi",
+    "all": "Tutti",
     "save": "Salva",
     "cancel": "Annulla",
     "delete": "Elimina",
@@ -355,8 +359,7 @@
     "filterPath": "Percorso",
     "filterDateFrom": "Dal",
     "filterDateTo": "Al",
-    "all": "Tutti",
-    "clearUser": "Rimuovi filtro utente"
+    "all": "Tutti"
   },
   "registration": {
     "title": "Iscrizione",

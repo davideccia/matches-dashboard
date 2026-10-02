@@ -9,11 +9,7 @@
       empty-icon="i-mdi-sword-cross"
       :bulk-actions="[{ endpoint: '/api/admin/match_records/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
     >
-      <template #filters>
-        <UButton icon="i-mdi-plus" @click="openCreate">
-          {{ t('common.add') }}
-        </UButton>
-        <USeparator orientation="vertical" class="h-5" />
+      <template #toolbar>
         <UButton
           icon="i-mdi-cog-play"
           color="primary"
@@ -22,6 +18,9 @@
           @click="() => { confirmGenerateOpen = true }"
         >
           {{ t('match.generate') }}
+        </UButton>
+        <UButton icon="i-mdi-plus" @click="openCreate">
+          {{ t('common.add') }}
         </UButton>
       </template>
       <template #sort-cell="{ row }">

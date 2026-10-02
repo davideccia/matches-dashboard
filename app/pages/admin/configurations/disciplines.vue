@@ -5,11 +5,6 @@
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
-        <template #right>
-          <UButton icon="i-mdi-plus" @click="openCreate">
-            {{ t('common.add') }}
-          </UButton>
-        </template>
       </UDashboardNavbar>
     </template>
 
@@ -22,6 +17,11 @@
           empty-icon="i-mdi-sword-cross"
           :bulk-actions="[{ endpoint: '/api/admin/disciplines/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
+          <template #toolbar>
+            <UButton icon="i-mdi-plus" @click="openCreate">
+              {{ t('common.add') }}
+            </UButton>
+          </template>
           <template #actions-cell="{ row }">
             <div class="flex justify-end gap-1">
               <UButton

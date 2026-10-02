@@ -5,11 +5,6 @@
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
-        <template v-if="currentUser?.superadmin" #right>
-          <UButton icon="i-mdi-plus" @click="openCreate">
-            {{ t('common.add') }}
-          </UButton>
-        </template>
       </UDashboardNavbar>
     </template>
 
@@ -22,6 +17,11 @@
           empty-icon="i-mdi-account-group"
           :bulk-actions="[{ endpoint: '/api/admin/users/bulk', method: 'DELETE', icon: 'i-mdi-delete', label: t('common.delete'), ids_key: 'ids', color: 'error' }]"
         >
+          <template v-if="currentUser?.superadmin" #toolbar>
+            <UButton icon="i-mdi-plus" @click="openCreate">
+              {{ t('common.add') }}
+            </UButton>
+          </template>
           <template #created_at-cell="{ row }">
             {{ formatServerDate(((row.original as unknown as User)).created_at, locale) }}
           </template>

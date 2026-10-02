@@ -3,24 +3,13 @@
     <div class="border-2 border-accented rounded-xl p-4 flex flex-col gap-2">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-1 p-2">
         <div class="flex flex-wrap items-center gap-2">
-          <template v-if="bulkActions?.length">
-            <UDropdownMenu :items="bulkActionItems">
-              <UButton
-                :label="t('common.actions')"
-                trailing-icon="i-mdi-chevron-down"
-                variant="outline"
-                color="neutral"
-                size="sm"
-                :disabled="selectedIds.length === 0"
-              />
-            </UDropdownMenu>
-            <USeparator orientation="vertical" class="h-5" />
-            <UBadge variant="soft" color="primary" size="md">
-              {{ selectedIds.length }} {{ t('common.selected') }}
-            </UBadge>
-          </template>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
+          <UInput
+            v-if="searchable"
+            v-model="searchInput"
+            icon="i-mdi-magnify"
+            :placeholder="searchPlaceholder ?? t('common.search')"
+            class="w-full sm:w-64"
+          />
           <UButton
             icon="i-mdi-refresh"
             variant="ghost"
@@ -29,19 +18,61 @@
             :aria-label="t('common.refresh')"
             @click="refresh()"
           />
-          <UInput
-            v-if="searchable"
-            v-model="searchInput"
-            icon="i-mdi-magnify"
-            :placeholder="searchPlaceholder ?? t('common.search')"
-            class="w-full sm:w-64"
-          />
+          <UButton
+            icon="i-mdi-filter-variant"
+            :trailing-icon="filtersOpen ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'"
+            :variant="filtersOpen ? 'soft' : 'outline'"
+            color="neutral"
+            :disabled="!hasFilters()"
+            :aria-expanded="filtersOpen"
+            @click="() => { filtersOpen = !filtersOpen }"
+          >
+            {{ t('common.filters') }}
+            <UBadge v-if="activeFilters > 0" color="primary" variant="solid" size="sm">
+              {{ activeFilters }}
+            </UBadge>
+          </UButton>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <template v-if="bulkActions?.length">
+            <UDropdownMenu :items="bulkActionItems">
+              <UButton
+                :label="t('common.actions')"
+                trailing-icon="i-mdi-chevron-down"
+                variant="outline"
+                color="neutral"
+                :disabled="selectedIds.length === 0"
+              />
+            </UDropdownMenu>
+            <UBadge variant="soft" color="primary" size="md">
+              {{ selectedIds.length }} {{ t('common.selected') }}
+            </UBadge>
+          </template>
+          <template v-if="$slots.toolbar">
+            <USeparator v-if="bulkActions?.length" orientation="vertical" class="h-5" />
+            <slot name="toolbar" />
+          </template>
         </div>
       </div>
 
-      <div v-if="$slots.filters" class="flex flex-col gap-2 rounded-lg bg-elevated/50 border border-accented px-3 py-2">
-        <div class="flex flex-wrap items-center gap-2">
+      <div v-if="hasFilters() && filtersOpen" class="flex flex-col gap-2 rounded-lg bg-elevated/50 border border-accented px-3 py-2">
+        <div v-if="$slots['fk-filters']" class="flex flex-wrap items-end gap-2">
+          <slot name="fk-filters" />
+        </div>
+        <USeparator v-if="$slots['fk-filters'] && $slots.filters" />
+        <div v-if="$slots.filters || activeFilters > 0" class="flex flex-wrap items-end gap-x-5 gap-y-3">
           <slot name="filters" />
+          <UButton
+            v-if="activeFilters > 0"
+            icon="i-mdi-filter-remove-outline"
+            variant="link"
+            color="neutral"
+            size="sm"
+            class="ms-auto"
+            @click="emit('clear-filters')"
+          >
+            {{ t('common.clearFilters') }}
+          </UButton>
         </div>
       </div>
 
@@ -64,7 +95,7 @@
                 </div>
               </slot>
             </template>
-            <template v-for="name in Object.keys($slots).filter(n => n !== 'empty' && n !== 'filters')" :key="name" #[name]="slotProps">
+            <template v-for="name in tableSlotNames()" :key="name" #[name]="slotProps">
               <slot :name="name" v-bind="slotProps ?? {}" />
             </template>
           </UTable>
@@ -144,12 +175,28 @@ const props = withDefaults(defineProps<{
   showTotal?: boolean
   searchPlaceholder?: string
   bulkActions?: BulkAction[]
+  activeFilters?: number
 }>(), {
   pageSize: 10,
   emptyIcon: 'i-mdi-database',
   searchable: true,
   showTotal: true,
+  activeFilters: 0,
 })
+
+const emit = defineEmits<{
+  'clear-filters': []
+}>()
+
+// Slot gestiti da DataTable: tutti gli altri passano a UTable (es. `<column>-cell`).
+const RESERVED_SLOTS = ['empty', 'toolbar', 'fk-filters', 'filters']
+
+const slots = useSlots()
+// Funzioni e non computed: `useSlots()` non è reattivo, i check vanno rifatti a ogni render
+// (es. `<template v-if="..." #toolbar>` condizionale nella pagina).
+const tableSlotNames = () => Object.keys(slots).filter(n => !RESERVED_SLOTS.includes(n))
+const hasFilters = () => !!slots['fk-filters'] || !!slots.filters
+const filtersOpen = ref(false)
 
 const { t } = useI18n()
 const api = useApi()

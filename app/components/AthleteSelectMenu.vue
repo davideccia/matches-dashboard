@@ -5,6 +5,7 @@
     label-key="full_name"
     :placeholder="placeholder"
     :disabled="disabled"
+    :clearable="clearable"
     :query-params="queryParams"
     class="w-full"
     @update:model-value="$emit('update:modelValue', $event)"
@@ -38,11 +39,13 @@ const props = withDefaults(defineProps<{
   modelValue: string | null
   placeholder?: string
   disabled?: boolean
+  clearable?: boolean
   queryParams?: Record<string, string | number | boolean | undefined>
   disciplineId?: string | null
 }>(), {
   placeholder: undefined,
   disabled: false,
+  clearable: false,
   queryParams: undefined,
   disciplineId: null,
 })
